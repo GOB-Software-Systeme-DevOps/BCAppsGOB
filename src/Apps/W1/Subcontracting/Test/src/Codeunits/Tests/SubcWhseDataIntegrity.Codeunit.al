@@ -108,7 +108,6 @@ codeunit 140009 "Subc. Whse Data Integrity"
         // [GIVEN] Find the last routing operation
         ProdOrderRoutingLine.SetRange("Routing No.", Item."Routing No.");
         ProdOrderRoutingLine.SetRange("Work Center No.", WorkCenter[2]."No.");
-        ProdOrderRoutingLine.SetRange("Next Operation No.", '');
         Assert.RecordIsNotEmpty(ProdOrderRoutingLine);
         ProdOrderRoutingLine.FindFirst();
 
@@ -162,7 +161,6 @@ codeunit 140009 "Subc. Whse Data Integrity"
         // [GIVEN] Find the last routing operation with purchase order
         ProdOrderRoutingLine.SetRange("Routing No.", Item."Routing No.");
         ProdOrderRoutingLine.SetRange("Work Center No.", WorkCenter[2]."No.");
-        ProdOrderRoutingLine.SetRange("Next Operation No.", '');
         ProdOrderRoutingLine.FindFirst();
 
         // [WHEN] Attempt to add a new routing operation after the last operation
@@ -278,7 +276,6 @@ codeunit 140009 "Subc. Whse Data Integrity"
         // [GIVEN] Find last routing operation
         ProdOrderRoutingLine.SetRange("Routing No.", Item."Routing No.");
         ProdOrderRoutingLine.SetRange("Work Center No.", WorkCenter[2]."No.");
-        ProdOrderRoutingLine.SetRange("Next Operation No.", '');
         ProdOrderRoutingLine.FindFirst();
         OriginalSetupTime := ProdOrderRoutingLine."Setup Time";
 

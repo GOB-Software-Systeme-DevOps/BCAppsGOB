@@ -602,20 +602,6 @@ codeunit 140002 "Subc. Whse Partial Last Op"
             'Warehouse Activity Line should have correct quantity for lot ' + LotNo);
     end;
 
-    local procedure VerifyReservationEntryQuantityForLot(ItemNo: Code[20]; LotNo: Code[50]; ExpectedQuantity: Decimal)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        ReservationEntry.SetRange("Item No.", ItemNo);
-        ReservationEntry.SetRange("Lot No.", LotNo);
-        ReservationEntry.SetFilter("Quantity (Base)", '<>0');
-        Assert.RecordIsNotEmpty(ReservationEntry);
-
-        ReservationEntry.CalcSums("Quantity (Base)");
-        Assert.AreEqual(ExpectedQuantity, Abs(ReservationEntry."Quantity (Base)"),
-            'Reservation Entry should have correct quantity for lot ' + LotNo);
-    end;
-
     local procedure VerifyPostedWhseReceiptQuantity(var PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; ItemNo: Code[20]; ExpectedQuantity: Decimal)
     var
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
@@ -629,21 +615,6 @@ codeunit 140002 "Subc. Whse Partial Last Op"
             'Posted warehouse receipt line should have correct quantity');
     end;
 
-    local procedure VerifyItemLedgerEntryForLot(ItemNo: Code[20]; LotNo: Code[50]; ExpectedQuantity: Decimal; LocationCode: Code[10])
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-    begin
-        ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.SetRange("Lot No.", LotNo);
-        ItemLedgerEntry.SetRange("Location Code", LocationCode);
-        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
-        Assert.RecordIsNotEmpty(ItemLedgerEntry);
-
-        ItemLedgerEntry.CalcSums(Quantity);
-        Assert.AreEqual(ExpectedQuantity, ItemLedgerEntry.Quantity,
-            'Item Ledger Entry should have correct quantity for lot ' + LotNo);
-    end;
-
     local procedure VerifyBinContentsForLot(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[50]; ExpectedQuantity: Decimal)
     var
         BinContent: Record "Bin Content";
@@ -651,7 +622,9 @@ codeunit 140002 "Subc. Whse Partial Last Op"
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Bin Code", BinCode);
         BinContent.SetRange("Item No.", ItemNo);
+#pragma warning disable AA0210
         BinContent.SetRange("Lot No. Filter", LotNo);
+#pragma warning restore AA0210
         Assert.RecordIsNotEmpty(BinContent);
 
         BinContent.FindFirst();

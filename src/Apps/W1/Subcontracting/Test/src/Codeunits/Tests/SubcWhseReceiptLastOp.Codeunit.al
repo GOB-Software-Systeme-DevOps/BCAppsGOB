@@ -546,7 +546,9 @@ codeunit 140000 "Subc. Whse Receipt Last Op."
         // [THEN] Verify a correction line was created with negative quantity
         PurchRcptLine.Reset();
         PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+#pragma warning disable AA0210
         PurchRcptLine.SetRange(Correction, true);
+#pragma warning restore AA0210
         Assert.RecordIsNotEmpty(PurchRcptLine);
         PurchRcptLine.FindLast();
         Assert.AreEqual(-Quantity, PurchRcptLine.Quantity,
