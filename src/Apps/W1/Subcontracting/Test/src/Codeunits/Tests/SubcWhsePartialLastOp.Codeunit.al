@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
-using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
@@ -14,10 +13,6 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Subcontracting;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -285,8 +280,6 @@ codeunit 140002 "Subc. Whse Partial Last Op"
         FirstReceiptQty: Decimal;
         SecondPutAwayQty: Decimal;
         SecondReceiptQty: Decimal;
-        ThirdPutAwayQty: Decimal;
-        ThirdReceiptQty: Decimal;
         TotalQuantity: Decimal;
     begin
         // [SCENARIO] Post single order in multiple partial steps until full quantity processed for Last Operation
@@ -297,11 +290,9 @@ codeunit 140002 "Subc. Whse Partial Last Op"
         TotalQuantity := LibraryRandom.RandIntInRange(30, 60);
         FirstReceiptQty := Round(TotalQuantity * 0.3, 1);
         SecondReceiptQty := Round(TotalQuantity * 0.4, 1);
-        ThirdReceiptQty := TotalQuantity - FirstReceiptQty - SecondReceiptQty;
 
         FirstPutAwayQty := Round(FirstReceiptQty * 0.5, 1);
         SecondPutAwayQty := FirstReceiptQty - FirstPutAwayQty;
-        ThirdPutAwayQty := SecondReceiptQty;
 
         // [GIVEN] Create Work Centers and Machine Centers with Subcontracting
         SubcWarehouseLibrary.CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter, true);
@@ -416,7 +407,6 @@ codeunit 140002 "Subc. Whse Partial Last Op"
         LotNo2: Code[50];
         PartialQtyLot1: Decimal;
         PartialQtyLot2: Decimal;
-        PartialQtyToReceive: Decimal;
         TotalQuantity: Decimal;
         WarehouseReceiptPage: TestPage "Warehouse Receipt";
     begin
@@ -428,7 +418,6 @@ codeunit 140002 "Subc. Whse Partial Last Op"
         TotalQuantity := LibraryRandom.RandIntInRange(30, 60);
         PartialQtyLot1 := Round(TotalQuantity * 0.3, 1);
         PartialQtyLot2 := Round(TotalQuantity * 0.3, 1);
-        PartialQtyToReceive := Round(TotalQuantity * 0.4, 1);
 
         // [GIVEN] Create Work Centers and Machine Centers with Subcontracting
         SubcWarehouseLibrary.CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter, true);
@@ -528,7 +517,7 @@ codeunit 140002 "Subc. Whse Partial Last Op"
         VerifyWarehouseActivityLineForLot(WarehouseActivityHeader, LotNo2, PartialQtyLot2);
 
         // [THEN] Verify: Remaining quantity on Warehouse Receipt is correct
-        WarehouseReceiptHeader.Find();
+        WarehouseReceiptHeader.Get(WarehouseReceiptHeader."No.");
         WarehouseReceiptLine.SetRange("No.", WarehouseReceiptHeader."No.");
         WarehouseReceiptLine.FindFirst();
         Assert.AreEqual(TotalQuantity - PartialQtyLot1 - PartialQtyLot2, WarehouseReceiptLine."Qty. Outstanding",

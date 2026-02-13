@@ -5,28 +5,16 @@
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Foundation.Enums;
-using Microsoft.Foundation.NoSeries;
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
-using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Subcontracting;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
-using Microsoft.Purchases.History;
-using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Setup;
-using Microsoft.Warehouse.Structure;
 
 codeunit 140009 "Subc. Whse Data Integrity"
 {
@@ -52,16 +40,10 @@ codeunit 140009 "Subc. Whse Data Integrity"
         SubSetupLibrary: Codeunit "Subc. Setup Library";
         SubcWarehouseLibrary: Codeunit "Subc. Warehouse Library";
         IsInitialized: Boolean;
-        HandlingLotNo: Code[50];
-        HandlingSerialNo: Code[50];
-        HandlingQty: Decimal;
         HandlingMode: Option Verify,Insert;
 
     local procedure Initialize()
     begin
-        HandlingSerialNo := '';
-        HandlingLotNo := '';
-        HandlingQty := 0;
         HandlingMode := HandlingMode::Verify;
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Subc. Whse Data Integrity");
         LibrarySetupStorage.Restore();
@@ -95,7 +77,6 @@ codeunit 140009 "Subc. Whse Data Integrity"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
         WorkCenter: array[2] of Record "Work Center";
-        LastOperationNo: Code[10];
         Quantity: Decimal;
     begin
         // [SCENARIO] System prevents deletion of last routing operation when purchase orders exist
@@ -130,7 +111,6 @@ codeunit 140009 "Subc. Whse Data Integrity"
         ProdOrderRoutingLine.SetRange("Next Operation No.", '');
         Assert.RecordIsNotEmpty(ProdOrderRoutingLine);
         ProdOrderRoutingLine.FindFirst();
-        LastOperationNo := ProdOrderRoutingLine."Operation No.";
 
         // [WHEN] Attempt to delete the last routing operation that has associated purchase order
         asserterror ProdOrderRoutingLine.Delete(true);
