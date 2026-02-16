@@ -21,7 +21,7 @@ using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Structure;
 
-codeunit 140000 "Subc. Whse Receipt Last Op."
+codeunit 99001500 "Subc. Whse Receipt Last Op."
 {
     // [FEATURE] Subcontracting Warehouse Receipt - Last Operation Tests
     Subtype = Test;

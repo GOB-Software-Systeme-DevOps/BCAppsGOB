@@ -19,7 +19,7 @@ using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 
-codeunit 140004 "Subc. Whse Put-Away Worksheet"
+codeunit 99001504 "Subc. Whse Put-Away Worksheet"
 {
     // [FEATURE] Subcontracting Warehouse Put-away Worksheet Tests
     Subtype = Test;

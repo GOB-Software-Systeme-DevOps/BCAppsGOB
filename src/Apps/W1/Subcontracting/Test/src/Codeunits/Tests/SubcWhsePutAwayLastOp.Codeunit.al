@@ -19,7 +19,7 @@ using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 
-codeunit 140001 "Subc. Whse Put-Away LastOp."
+codeunit 99001501 "Subc. Whse Put-Away LastOp."
 {
     // [FEATURE] Subcontracting Warehouse Put-away - Last Operation Tests
     Subtype = Test;

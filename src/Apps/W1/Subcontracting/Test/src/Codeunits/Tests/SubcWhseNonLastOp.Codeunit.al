@@ -23,7 +23,7 @@ using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 
-codeunit 140003 "Subc. Whse Non-Last Op."
+codeunit 99001503 "Subc. Whse Non-Last Op."
 {
     // [FEATURE] Subcontracting Warehouse Non-Last Operation Tests
     Subtype = Test;

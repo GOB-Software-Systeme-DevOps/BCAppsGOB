@@ -21,7 +21,7 @@ using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 
-codeunit 140007 "Subc. Whse Location Config"
+codeunit 99001507 "Subc. Whse Location Config"
 {
     // [FEATURE] Subcontracting - Location Configuration Tests
     Subtype = Test;
