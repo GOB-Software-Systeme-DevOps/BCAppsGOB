@@ -16,7 +16,7 @@ using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Setup;
 
-codeunit 99001509 "Subc. Whse Data Integrity"
+codeunit 149909 "Subc. Whse Data Integrity"
 {
     // [FEATURE] Subcontracting Data Integrity and Validation Tests
     Subtype = Test;

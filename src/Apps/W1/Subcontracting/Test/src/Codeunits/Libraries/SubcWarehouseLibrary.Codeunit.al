@@ -28,7 +28,7 @@ using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 
-codeunit 99001508 "Subc. Warehouse Library"
+codeunit 149908 "Subc. Warehouse Library"
 {
     // [FEATURE] Subcontracting Warehouse Test Library
     // Consolidated data creation functions for warehouse tests to avoid code duplication

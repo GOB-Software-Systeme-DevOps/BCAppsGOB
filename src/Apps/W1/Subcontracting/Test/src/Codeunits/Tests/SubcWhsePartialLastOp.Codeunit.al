@@ -22,7 +22,7 @@ using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 
-codeunit 99001502 "Subc. Whse Partial Last Op"
+codeunit 149902 "Subc. Whse Partial Last Op"
 {
     // [FEATURE] Subcontracting Warehouse Partial Posting - Last Operation Tests
     Subtype = Test;

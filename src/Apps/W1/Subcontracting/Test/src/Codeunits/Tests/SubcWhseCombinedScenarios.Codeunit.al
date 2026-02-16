@@ -23,7 +23,7 @@ using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 
-codeunit 99001506 "Subc. Whse Combined Scenarios"
+codeunit 149906 "Subc. Whse Combined Scenarios"
 {
     // [FEATURE] Subcontracting Warehouse Combined Scenarios Tests
     Subtype = Test;

@@ -20,7 +20,7 @@ using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Setup;
 
-codeunit 99001505 "Subc. Whse Item Tracking"
+codeunit 149905 "Subc. Whse Item Tracking"
 {
     // [FEATURE] Subcontracting Item Tracking Integration Tests
     Subtype = Test;
