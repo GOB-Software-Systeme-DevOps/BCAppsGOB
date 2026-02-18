@@ -354,10 +354,6 @@ codeunit 149900 "Subc. Whse Receipt Last Op."
         PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
         PurchaseLine.Modify(true);
 
-        // [THEN] Step 1: Verify Purchase Line has correct base quantity
-        // Assert.AreEqual(QtyPerUoM, PurchaseLine."Qty. per Unit of Measure",
-        //     'Purchase Line Qty. per Unit of Measure should match alternative UoM');
-
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // [WHEN] Create Warehouse Receipt
