@@ -5,13 +5,13 @@
 namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 
 tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Routing Line"
 {
-    AllowInCustomizations = AsReadOnly;
     fields
     {
         field(99001550; "Vendor No. Subc. Price"; Code[20])
@@ -29,6 +29,57 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
             Editable = false;
             FieldClass = FlowField;
             ToolTip = 'Specifies whether the Work Center Group is set up with a Vendor for Subcontracting.';
+        }
+        field(99001560; "Transfer WIP Item"; Boolean)
+        {
+            AllowInCustomizations = AsReadWrite;
+            Caption = 'Transfer WIP Item';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies if the WIP item should be transferred for this operation.';
+        }
+        field(99001561; "Transfer Description"; Text[100])
+        {
+            AllowInCustomizations = AsReadWrite;
+            Caption = 'Transfer Description';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies the description for the WIP transfer.';
+        }
+        field(99001562; "Transfer Description 2"; Text[50])
+        {
+            AllowInCustomizations = AsReadWrite;
+            Caption = 'Transfer Description 2';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies the second description line for the WIP transfer.';
+        }
+        field(99001563; "WIP Qty. at Subcontractor"; Decimal)
+        {
+            AllowInCustomizations = AsReadOnly;
+            AutoFormatType = 0;
+            CalcFormula = sum("Subcontractor WIP Ledger Entry"."Quantity (Base)" where("Prod. Order Status" = field(Status),
+                                                                                        "Prod. Order No." = field("Prod. Order No."),
+                                                                                        "Prod. Order Line No." = field("Routing Reference No."),
+                                                                                        "Operation No." = field("Operation No.")));
+            Caption = 'WIP Qty. at Subcontractor';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+            ToolTip = 'Specifies the work in process quantity currently at the subcontractor.';
+        }
+        field(99001564; "WIP Qty. in Transit"; Decimal)
+        {
+            AllowInCustomizations = AsReadOnly;
+            AutoFormatType = 0;
+            CalcFormula = sum("Transfer Line"."Outstanding Qty. (Base)" where("Prod. Order No." = field("Prod. Order No."),
+                                                                             "Prod. Order Line No." = field("Routing Reference No."),
+                                                                             "Routing Reference No." = field("Routing Reference No."),
+                                                                             "Routing No." = field("Routing No."),
+                                                                             "Operation No." = field("Operation No."),
+                                                                             "Transfer WIP Item" = const(true)));
+            Caption = 'WIP Qty. in Transit';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+            ToolTip = 'Specifies the work in process quantity currently in transit.';
         }
     }
 
