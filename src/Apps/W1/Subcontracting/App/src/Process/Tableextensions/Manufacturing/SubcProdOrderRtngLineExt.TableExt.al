@@ -16,6 +16,7 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
     {
         field(99001550; "Vendor No. Subc. Price"; Code[20])
         {
+            AllowInCustomizations = AsReadOnly;
             Caption = 'Vendor No. Subcontracting Prices';
             DataClassification = CustomerContent;
             Editable = false;
@@ -23,6 +24,7 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
         }
         field(99001551; Subcontracting; Boolean)
         {
+            AllowInCustomizations = AsReadOnly;
             CalcFormula = exist("Work Center" where("No." = field("Work Center No."),
                                                     "Subcontractor No." = filter(<> '')));
             Caption = 'Subcontracting';
@@ -35,51 +37,62 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
             AllowInCustomizations = AsReadWrite;
             Caption = 'Transfer WIP Item';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies if the WIP item should be transferred for this operation.';
+            ToolTip = 'Specifies whether the production order parent item (WIP item) is transferred to the subcontractor for this operation.';
         }
         field(99001561; "Transfer Description"; Text[100])
         {
             AllowInCustomizations = AsReadWrite;
             Caption = 'Transfer Description';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies the description for the WIP transfer.';
+            ToolTip = 'Specifies the operation-specific description used on transfer orders for the semi-finished item as it is shipped to the subcontracting location. If empty, the standard description is used.';
         }
         field(99001562; "Transfer Description 2"; Text[50])
         {
             AllowInCustomizations = AsReadWrite;
             Caption = 'Transfer Description 2';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies the second description line for the WIP transfer.';
+            ToolTip = 'Specifies an additional operation-specific description line used on transfer orders for the semi-finished item as it is shipped to the subcontracting location.';
         }
-        field(99001563; "WIP Qty. at Subcontractor"; Decimal)
+        field(99001563; "WIP Qty. (Base) at Subc."; Decimal)
         {
             AllowInCustomizations = AsReadOnly;
             AutoFormatType = 0;
             CalcFormula = sum("Subcontractor WIP Ledger Entry"."Quantity (Base)" where("Prod. Order Status" = field(Status),
                                                                                         "Prod. Order No." = field("Prod. Order No."),
                                                                                         "Prod. Order Line No." = field("Routing Reference No."),
-                                                                                        "Operation No." = field("Operation No.")));
-            Caption = 'WIP Qty. at Subcontractor';
+                                                                                        "Routing Reference No." = field("Routing Reference No."),
+                                                                                        "Routing No." = field("Routing No."),
+                                                                                        "Operation No." = field("Operation No."),
+                                                                                        "Location Code" = field("WIP Location Filter")));
+            Caption = 'WIP Qty. (Base) at Subcontractor';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
-            ToolTip = 'Specifies the work in process quantity currently at the subcontractor.';
+            ToolTip = 'Specifies the total work-in-progress quantity (base) of the production order parent item currently held at the subcontractor location for this operation, as tracked by Subcontractor WIP Ledger Entries.';
         }
-        field(99001564; "WIP Qty. in Transit"; Decimal)
+        field(99001564; "WIP Qty. (Base) in Transit"; Decimal)
         {
             AllowInCustomizations = AsReadOnly;
             AutoFormatType = 0;
-            CalcFormula = sum("Transfer Line"."Outstanding Qty. (Base)" where("Prod. Order No." = field("Prod. Order No."),
-                                                                             "Prod. Order Line No." = field("Routing Reference No."),
-                                                                             "Routing Reference No." = field("Routing Reference No."),
-                                                                             "Routing No." = field("Routing No."),
-                                                                             "Operation No." = field("Operation No."),
-                                                                             "Transfer WIP Item" = const(true)));
-            Caption = 'WIP Qty. in Transit';
+            CalcFormula = sum("Subcontractor WIP Ledger Entry"."Quantity (Base)" where("Prod. Order Status" = field(Status),
+                                                                                        "Prod. Order No." = field("Prod. Order No."),
+                                                                                        "Prod. Order Line No." = field("Routing Reference No."),
+                                                                                        "Routing Reference No." = field("Routing Reference No."),
+                                                                                        "Routing No." = field("Routing No."),
+                                                                                        "Operation No." = field("Operation No."),
+                                                                                        "Location Code" = field("WIP Location Filter"),
+                                                                                        "In Transit" = const(true)));
+            Caption = 'WIP Qty. (Base) in Transit';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;
-            ToolTip = 'Specifies the work in process quantity currently in transit.';
+            ToolTip = 'Specifies the outstanding quantity of the production order parent item on transfer orders that is currently in transit to the subcontractor for this operation.';
+        }
+        field(99001534; "WIP Location Filter"; Code[10])
+        {
+            Caption = 'WIP Location Filter';
+            FieldClass = FlowFilter;
+            ToolTip = 'Specifies the location filter for the WIP inventory transactions related to this production operation.';
         }
     }
 

@@ -11,7 +11,7 @@ page 99001560 "WIP Ledger Entries"
     Editable = false;
     PageType = List;
     SourceTable = "Subcontractor WIP Ledger Entry";
-    UsageCategory = Lists;
+    UsageCategory = History;
 
     layout
     {
@@ -19,9 +19,6 @@ page 99001560 "WIP Ledger Entries"
         {
             repeater(Group)
             {
-                field("Entry No."; Rec."Entry No.")
-                {
-                }
                 field("Posting Date"; Rec."Posting Date")
                 {
                 }
@@ -44,7 +41,17 @@ page 99001560 "WIP Ledger Entries"
                 {
                     Visible = false;
                 }
+                field(Description; Rec.Description)
+                {
+                }
+                field("Description 2"; Rec."Description 2")
+                {
+                    Visible = false;
+                }
                 field("Location Code"; Rec."Location Code")
+                {
+                }
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
@@ -62,17 +69,21 @@ page 99001560 "WIP Ledger Entries"
                 field("Routing No."; Rec."Routing No.")
                 {
                 }
+                field("Routing Reference No."; Rec."Routing Reference No.")
+                {
+                }
                 field("Operation No."; Rec."Operation No.")
                 {
                 }
                 field("Work Center No."; Rec."Work Center No.")
                 {
                 }
-                field(Description; Rec.Description)
+                field("Entry No."; Rec."Entry No.")
                 {
                 }
-                field("Quantity (Base)"; Rec."Quantity (Base)")
+                field("In Transit"; Rec."In Transit")
                 {
+                    Visible = false;
                 }
             }
         }

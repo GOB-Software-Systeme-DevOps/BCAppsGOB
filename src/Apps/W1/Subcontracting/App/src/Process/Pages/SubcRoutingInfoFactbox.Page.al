@@ -95,10 +95,10 @@ page 99001502 "Subc. Routing Info Factbox"
                     ShowProdOrderComponents();
                 end;
             }
-            field("WIP Qty. at Subcontractor"; Rec."WIP Qty. at Subcontractor")
+            field("WIP Qty. (Base) at Subc."; Rec."WIP Qty. (Base) at Subc.")
             {
             }
-            field("WIP Qty. in Transit"; Rec."WIP Qty. in Transit")
+            field("WIP Qty. (Base) in Transit"; Rec."WIP Qty. (Base) in Transit")
             {
             }
         }

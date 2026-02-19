@@ -22,10 +22,9 @@ table 99001560 "Subcontractor WIP Ledger Entry"
     {
         field(1; "Entry No."; BigInteger)
         {
-            AutoIncrement = true;
             Caption = 'Entry No.';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies the entry number.';
+            ToolTip = 'Specifies the number of the Subcontractor WIP Ledger Entry.';
         }
         field(2; "Item No."; Code[20])
         {
@@ -46,19 +45,19 @@ table 99001560 "Subcontractor WIP Ledger Entry"
             Caption = 'Location Code';
             DataClassification = CustomerContent;
             TableRelation = Location;
-            ToolTip = 'Specifies the location code.';
+            ToolTip = 'Specifies the location where the WIP quantity is tracked.';
         }
         field(5; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies the posting date of the entry.';
+            ToolTip = 'Specifies the date when the WIP ledger entry was posted.';
         }
         field(6; "Entry Type"; Enum "WIP Ledger Entry Type")
         {
             Caption = 'Entry Type';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies the type of entry: Positive or Negative Adjustment.';
+            ToolTip = 'Specifies which type of transaction that the entry is created from.';
         }
         field(7; "Quantity (Base)"; Decimal)
         {
@@ -66,7 +65,7 @@ table 99001560 "Subcontractor WIP Ledger Entry"
             Caption = 'Quantity (Base)';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 5;
-            ToolTip = 'Specifies the quantity in base unit of measure.';
+            ToolTip = 'Specifies the WIP quantity in base unit of measure';
         }
         field(8; "Unit of Measure Code"; Code[10])
         {
@@ -121,6 +120,15 @@ table 99001560 "Subcontractor WIP Ledger Entry"
             TableRelation = "Routing Header";
             ToolTip = 'Specifies the routing number.';
         }
+        field(16; "Routing Reference No."; Integer)
+        {
+            Caption = 'Routing Reference No.';
+            DataClassification = CustomerContent;
+            TableRelation = "Prod. Order Routing Line"."Routing Reference No." where(Status = field("Prod. Order Status"),
+                                                                                  "Prod. Order No." = field("Prod. Order No."),
+                                                                                  "Routing No." = field("Routing No."));
+            ToolTip = 'Specifies the routing reference number.';
+        }
         field(17; "Operation No."; Code[10])
         {
             Caption = 'Operation No.';
@@ -141,7 +149,19 @@ table 99001560 "Subcontractor WIP Ledger Entry"
         {
             Caption = 'Description';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies the description.';
+            ToolTip = 'Specifies a description for the WIP ledger entry.';
+        }
+        field(20; "Description 2"; Text[50])
+        {
+            Caption = 'Description 2';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies description 2 for the WIP ledger entry.';
+        }
+        field(21; "In Transit"; Boolean)
+        {
+            Caption = 'In Transit';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies whether the WIP quantity is currently in transit.';
         }
     }
     keys
@@ -154,7 +174,7 @@ table 99001560 "Subcontractor WIP Ledger Entry"
         {
             IncludedFields = "Quantity (Base)";
         }
-        key(Key3; "Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.")
+        key(Key3; "Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.")
         {
             IncludedFields = "Quantity (Base)";
         }

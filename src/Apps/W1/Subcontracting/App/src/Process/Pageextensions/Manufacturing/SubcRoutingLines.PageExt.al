@@ -23,12 +23,12 @@ pageextension 99001508 "Subc. Routing Lines" extends "Routing Lines"
             field("Transfer Description"; Rec."Transfer Description")
             {
                 ApplicationArea = Manufacturing;
-                Editable = Rec."Transfer WIP Item";
+                Enabled = Rec."Transfer WIP Item";
             }
             field("Transfer Description 2"; Rec."Transfer Description 2")
             {
                 ApplicationArea = Manufacturing;
-                Editable = Rec."Transfer WIP Item";
+                Enabled = Rec."Transfer WIP Item";
             }
         }
     }

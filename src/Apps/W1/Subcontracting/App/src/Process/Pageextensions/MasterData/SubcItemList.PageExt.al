@@ -32,7 +32,7 @@ pageextension 99001519 "Subc. Item List" extends "Item List"
                 Image = LedgerEntries;
                 RunObject = page "WIP Ledger Entries";
                 RunPageLink = "Item No." = field("No.");
-                ToolTip = 'View the WIP ledger entries for this item.';
+                ToolTip = 'View the Subcontractor WIP Ledger Entries that track work-in-progress quantities for this item across subcontracting locations.';
             }
         }
     }

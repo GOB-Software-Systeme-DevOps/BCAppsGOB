@@ -39,7 +39,7 @@ pageextension 99001506 "Subc. Work Center Card" extends "Work Center Card"
                 Image = LedgerEntries;
                 RunObject = page "WIP Ledger Entries";
                 RunPageLink = "Work Center No." = field("No.");
-                ToolTip = 'View the WIP ledger entries for this work center.';
+                ToolTip = 'View the Subcontractor WIP Ledger Entries that track work-in-progress quantities at this work center''s subcontracting location.';
             }
         }
     }

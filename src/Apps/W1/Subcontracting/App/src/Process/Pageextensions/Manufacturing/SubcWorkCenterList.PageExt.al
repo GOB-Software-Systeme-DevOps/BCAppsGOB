@@ -41,7 +41,7 @@ pageextension 99001507 "Subc. Work Center List" extends "Work Center List"
                     Image = LedgerEntries;
                     RunObject = page "WIP Ledger Entries";
                     RunPageLink = "Work Center No." = field("No.");
-                    ToolTip = 'View the WIP ledger entries for this work center.';
+                    ToolTip = 'View the Subcontractor WIP Ledger Entries that track work-in-progress quantities at this work center''s subcontracting location.';
                 }
             }
         }

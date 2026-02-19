@@ -15,19 +15,19 @@ tableextension 99001560 "Subc. Routing Line" extends "Routing Line"
         {
             Caption = 'Transfer WIP Item';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies if the WIP item should be transferred for this operation.';
+            ToolTip = 'Specifies whether the production order parent item (WIP item) is transferred to the subcontractor for this operation.';
         }
         field(99001561; "Transfer Description"; Text[100])
         {
             Caption = 'Transfer Description';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies the description for the WIP transfer.';
+            ToolTip = 'Specifies the operation-specific description used on transfer orders for the semi-finished item as it is shipped to the subcontracting location. If empty, the standard description is used.';
         }
         field(99001562; "Transfer Description 2"; Text[50])
         {
             Caption = 'Transfer Description 2';
             DataClassification = CustomerContent;
-            ToolTip = 'Specifies the second description line for the WIP transfer.';
+            ToolTip = 'Specifies an additional operation-specific description line used on transfer orders for the semi-finished item as it is shipped to the subcontracting location.';
         }
     }
 }
