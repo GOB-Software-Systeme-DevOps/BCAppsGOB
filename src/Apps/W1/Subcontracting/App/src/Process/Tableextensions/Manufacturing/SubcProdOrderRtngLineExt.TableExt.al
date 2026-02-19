@@ -59,7 +59,7 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
             AutoFormatType = 0;
             CalcFormula = sum("Subcontractor WIP Ledger Entry"."Quantity (Base)" where("Prod. Order Status" = field(Status),
                                                                                         "Prod. Order No." = field("Prod. Order No."),
-                                                                                        "Prod. Order Line No." = field("Routing Reference No."),
+                                                                                        "Prod. Order Line No." = field("Prod. Order Line Filter"),
                                                                                         "Routing Reference No." = field("Routing Reference No."),
                                                                                         "Routing No." = field("Routing No."),
                                                                                         "Operation No." = field("Operation No."),
@@ -76,7 +76,7 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
             AutoFormatType = 0;
             CalcFormula = sum("Subcontractor WIP Ledger Entry"."Quantity (Base)" where("Prod. Order Status" = field(Status),
                                                                                         "Prod. Order No." = field("Prod. Order No."),
-                                                                                        "Prod. Order Line No." = field("Routing Reference No."),
+                                                                                        "Prod. Order Line No." = field("Prod. Order Line Filter"),
                                                                                         "Routing Reference No." = field("Routing Reference No."),
                                                                                         "Routing No." = field("Routing No."),
                                                                                         "Operation No." = field("Operation No."),
@@ -92,7 +92,13 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
         {
             Caption = 'WIP Location Filter';
             FieldClass = FlowFilter;
-            ToolTip = 'Specifies the location filter for the WIP inventory transactions related to this production operation.';
+            ToolTip = 'Specifies the location filter used for FlowField calculations.';
+        }
+        field(99001535; "Prod. Order Line Filter"; Integer)
+        {
+            Caption = 'Prod. Order Line Filter';
+            FieldClass = FlowFilter;
+            ToolTip = 'Specifies the production order line filter used for FlowField calculations.';
         }
     }
 
