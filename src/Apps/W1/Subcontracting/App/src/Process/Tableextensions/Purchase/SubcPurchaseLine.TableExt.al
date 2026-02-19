@@ -98,6 +98,12 @@ tableextension 99001512 "Subc. Purchase Line" extends "Purchase Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(99001560; "Transfer WIP Item"; Boolean)
+        {
+            Caption = 'Transfer WIP Item';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies whether this purchase line is linked to a WIP item transfer operation.';
+        }
     }
     procedure GetQuantityPerUOM(): Decimal
     var

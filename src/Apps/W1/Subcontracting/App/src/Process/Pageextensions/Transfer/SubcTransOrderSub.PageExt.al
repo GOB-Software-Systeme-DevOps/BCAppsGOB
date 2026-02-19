@@ -10,6 +10,13 @@ pageextension 99001529 "Subc. Trans. Order Sub." extends "Transfer Order Subform
 {
     layout
     {
+        addafter(Description)
+        {
+            field("Transfer WIP Item"; Rec."Transfer WIP Item")
+            {
+                ApplicationArea = Manufacturing;
+            }
+        }
         addafter("Receipt Date")
         {
             field("Subcontr. Purch. Order No."; Rec."Subcontr. Purch. Order No.")

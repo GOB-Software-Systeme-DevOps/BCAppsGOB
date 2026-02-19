@@ -96,6 +96,12 @@ tableextension 99001517 "Subc. Transfer Line" extends "Transfer Line"
             Editable = false;
             ToolTip = 'Specifies whether the existing transfer order is a return of the subcontractor.';
         }
+        field(99001560; "Transfer WIP Item"; Boolean)
+        {
+            Caption = 'Transfer WIP Item';
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies whether this transfer line represents a WIP item transfer. When enabled, a WIP item transfer can be created.';
+        }
     }
     keys
     {

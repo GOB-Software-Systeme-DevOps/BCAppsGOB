@@ -17,6 +17,31 @@ pageextension 99001503 "Subc. Prod. Order Rtng." extends "Prod. Order Routing"
             {
                 ApplicationArea = Manufacturing;
             }
+            field("Transfer WIP Item"; Rec."Transfer WIP Item")
+            {
+                ApplicationArea = Manufacturing;
+            }
+            field("Transfer Description"; Rec."Transfer Description")
+            {
+                ApplicationArea = Manufacturing;
+                Enabled = Rec."Transfer WIP Item";
+            }
+            field("Transfer Description 2"; Rec."Transfer Description 2")
+            {
+                ApplicationArea = Manufacturing;
+                Enabled = Rec."Transfer WIP Item";
+                Visible = false;
+            }
+            field("WIP Qty. (Base) at Subc."; Rec."WIP Qty. (Base) at Subc.")
+            {
+                ApplicationArea = Manufacturing;
+                Visible = false;
+            }
+            field("WIP Qty. (Base) in Transit"; Rec."WIP Qty. (Base) in Transit")
+            {
+                ApplicationArea = Manufacturing;
+                Visible = false;
+            }
         }
         addbefore(Control1900383207)
         {
