@@ -95,6 +95,12 @@ page 99001502 "Subc. Routing Info Factbox"
                     ShowProdOrderComponents();
                 end;
             }
+            field("WIP Qty. (Base) at Subc."; Rec."WIP Qty. (Base) at Subc.")
+            {
+            }
+            field("WIP Qty. (Base) in Transit"; Rec."WIP Qty. (Base) in Transit")
+            {
+            }
         }
     }
     local procedure ShowSubcontractorFromRouting()
