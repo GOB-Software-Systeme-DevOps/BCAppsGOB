@@ -52,6 +52,8 @@ codeunit 99001520 "Subc. Prod. Order Rtng. Ext."
     local procedure OnAfterCopyFromRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; RoutingLine: Record "Routing Line")
     begin
         ProdOrderRoutingLine."Transfer WIP Item" := RoutingLine."Transfer WIP Item";
+        ProdOrderRoutingLine."Transfer Description" := RoutingLine."Transfer Description";
+        ProdOrderRoutingLine."Transfer Description 2" := RoutingLine."Transfer Description 2";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Route Management", OnCalculateOnBeforeProdOrderRtngLineLoopIteration, '', false, false)]
