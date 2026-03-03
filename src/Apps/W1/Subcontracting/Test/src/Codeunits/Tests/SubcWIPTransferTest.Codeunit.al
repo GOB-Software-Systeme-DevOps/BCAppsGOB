@@ -17,6 +17,7 @@ using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Family;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -202,8 +203,6 @@ codeunit 149910 "Subc. WIP Transfer Test"
 
         // [GIVEN] Complete setup
         Initialize();
-        SubcontractingMgmtLibrary.UpdateManufacturingSetupWithSubcontractingLocation();
-        SubcontractingMgmtLibrary.SetupInventorySetup();
 
         // [GIVEN] Work centers, machine centers, item with routing + BOM
         SubcWarehouseLibrary.CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter, true);
@@ -218,16 +217,12 @@ codeunit 149910 "Subc. WIP Transfer Test"
         SubcontractingMgmtLibrary.UpdateVendorWithSubcontractingLocationCode(WorkCenter[2]);
 
         // [GIVEN] Create and refresh production order
-        SubcontractingMgmtLibrary.CreateAndRefreshProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
             ProductionOrder, "Production Order Status"::Released,
             ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10) + 5);
 
-        SubcWarehouseLibrary.UpdateSubMgmtSetupWithReqWkshTemplate();
-        SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(true);
-
+        SetProdOrderLocationToCompSetupLocationAndRefresh(ProductionOrder);
         SubcontractingMgmtLibrary.CreateTransferRoute(WorkCenter[2], ProductionOrder);
-
-        SetProdOrderLineLocationToCompSetupLocation(ProductionOrder);
 
         // [WHEN] Create Subcontracting Purchase Order from Prod. Order Routing
         SubcontractingMgmtLibrary.CreateSubcontractingOrderFromProdOrderRtngPage(Item."Routing No.", WorkCenter[2]."No.");
@@ -296,8 +291,6 @@ codeunit 149910 "Subc. WIP Transfer Test"
 
         // [GIVEN] Complete setup
         Initialize();
-        SubcontractingMgmtLibrary.UpdateManufacturingSetupWithSubcontractingLocation();
-        SubcontractingMgmtLibrary.SetupInventorySetup();
 
         // [GIVEN] Work centers, machine centers, item with routing + BOM
         SubcWarehouseLibrary.CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter, true);
@@ -312,17 +305,13 @@ codeunit 149910 "Subc. WIP Transfer Test"
         SubcontractingMgmtLibrary.UpdateVendorWithSubcontractingLocationCode(WorkCenter[2]);
 
         // [GIVEN] Create and refresh production order
-        SubcontractingMgmtLibrary.CreateAndRefreshProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
             ProductionOrder, "Production Order Status"::Released,
             ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10) + 5);
 
+        SetProdOrderLocationToCompSetupLocationAndRefresh(ProductionOrder);
         SubcontractingMgmtLibrary.UpdateProdOrderCompWithLocationCode(ProductionOrder."No."); //different location for component transfer than WIP transfer
-        SubcWarehouseLibrary.UpdateSubMgmtSetupWithReqWkshTemplate();
-        SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(true);
-
         SubcontractingMgmtLibrary.CreateTransferRoute(WorkCenter[2], ProductionOrder);
-
-        SetProdOrderLineLocationToCompSetupLocation(ProductionOrder);
 
         // [WHEN] Create Subcontracting Purchase Order from Prod. Order Routing
         SubcontractingMgmtLibrary.CreateSubcontractingOrderFromProdOrderRtngPage(Item."Routing No.", WorkCenter[2]."No.");
@@ -430,6 +419,108 @@ codeunit 149910 "Subc. WIP Transfer Test"
 
     [Test]
     [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting,HandleTransferOrder')]
+    procedure NoWIPTransferCreatedWhenExpectedEqualsPostedQuantity()
+    var
+        Item: Record Item;
+        MachineCenter: array[2] of Record "Machine Center";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProductionOrder: Record "Production Order";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WIPLedgerEntry: Record "Subcontractor WIP Ledger Entry";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        Vendor: Record Vendor;
+        WorkCenter: array[2] of Record "Work Center";
+        PurchaseHeaderPage: TestPage "Purchase Order";
+    begin
+        // [SCENARIO] When the posted WIP quantity equals the expected quantity at the destination,
+        // the CheckCreateWIPTransfer procedure should return false, and no new WIP Transfer Order
+        // should be created when "Create Transfer Order to Subcontractor" is invoked again.
+
+        // [GIVEN] Complete setup
+        Initialize();
+
+        // [GIVEN] Work centers, machine centers, item with routing + BOM
+        SubcWarehouseLibrary.CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter, true);
+        SubcWarehouseLibrary.CreateItemForProductionIncludeRoutingAndProdBOM(Item, WorkCenter, MachineCenter);
+
+        // [GIVEN] Set "Transfer WIP Item" on the subcontracting routing line
+        SetTransferWIPItemOnRoutingLine(Item."Routing No.", WorkCenter[2]."No.", true);
+
+        // [GIVEN] Create and refresh production order
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, "Production Order Status"::Released,
+            ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10) + 5);
+
+        SetProdOrderLocationToCompSetupLocationAndRefresh(ProductionOrder);
+
+        // [GIVEN] Get routing line information
+        ProdOrderLine.SetRange(Status, "Production Order Status"::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        ProdOrderRoutingLine.SetRange(Status, "Production Order Status"::Released);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.SetRange("Work Center No.", WorkCenter[2]."No.");
+        ProdOrderRoutingLine.FindFirst();
+
+        // [GIVEN] Create first Subcontracting Purchase Order and Transfer Order
+        SubcontractingMgmtLibrary.CreateSubcontractingOrderFromProdOrderRtngPage(Item."Routing No.", WorkCenter[2]."No.");
+
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        PurchaseLine.FindFirst();
+
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeaderPage.OpenView();
+        PurchaseHeaderPage.GoToRecord(PurchaseHeader);
+        PurchaseHeaderPage.CreateTransfOrdToSubcontractor.Invoke();
+
+        // [GIVEN] Verify first WIP Transfer Line was created
+        TransferLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        TransferLine.SetRange("Transfer WIP Item", true);
+        TransferLine.SetRange("Return Order", false);
+        Assert.RecordCount(TransferLine, 1);
+        TransferLine.FindFirst();
+
+        // [GIVEN] Simulate posting the transfer by creating WIP Ledger Entry with quantity equal to expected quantity
+        Vendor.Get(WorkCenter[2]."Subcontractor No.");
+        if WIPLedgerEntry.FindLast() then;
+        WIPLedgerEntry.Init();
+        WIPLedgerEntry."Entry No." := WIPLedgerEntry."Entry No." + 1;
+        WIPLedgerEntry."Item No." := Item."No.";
+        WIPLedgerEntry."Location Code" := Vendor."Subcontr. Location Code";
+        WIPLedgerEntry."Prod. Order Status" := "Production Order Status"::Released;
+        WIPLedgerEntry."Prod. Order No." := ProductionOrder."No.";
+        WIPLedgerEntry."Prod. Order Line No." := ProdOrderLine."Line No.";
+        WIPLedgerEntry."Routing No." := ProdOrderRoutingLine."Routing No.";
+        WIPLedgerEntry."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
+        WIPLedgerEntry."Operation No." := ProdOrderRoutingLine."Operation No.";
+        WIPLedgerEntry."Work Center No." := WorkCenter[2]."No.";
+        WIPLedgerEntry."Quantity (Base)" := ProductionOrder.Quantity; // Posted quantity = expected quantity
+        WIPLedgerEntry."In Transit" := false;
+        WIPLedgerEntry.Insert();
+
+        // [GIVEN] Delete the first transfer order to allow re-creation attempt
+        TransferHeader.Get(TransferLine."Document No.");
+        TransferHeader.Delete(true);
+
+        // [WHEN] Attempt to create Transfer Order to Subcontractor again
+        PurchaseHeaderPage.GoToRecord(PurchaseHeader);
+        asserterror PurchaseHeaderPage.CreateTransfOrdToSubcontractor.Invoke();
+
+        // [THEN] No WIP Transfer Line is created, and an error message indicates that there is no WIP or components to transfer
+        Assert.ExpectedError('Nothing to create. No components or WIP to transfer for the specified subcontracting order.');
+
+        // [TEARDOWN]
+        SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(false);
+        WIPLedgerEntry.DeleteAll();
+    end;
+
+    [Test]
+    [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting,HandleTransferOrder')]
     procedure WIPReturnTransferOrderCreatedWithCorrectLocations()
     var
         Item: Record Item;
@@ -454,22 +545,17 @@ codeunit 149910 "Subc. WIP Transfer Test"
 
         // [GIVEN] Complete setup
         Initialize();
-        SubcontractingMgmtLibrary.UpdateManufacturingSetupWithSubcontractingLocation();
-        SubcontractingMgmtLibrary.SetupInventorySetup();
 
         SubcWarehouseLibrary.CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter, true);
         SubcWarehouseLibrary.CreateItemForProductionIncludeRoutingAndProdBOM(Item, WorkCenter, MachineCenter);
         SetTransferWIPItemOnRoutingLine(Item."Routing No.", WorkCenter[2]."No.", true);
 
         // [GIVEN] Create and refresh production order
-        SubcontractingMgmtLibrary.CreateAndRefreshProductionOrder(
+        LibraryManufacturing.CreateProductionOrder(
             ProductionOrder, "Production Order Status"::Released,
             ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10) + 5);
 
-        SubcWarehouseLibrary.UpdateSubMgmtSetupWithReqWkshTemplate();
-        SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(true);
-
-        SetProdOrderLineLocationToCompSetupLocation(ProductionOrder);
+        SetProdOrderLocationToCompSetupLocationAndRefresh(ProductionOrder);
 
         // [WHEN] Create Subcontracting Purchase Order
         SubcontractingMgmtLibrary.CreateSubcontractingOrderFromProdOrderRtngPage(Item."Routing No.", WorkCenter[2]."No.");
@@ -697,8 +783,6 @@ codeunit 149910 "Subc. WIP Transfer Test"
 
         // [GIVEN] Complete setup
         Initialize();
-        SubcontractingMgmtLibrary.UpdateManufacturingSetupWithSubcontractingLocation();
-        SubcontractingMgmtLibrary.SetupInventorySetup();
 
         // [GIVEN] Parallel routing with machine centers, work centers and item
         SubcWarehouseLibrary.CreateParallelRoutingItemWithSubcontracting(
@@ -710,21 +794,15 @@ codeunit 149910 "Subc. WIP Transfer Test"
         Vendor.Get(WorkCenter[2]."Subcontractor No.");
         Loc40Code := Vendor."Subcontr. Location Code";
 
-        // [GIVEN] Create and refresh a released production order
-        SubcontractingMgmtLibrary.CreateAndRefreshProductionOrder(
+        // [GIVEN] Create released production order
+        LibraryManufacturing.CreateProductionOrder(
             ProductionOrder, "Production Order Status"::Released,
             ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10) + 5);
 
-        SubcWarehouseLibrary.UpdateSubMgmtSetupWithReqWkshTemplate();
-        SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(true);
-
         // [GIVEN] Set the production order line location to Manufacturing "Components at Location"
-        SetProdOrderLineLocationToCompSetupLocation(ProductionOrder);
+        SetProdOrderLocationToCompSetupLocationAndRefresh(ProductionOrder);
 
-        ProdOrderLine.SetRange(Status, "Production Order Status"::Released);
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
-        ProdOrderLocationCode := ProdOrderLine."Location Code";
+        ProdOrderLocationCode := ProductionOrder."Location Code";
 
         // [GIVEN] Create transfer routes for both WIP paths:
         //   1. ProdOrderLocation → Loc40  (non-SC op 20 path: WIP stays at our warehouse)
@@ -795,6 +873,128 @@ codeunit 149910 "Subc. WIP Transfer Test"
         SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(false);
     end;
 
+    [Test]
+    [HandlerFunctions('HandleTransferOrder')]
+    procedure WIPTransferCreatedPerProdOrderLineInFamilyProductionOrder()
+    var
+        Family: Record Family;
+        FamilyItem: array[2] of Record Item;
+        FamilyLine: array[2] of Record "Family Line";
+        MachineCenter: array[2] of Record "Machine Center";
+        ProductionOrder: Record "Production Order";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        TransferLine: Record "Transfer Line";
+        Vendor: Record Vendor;
+        WorkCenter: array[2] of Record "Work Center";
+        CalculateSubContract: Report "Calculate Subcontracts";
+        CarryOutActionMsgReq: Report "Carry Out Action Msg. - Req.";
+        PurchaseHeaderPage: TestPage "Purchase Order";
+    begin
+        // [SCENARIO] A Production Order sourced from a Family with 2 family items shares a single
+        // subcontracting routing (Transfer WIP Item = true on the subcontracting operation).
+        // For every prod order line one purchase line is created via the subcontracting worksheet.
+        // When "Create Transfer Order to Subcontractor" is invoked on the purchase order,
+        // a separate WIP Transfer Line is created for each prod order line / family item.
+
+        // [GIVEN] Complete setup
+        Initialize();
+        SubcontractingMgmtLibrary.UpdateManufacturingSetupWithSubcontractingLocation();
+        SubcontractingMgmtLibrary.SetupInventorySetup();
+
+        // [GIVEN] Create subcontracting work centers and machine centers
+        SubcWarehouseLibrary.CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter, true);
+
+        // [GIVEN] Create two plain items that will become the family line output items
+        LibraryInventory.CreateItem(FamilyItem[1]);
+        LibraryInventory.CreateItem(FamilyItem[2]);
+
+        // [GIVEN] Create a Production Family with both items as family lines
+        LibraryManufacturing.CreateFamily(Family);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[1], Family."No.", FamilyItem[1]."No.", 1);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine[2], Family."No.", FamilyItem[2]."No.", 1);
+
+        // [GIVEN] Build a routing with the subcontracting work center and assign it to the family
+        CreateFamilyRoutingWithSubcontractingWC(Family, WorkCenter[2]."No.");
+
+        // [GIVEN] Set "Transfer WIP Item" on the subcontracting routing line
+        SetTransferWIPItemOnRoutingLine(Family."Routing No.", WorkCenter[2]."No.", true);
+
+        // [GIVEN] Give WC[2]'s vendor a dedicated subcontracting location
+        SubcontractingMgmtLibrary.UpdateVendorWithSubcontractingLocationCode(WorkCenter[2]);
+        Vendor.Get(WorkCenter[2]."Subcontractor No.");
+
+        // [GIVEN] Create a released production order for the family
+        // → produces 2 Prod. Order Lines (one per family item), each with the family routing
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, "Production Order Status"::Released,
+            ProductionOrder."Source Type"::Family, Family."No.", LibraryRandom.RandInt(10) + 5);
+
+        SetProdOrderLocationToCompSetupLocationAndRefresh(ProductionOrder);
+
+        // [GIVEN] Create a transfer route from the prod order line location to the subcontractor location
+        CreateAndUpdateTransferRoute(GetManufacturingSetupCompLocation(), Vendor."Subcontr. Location Code");
+        SubcWarehouseLibrary.UpdateSubMgmtSetupWithReqWkshTemplate();
+        SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(true);
+
+        // [WHEN] Calculate Subcontracts: produces one requisition line per prod order routing line (= 2)
+        SubcontractingMgmtLibrary.CreateReqWkshTemplateAndName(ReqWkshTemplate, RequisitionWkshName);
+        RequisitionLine."Worksheet Template Name" := RequisitionWkshName."Worksheet Template Name";
+        RequisitionLine."Journal Batch Name" := RequisitionWkshName.Name;
+
+        CalculateSubContract.SetWkShLine(RequisitionLine);
+        CalculateSubContract.UseRequestPage(false);
+        CalculateSubContract.RunModal();
+
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+#pragma warning disable AA0210
+        RequisitionLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning restore AA0210
+        // 2 requisition lines expected – one per family item / prod order line
+        Assert.RecordCount(RequisitionLine, 2);
+        RequisitionLine.FindFirst();
+
+        // [WHEN] Carry Out Action processes all lines in the batch → creates purchase lines
+        CarryOutActionMsgReq.SetReqWkshLine(RequisitionLine);
+        CarryOutActionMsgReq.UseRequestPage(false);
+        CarryOutActionMsgReq.RunModal();
+
+        // [THEN] 2 purchase lines exist for the production order – one per prod order line / family item
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
+        PurchaseLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        PurchaseLine.SetRange("Work Center No.", WorkCenter[2]."No.");
+        Assert.RecordCount(PurchaseLine, 2);
+
+        // [WHEN] Invoke "Create Transfer Order to Subcontractor" on the purchase order
+        PurchaseLine.FindFirst();
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeaderPage.OpenView();
+        PurchaseHeaderPage.GoToRecord(PurchaseHeader);
+        PurchaseHeaderPage.CreateTransfOrdToSubcontractor.Invoke();
+
+        // [THEN] Exactly 2 WIP Transfer Lines exist – one per family item / prod order line
+        TransferLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        TransferLine.SetRange("Transfer WIP Item", true);
+        TransferLine.SetRange("Return Order", false);
+        Assert.RecordCount(TransferLine, 2);
+
+        // [THEN] Each WIP Transfer Line references one of the two family items
+        TransferLine.FindSet();
+        repeat
+            Assert.IsTrue(
+                (TransferLine."Item No." = FamilyItem[1]."No.") or (TransferLine."Item No." = FamilyItem[2]."No."),
+                'Each WIP Transfer Line must reference one of the two family items.');
+        until TransferLine.Next() = 0;
+
+        // [TEARDOWN]
+        SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(false);
+    end;
+
     // ---- Handlers ----
 
     [PageHandler]
@@ -841,6 +1041,11 @@ codeunit 149910 "Subc. WIP Transfer Test"
         LibraryERMCountryData.CreateVATData();
         SubSetupLibrary.InitialSetupForGenProdPostingGroup();
 
+        SubcontractingMgmtLibrary.UpdateManufacturingSetupWithSubcontractingLocation();
+        SubcontractingMgmtLibrary.SetupInventorySetup();
+        SubcWarehouseLibrary.UpdateSubMgmtSetupWithReqWkshTemplate();
+        SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(true);
+
         IsInitialized := true;
         Commit();
 
@@ -867,17 +1072,15 @@ codeunit 149910 "Subc. WIP Transfer Test"
         RoutingHeader.Modify(true);
     end;
 
-    local procedure SetProdOrderLineLocationToCompSetupLocation(var ProductionOrder: Record "Production Order")
+    local procedure SetProdOrderLocationToCompSetupLocationAndRefresh(var ProductionOrder: Record "Production Order")
     var
         ManufacturingSetup: Record "Manufacturing Setup";
-        ProdOrderLine: Record "Prod. Order Line";
     begin
-        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
         ManufacturingSetup.Get();
-        ProdOrderLine.Validate("Location Code", ManufacturingSetup."Components at Location");
-        ProdOrderLine.Modify();
+        ProductionOrder.Validate("Location Code", ManufacturingSetup."Components at Location");
+        ProductionOrder.Modify();
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
     local procedure CreateAndUpdateTransferRoute(FromLocationCode: Code[10]; ToLocationCode: Code[10])
@@ -891,9 +1094,35 @@ codeunit 149910 "Subc. WIP Transfer Test"
             TransferRoute, FromLocationCode, ToLocationCode, Location.Code, '', '');
     end;
 
+    local procedure CreateFamilyRoutingWithSubcontractingWC(var Family: Record Family; WorkCenterNo: Code[20])
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        // Creates a minimal serial routing containing only the subcontracting work center
+        // and assigns it to the family.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        Family.Validate("Routing No.", RoutingHeader."No.");
+        Family.Modify(true);
+    end;
+
+    local procedure GetManufacturingSetupCompLocation(): Code[10]
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        exit(ManufacturingSetup."Components at Location");
+    end;
+
     var
         Assert: Codeunit Assert;
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";

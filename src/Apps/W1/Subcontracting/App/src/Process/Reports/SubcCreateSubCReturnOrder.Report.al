@@ -216,6 +216,13 @@ report 99001502 "Subc. Create SubCReturnOrder"
                         TransferLine."Prod. Order Line No." := PurchaseLine."Prod. Order Line No.";
                         TransferLine."Prod. Order Comp. Line No." := ProdOrderComponent."Line No.";
 
+                        TransferLine."Routing No." := ProdOrderRoutingLine."Routing No.";
+                        TransferLine."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
+                        TransferLine."Work Center No." := ProdOrderRoutingLine."Work Center No.";
+                        TransferLine."Operation No." := ProdOrderRoutingLine."Operation No.";
+
+                        TransferLine."Return Order" := true;
+
                         TransferLine.Insert();
 
                         SubcontractingManagement.TransferReservationEntryFromProdOrderCompToTransferOrder(TransferLine, ProdOrderComponent);
@@ -239,16 +246,12 @@ report 99001502 "Subc. Create SubCReturnOrder"
     end;
 
     local procedure ShowDocument()
+    var
+        SubcFactboxMgmt: Codeunit "Subc. Factbox Mgmt.";
     begin
-        Commit(); // Used for following call of Transfer Order Pages
-        TransferHeader.Reset();
-        TransferHeader.SetCurrentKey("Subcontr. Purch. Order No.");
-        TransferHeader.SetRange("Subcontr. Purch. Order No.", "Purchase Line"."Document No.");
-        TransferHeader.SetRecFilter();
-        if TransferHeader.Count() > 1 then
-            Page.Run(Page::"Transfer Orders", TransferHeader)
-        else
-            Page.Run(Page::"Transfer Order", TransferHeader);
+        Commit(); // Used for following call of Transfer Pages
+
+        SubcFactboxMgmt.ShowTransferOrdersAndReturnOrder("Purchase Line", true, true);
     end;
 
     local procedure TransferLineAlreadyExists(): Boolean
@@ -363,9 +366,8 @@ report 99001502 "Subc. Create SubCReturnOrder"
         TransferLine.Validate("Item No.", ProdOrderLine."Item No.");
         if ProdOrderLine."Variant Code" <> '' then
             TransferLine.Validate("Variant Code", ProdOrderLine."Variant Code");
-        TransferLine."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
-        TransferLine."Qty. per Unit of Measure" := ProdOrderLine."Qty. per Unit of Measure";
-        TransferLine."Transfer WIP Item" := true;
+        TransferLine.Validate("Unit of Measure Code", ProdOrderLine."Unit of Measure Code");
+        TransferLine.Validate("Transfer WIP Item", true);
         TransferLine.Validate(Quantity, WIPQty);
 
         if ProdOrderRoutingLine."Transfer Description" <> '' then

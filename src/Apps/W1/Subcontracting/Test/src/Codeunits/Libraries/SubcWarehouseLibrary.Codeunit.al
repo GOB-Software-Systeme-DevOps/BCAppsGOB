@@ -203,6 +203,7 @@ codeunit 149908 "Subc. Warehouse Library"
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '20', RoutingLine.Type::"Machine Center", MachineCenter[2]."No.");
         RoutingLine."Previous Operation No." := '10';
         RoutingLine."Next Operation No." := '40';
+        RoutingLine."Transfer WIP Item" := true;
         RoutingLine.Modify(true);
 
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '30', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
