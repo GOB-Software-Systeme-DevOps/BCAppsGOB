@@ -11,6 +11,10 @@ pageextension 99001533 "Subc. Whse Rcpt Subform Ext." extends "Whse. Receipt Sub
 {
     actions
     {
+        modify(ItemTrackingLines)
+        {
+            Enabled = not Rec."Transfer WIP Item";
+        }
         addafter(ItemTrackingLines)
         {
             group(Production)

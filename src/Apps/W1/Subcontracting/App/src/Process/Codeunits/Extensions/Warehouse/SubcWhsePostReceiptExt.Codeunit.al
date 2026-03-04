@@ -21,9 +21,14 @@ codeunit 99001551 "Subc. WhsePostReceipt Ext"
     local procedure "Warehouse Receipt Line_OnBeforeOpenItemTrackingLines"(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean; CallingFieldNo: Integer)
     var
         NotLastOperationLineErr: Label 'Item tracking lines can only be viewed for subcontracting purchase lines which are linked to a routing line which is the last operation.';
+        NoWIPItemTrackingAllowedErr: Label 'Item tracking is not supported for WIP item transfers.';
     begin
+        if WarehouseReceiptLine."Transfer WIP Item" then
+            Error(NoWIPItemTrackingAllowedErr);
+
         if WarehouseReceiptLine."Subc. Purchase Line Type" = "Subc. Purchase Line Type"::None then
             exit;
+
         if WarehouseReceiptLine."Subc. Purchase Line Type" = "Subc. Purchase Line Type"::NotLastOperation then
             Error(NotLastOperationLineErr);
         CheckOverDelivery(WarehouseReceiptLine);
@@ -87,12 +92,15 @@ codeunit 99001551 "Subc. WhsePostReceipt Ext"
     local procedure "Warehouse Receipt Line_OnBeforeCalcBaseQty"(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text; var SuppressQtyPerUoMTestfield: Boolean)
     begin
         SuppressQtyPerUoMTestfield := WarehouseReceiptLine."Subc. Purchase Line Type" = "Subc. Purchase Line Type"::NotLastOperation;
+        SuppressQtyPerUoMTestfield := SuppressQtyPerUoMTestfield or WarehouseReceiptLine."Transfer WIP Item";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Warehouse Receipt Line", OnValidateQtyToReceiveOnBeforeUOMMgtValidateQtyIsBalanced, '', false, false)]
     local procedure "Warehouse Receipt Line_OnValidateQtyToReceiveOnBeforeUOMMgtValidateQtyIsBalanced"(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; xWarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
     begin
         if (WarehouseReceiptLine."Subc. Purchase Line Type" = "Subc. Purchase Line Type"::NotLastOperation) then
+            IsHandled := true;
+        if WarehouseReceiptLine."Transfer WIP Item" then
             IsHandled := true;
     end;
 
@@ -101,12 +109,16 @@ codeunit 99001551 "Subc. WhsePostReceipt Ext"
     begin
         if PostedWhseReceiptLine."Subc. Purchase Line Type" = "Subc. Purchase Line Type"::NotLastOperation then
             IsHandled := true;
+        if PostedWhseReceiptLine."Transfer WIP Item" then
+            IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Post Receipt", OnPostWhseJnlLineOnAfterInsertWhseItemEntryRelation, '', false, false)]
     local procedure "Whse.-Post Receipt_OnPostWhseJnlLineOnAfterInsertWhseItemEntryRelation"(var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean; ReceivingNo: Code[20]; PostingDate: Date; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
     begin
         if PostedWhseRcptLine."Subc. Purchase Line Type" <> "Subc. Purchase Line Type"::None then
+            IsHandled := true;
+        if PostedWhseRcptLine."Transfer WIP Item" then
             IsHandled := true;
     end;
 
@@ -128,12 +140,15 @@ codeunit 99001551 "Subc. WhsePostReceipt Ext"
         if SkipPutAwayProcessing then
             exit;
         SkipPutAwayProcessing := PostedWhseReceiptLine."Subc. Purchase Line Type" = "Subc. Purchase Line Type"::NotLastOperation;
+        SkipPutAwayProcessing := SkipPutAwayProcessing or PostedWhseReceiptLine."Transfer WIP Item";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse.-Post Receipt", OnBeforeCreatePutAwayLine, '', false, false)]
     local procedure "Whse.-Post Receipt_OnIsReceiptIsForSubcontractingNotLastOperation"(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var SkipPutAwayCreationForLine: Boolean)
     begin
         if PostedWhseReceiptLine."Subc. Purchase Line Type" = "Subc. Purchase Line Type"::NotLastOperation then
+            SkipPutAwayCreationForLine := true;
+        if PostedWhseReceiptLine."Transfer WIP Item" then
             SkipPutAwayCreationForLine := true;
     end;
 
