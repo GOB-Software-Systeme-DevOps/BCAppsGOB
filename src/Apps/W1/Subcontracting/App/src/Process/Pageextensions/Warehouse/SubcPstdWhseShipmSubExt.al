@@ -5,8 +5,9 @@
 namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.History;
 
-pageextension 99001535 "Subc. Whse Shipm. Subform Ext." extends "Whse. Shipment Subform"
+pageextension 99001541 "Subc. Pstd. Whse Shipm Sub" extends "Posted Whse. Shipment Subform"
 {
     layout
     {
@@ -17,13 +18,6 @@ pageextension 99001535 "Subc. Whse Shipm. Subform Ext." extends "Whse. Shipment 
                 ApplicationArea = Manufacturing;
                 Visible = false;
             }
-        }
-    }
-    actions
-    {
-        modify(ItemTrackingLines)
-        {
-            Enabled = not Rec."Transfer WIP Item";
         }
     }
 }

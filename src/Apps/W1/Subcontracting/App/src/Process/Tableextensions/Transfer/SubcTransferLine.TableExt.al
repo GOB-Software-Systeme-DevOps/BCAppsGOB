@@ -165,7 +165,6 @@ tableextension 99001517 "Subc. Transfer Line" extends "Transfer Line"
         ExistingItemTrackingErr: Label 'There is existing item tracking for this transfer line. Please remove the item tracking before changing the line to/from a WIP item transfer.';
         ExistingReservationEntriesErr: Label 'There are existing reservation entries for this transfer line. Please remove the reservation entries before changing the line to/from a WIP item transfer.';
     begin
-        ReservationEntry.Reset();
         Rec.SetReservationFilters(ReservationEntry, "Transfer Direction"::Outbound);
         ReservationEntry.SetRange("Reservation Status", "Reservation Status"::Reservation);
         if not ReservationEntry.IsEmpty() then

@@ -16,28 +16,28 @@ using Microsoft.Warehouse.Document;
 codeunit 99001541 "Subc. Transfer WIP Posting"
 {
     [EventSubscriber(ObjectType::Table, Database::"Transfer Line", OnBeforeValidateQuantityShipIsBalanced, '', false, false)]
-    local procedure "Transfer Line_OnBeforeValidateQuantityShipIsBalanced"(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    local procedure HandleWipTransferOnBeforeValidateQuantityShipIsBalanced(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
         if TransferLine."Transfer WIP Item" then
             IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Transfer Line", OnBeforeValidateQuantityReceiveIsBalanced, '', false, false)]
-    local procedure "Transfer Line_OnBeforeValidateQuantityReceiveIsBalanced"(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    local procedure HandleWipTransferOnBeforeValidateQuantityReceiveIsBalanced(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
         if TransferLine."Transfer WIP Item" then
             IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Shipment", OnBeforeCheckItemInInventory, '', false, false)]
-    local procedure "TransferOrder-Post Shipment_OnBeforeCheckItemInInventory"(TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    local procedure HandleWipTransferOnBeforeCheckItemInInventory(TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
         if TransferLine."Transfer WIP Item" then
             IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", OnBeforeCheckEmptyQuantity, '', false, false)]
-    local procedure "Item Jnl.-Check Line_OnBeforeCheckEmptyQuantity"(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure HandleWipTransferOnBeforeCheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     var
         TransferLine: Record "Transfer Line";
     begin
@@ -49,38 +49,38 @@ codeunit 99001541 "Subc. Transfer WIP Posting"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Transfer Shipment Line", OnAfterCopyFromTransferLine, '', false, false)]
-    local procedure "Transfer Shipment Line_OnAfterCopyFromTransferLine"(var TransferShipmentLine: Record "Transfer Shipment Line"; TransferLine: Record "Transfer Line")
+    local procedure HandleWipTransferShipmentLineOnAfterCopyFromTransferLine(var TransferShipmentLine: Record "Transfer Shipment Line"; TransferLine: Record "Transfer Line")
     begin
         TransferShipmentLine."Transfer WIP Item" := TransferLine."Transfer WIP Item";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Transfer Receipt Line", OnAfterCopyFromTransferLine, '', false, false)]
-    local procedure "Transfer Receipt Line_OnAfterCopyFromTransferLine"(var TransferReceiptLine: Record "Transfer Receipt Line"; TransferLine: Record "Transfer Line")
+    local procedure HandleWipTransferReceiptLineOnAfterCopyFromTransferLine(var TransferReceiptLine: Record "Transfer Receipt Line"; TransferLine: Record "Transfer Line")
     begin
         TransferReceiptLine."Transfer WIP Item" := TransferLine."Transfer WIP Item";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Direct Trans. Line", OnAfterCopyFromTransferLine, '', false, false)]
-    local procedure "Direct Trans. Line_OnAfterCopyFromTransferLine"(var DirectTransLine: Record "Direct Trans. Line"; TransferLine: Record "Transfer Line")
+    local procedure HandleWipDirectTransLineOnAfterCopyFromTransferLine(var DirectTransLine: Record "Direct Trans. Line"; TransferLine: Record "Transfer Line")
     begin
         DirectTransLine."Transfer WIP Item" := TransferLine."Transfer WIP Item";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Transfer Shipment", OnNoItemLedgerEntriesCheckIsNeeded, '', false, false)]
-    local procedure "Undo Transfer Shipment_OnNoItemLedgerEntriesCheckIsNeeded"(TransShptLine: Record "Transfer Shipment Line"; var NoCheckNeeded: Boolean)
+    local procedure HandleWipTransferOnNoItemLedgerEntriesCheckIsNeeded(TransShptLine: Record "Transfer Shipment Line"; var NoCheckNeeded: Boolean)
     begin
         if TransShptLine."Transfer WIP Item" then
             NoCheckNeeded := true;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Transfer Line", OnBeforeShowReservation, '', false, false)]
-    local procedure "Transfer Line_OnBeforeShowReservation"(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    local procedure HandleWipTransferOnBeforeShowReservation(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
         TransferLine.TestField("Transfer WIP Item", false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", OnSetReservSource, '', false, false)]
-    local procedure "Reservation Management_OnSetReservSource"(var Sender: Codeunit "Reservation Management"; SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction"; var RefOrderType: Enum "Requisition Ref. Order Type"; var PlanningLineOrigin: Enum "Planning Line Origin Type"; Positive: Boolean)
+    local procedure HandleWipTransferOnSetReservSource(var Sender: Codeunit "Reservation Management"; SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction"; var RefOrderType: Enum "Requisition Ref. Order Type"; var PlanningLineOrigin: Enum "Planning Line Origin Type"; Positive: Boolean)
     var
         TransferLine: Record "Transfer Line";
     begin
@@ -91,13 +91,13 @@ codeunit 99001541 "Subc. Transfer WIP Posting"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Transfer Line", OnBeforeOpenItemTrackingLines, '', false, false)]
-    local procedure "Transfer Line_OnBeforeOpenItemTrackingLines"(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    local procedure HandleWipTransferOnBeforeOpenItemTrackingLines(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
         TransferLine.TestField("Transfer WIP Item", false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Transfer Warehouse Mgt.", OnBeforeCheckIfTransLine2ReceiptLine, '', false, false)]
-    local procedure "Transfer Warehouse Mgt._OnBeforeCheckIfTransLine2ReceiptLine"(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean; var ReturnValue: Boolean)
+    local procedure HandleWipTransferOnBeforeCheckIfTransLine2ReceiptLine(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean; var ReturnValue: Boolean)
     var
         Location: Record Location;
     begin
@@ -115,7 +115,7 @@ codeunit 99001541 "Subc. Transfer WIP Posting"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Transfer Warehouse Mgt.", OnTransLine2ReceiptLineOnAfterInitNewLine, '', false, false)]
-    local procedure "Transfer Warehouse Mgt._OnTransLine2ReceiptLineOnAfterInitNewLine"(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    local procedure HandleWipTransferOnTransLine2ReceiptLineOnAfterInitNewLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; TransferLine: Record "Transfer Line"; var QtyOnRcptLineSet: Boolean)
     begin
         WarehouseReceiptLine."Transfer WIP Item" := TransferLine."Transfer WIP Item";
         if WarehouseReceiptLine."Transfer WIP Item" then begin
@@ -124,7 +124,7 @@ codeunit 99001541 "Subc. Transfer WIP Posting"
             WarehouseReceiptLine.Quantity := TransferLine."Quantity Received" + TransferLine."Qty. in Transit" - TransferLine."Whse. Inbnd. Otsdg. Qty";
             WarehouseReceiptLine."Qty. (Base)" := 0;
             WarehouseReceiptLine.InitOutstandingQtys();
-            IsHandled := true;
+            QtyOnRcptLineSet := true;
         end;
     end;
 }
