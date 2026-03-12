@@ -963,8 +963,6 @@ codeunit 149910 "Subc. WIP Transfer Test"
         SubcontractingMgmtLibrary.UpdateSubMgmtSetupDirectTransfer(false);
     end;
 
-    // ---- Handlers ----
-
     [PageHandler]
     procedure HandleTransferOrder(var TransfOrderPage: TestPage "Transfer Order")
     begin
@@ -987,8 +985,6 @@ codeunit 149910 "Subc. WIP Transfer Test"
     begin
         Reply := false;
     end;
-
-    // ---- Helper procedures ----
 
     local procedure Initialize()
     begin
