@@ -116,6 +116,7 @@ tableextension 99001517 "Subc. Transfer Line" extends "Transfer Line"
                     CheckForExistingReservationsOrItemTracking();
                     "Qty. per Unit of Measure" := 0;
                 end else begin
+                    Item.SetLoadFields("Base Unit of Measure");
                     Item.Get(Rec."Item No.");
                     "Qty. per Unit of Measure" := UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                 end;

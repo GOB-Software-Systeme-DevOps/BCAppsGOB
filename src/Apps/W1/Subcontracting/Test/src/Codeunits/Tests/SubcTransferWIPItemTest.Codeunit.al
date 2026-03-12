@@ -17,7 +17,7 @@ using Microsoft.Warehouse.Request;
 using Microsoft.Warehouse.Setup;
 using Microsoft.Warehouse.Structure;
 
-codeunit 149910 "Subc. Transfer WIP Item Test"
+codeunit 149910 "Subc. WIP Transfer Post Test"
 {
     // [FEATURE] Subcontracting Warehouse Combined Scenarios Tests
     Subtype = Test;
@@ -553,7 +553,7 @@ codeunit 149910 "Subc. Transfer WIP Item Test"
 
     local procedure Initialize()
     begin
-        LibraryTestInitialize.OnTestInitialize(Codeunit::"Subc. Transfer WIP Item Test");
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Subc. WIP Transfer Post Test");
         LibrarySetupStorage.Restore();
 
         SubcontractingMgmtLibrary.Initialize();
@@ -561,7 +561,7 @@ codeunit 149910 "Subc. Transfer WIP Item Test"
 
         if IsInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Subc. Transfer WIP Item Test");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Subc. WIP Transfer Post Test");
 
         SubSetupLibrary.InitSetupFields();
         LibraryERMCountryData.CreateVATData();
@@ -570,7 +570,7 @@ codeunit 149910 "Subc. Transfer WIP Item Test"
         IsInitialized := true;
         Commit();
 
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Subc. Transfer WIP Item Test");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Subc. WIP Transfer Post Test");
     end;
 
     procedure CreateInventory(Item: Record Item; Location: Record Location; Bin: Record Bin; Quantity: Decimal; LotNo: Code[50])
