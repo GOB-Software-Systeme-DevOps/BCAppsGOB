@@ -238,4 +238,23 @@ codeunit 139983 "Subc. Management Library"
                 1, LibraryUtility.GetFieldLength(Database::"Requisition Wksh. Name", RequisitionWkshName.FieldNo(Name))));
         RequisitionWkshName.Insert(true);
     end;
+
+    procedure CreateWIPLedgerEntry(var WIPLedgerEntry: Record "Subcontractor WIP Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenterNo: Code[20]; QuantityBase: Decimal; InTransit: Boolean)
+    begin
+        if WIPLedgerEntry.FindLast() then;
+        WIPLedgerEntry.Init();
+        WIPLedgerEntry."Entry No." := WIPLedgerEntry."Entry No." + 1;
+        WIPLedgerEntry."Item No." := ItemNo;
+        WIPLedgerEntry."Location Code" := LocationCode;
+        WIPLedgerEntry."Prod. Order Status" := "Production Order Status"::Released;
+        WIPLedgerEntry."Prod. Order No." := ProductionOrder."No.";
+        WIPLedgerEntry."Prod. Order Line No." := ProdOrderLine."Line No.";
+        WIPLedgerEntry."Routing No." := ProdOrderRoutingLine."Routing No.";
+        WIPLedgerEntry."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
+        WIPLedgerEntry."Operation No." := ProdOrderRoutingLine."Operation No.";
+        WIPLedgerEntry."Work Center No." := WorkCenterNo;
+        WIPLedgerEntry."Quantity (Base)" := QuantityBase;
+        WIPLedgerEntry."In Transit" := InTransit;
+        WIPLedgerEntry.Insert();
+    end;
 }

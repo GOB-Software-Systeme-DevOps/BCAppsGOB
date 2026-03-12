@@ -648,10 +648,7 @@ codeunit 99001507 "Subc. Factbox Mgmt."
         TransferLine.SetCurrentKey("Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.");
         TransferLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         TransferLine.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        if IsReturn then
-            TransferLine.SetRange("Return Order", true)
-        else
-            TransferLine.SetRange("Return Order", false);
+        TransferLine.SetRange("Return Order", IsReturn);
 
         TransferLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
         TransferLine.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");

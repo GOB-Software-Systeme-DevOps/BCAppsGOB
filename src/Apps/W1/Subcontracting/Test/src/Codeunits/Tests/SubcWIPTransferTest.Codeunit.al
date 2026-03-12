@@ -487,21 +487,10 @@ codeunit 149910 "Subc. WIP Transfer Test"
 
         // [GIVEN] Simulate posting the transfer by creating WIP Ledger Entry with quantity equal to expected quantity
         Vendor.Get(WorkCenter[2]."Subcontractor No.");
-        if WIPLedgerEntry.FindLast() then;
-        WIPLedgerEntry.Init();
-        WIPLedgerEntry."Entry No." := WIPLedgerEntry."Entry No." + 1;
-        WIPLedgerEntry."Item No." := Item."No.";
-        WIPLedgerEntry."Location Code" := Vendor."Subcontr. Location Code";
-        WIPLedgerEntry."Prod. Order Status" := "Production Order Status"::Released;
-        WIPLedgerEntry."Prod. Order No." := ProductionOrder."No.";
-        WIPLedgerEntry."Prod. Order Line No." := ProdOrderLine."Line No.";
-        WIPLedgerEntry."Routing No." := ProdOrderRoutingLine."Routing No.";
-        WIPLedgerEntry."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-        WIPLedgerEntry."Operation No." := ProdOrderRoutingLine."Operation No.";
-        WIPLedgerEntry."Work Center No." := WorkCenter[2]."No.";
-        WIPLedgerEntry."Quantity (Base)" := ProductionOrder.Quantity; // Posted quantity = expected quantity
-        WIPLedgerEntry."In Transit" := false;
-        WIPLedgerEntry.Insert();
+        SubcontractingMgmtLibrary.CreateWIPLedgerEntry(
+            WIPLedgerEntry, Item."No.", Vendor."Subcontr. Location Code",
+            ProductionOrder, ProdOrderLine, ProdOrderRoutingLine,
+            WorkCenter[2]."No.", ProductionOrder.Quantity, false);
 
         // [GIVEN] Delete the first transfer order to allow re-creation attempt
         TransferHeader.Get(TransferLine."Document No.");
@@ -582,20 +571,10 @@ codeunit 149910 "Subc. WIP Transfer Test"
         ProdOrderRoutingLine.FindFirst();
 
         // [GIVEN] Mock WIP Ledger Entry at subcontractor location (simulates posted WIP transfer)
-        if not WIPLedgerEntry.FindLast() then;
-        WIPLedgerEntry.Init();
-        WIPLedgerEntry."Entry No." := WIPLedgerEntry."Entry No." + 1;
-        WIPLedgerEntry."Item No." := Item."No.";
-        WIPLedgerEntry."Location Code" := SubcLocationCode;
-        WIPLedgerEntry."Prod. Order Status" := "Production Order Status"::Released;
-        WIPLedgerEntry."Prod. Order No." := ProductionOrder."No.";
-        WIPLedgerEntry."Prod. Order Line No." := ProdOrderLine."Line No.";
-        WIPLedgerEntry."Routing No." := ProdOrderRoutingLine."Routing No.";
-        WIPLedgerEntry."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-        WIPLedgerEntry."Operation No." := ProdOrderRoutingLine."Operation No.";
-        WIPLedgerEntry."Quantity (Base)" := LibraryRandom.RandInt(10) + 1;
-        WIPLedgerEntry."In Transit" := false;
-        WIPLedgerEntry.Insert();
+        SubcontractingMgmtLibrary.CreateWIPLedgerEntry(
+            WIPLedgerEntry, Item."No.", SubcLocationCode,
+            ProductionOrder, ProdOrderLine, ProdOrderRoutingLine,
+            '', LibraryRandom.RandInt(10) + 1, false);
 
         // [WHEN] Create Return Transfer Order from Subcontractor
         PurchaseHeaderPage.OpenView();
@@ -697,21 +676,10 @@ codeunit 149910 "Subc. WIP Transfer Test"
         // [GIVEN] Insert a WIP Ledger Entry at Subcontractor 1's location, simulating that
         // the production item has been processed and is physically at Subcontractor 1
         WIPQty := LibraryRandom.RandInt(10) + 1;
-        if WIPLedgerEntry.FindLast() then;
-        WIPLedgerEntry.Init();
-        WIPLedgerEntry."Entry No." := WIPLedgerEntry."Entry No." + 1;
-        WIPLedgerEntry."Item No." := Item."No.";
-        WIPLedgerEntry."Location Code" := Subc1LocationCode;
-        WIPLedgerEntry."Prod. Order Status" := "Production Order Status"::Released;
-        WIPLedgerEntry."Prod. Order No." := ProductionOrder."No.";
-        WIPLedgerEntry."Prod. Order Line No." := ProdOrderLine."Line No.";
-        WIPLedgerEntry."Routing No." := ProdOrderRoutingLine."Routing No.";
-        WIPLedgerEntry."Routing Reference No." := ProdOrderRoutingLine."Routing Reference No.";
-        WIPLedgerEntry."Operation No." := ProdOrderRoutingLine."Operation No.";
-        WIPLedgerEntry."Work Center No." := WorkCenter[1]."No.";
-        WIPLedgerEntry."Quantity (Base)" := WIPQty;
-        WIPLedgerEntry."In Transit" := false;
-        WIPLedgerEntry.Insert();
+        SubcontractingMgmtLibrary.CreateWIPLedgerEntry(
+            WIPLedgerEntry, Item."No.", Subc1LocationCode,
+            ProductionOrder, ProdOrderLine, ProdOrderRoutingLine,
+            WorkCenter[1]."No.", WIPQty, false);
 
         // [WHEN] Create Subcontracting Purchase Order for Subcontractor 2's operation
         SubcontractingMgmtLibrary.CreateSubcontractingOrderFromProdOrderRtngPage(Item."Routing No.", WorkCenter[2]."No.");

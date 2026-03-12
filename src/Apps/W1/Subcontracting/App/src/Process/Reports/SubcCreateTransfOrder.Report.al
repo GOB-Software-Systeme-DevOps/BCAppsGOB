@@ -132,7 +132,6 @@ report 99001501 "Subc. Create Transf. Order"
     local procedure CheckTransferCreated(): Boolean
     var
         PurchaseLine: Record "Purchase Line";
-        TransferCreated: Boolean;
     begin
         PurchaseLine.SetCurrentKey("Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
         PurchaseLine.SetRange("Document No.", PurchOrderNo);
@@ -142,12 +141,12 @@ report 99001501 "Subc. Create Transf. Order"
         if PurchaseLine.FindSet() then
             repeat
                 if HandleComponentsForPurchLine(PurchaseLine, false) then
-                    TransferCreated := true;
+                    exit(true);
                 if HandleWIPTransferForPurchLine(PurchaseLine, false) then
-                    TransferCreated := true;
+                    exit(true);
             until PurchaseLine.Next() = 0;
 
-        exit(TransferCreated);
+        exit(false);
     end;
 
     local procedure HandleComponentsForPurchLine(PurchaseLine: Record "Purchase Line"; InsertLine: Boolean): Boolean
@@ -314,8 +313,7 @@ report 99001501 "Subc. Create Transf. Order"
         if not ProdOrderLine.Get("Production Order Status"::Released, PurchaseLine."Prod. Order No.", PurchaseLine."Prod. Order Line No.") then
             exit(false);
 
-        if not ProdOrderRoutingLine.Get("Production Order Status"::Released, PurchaseLine."Prod. Order No.", PurchaseLine."Routing Reference No.", PurchaseLine."Routing No.", PurchaseLine."Operation No.")
-        then
+        if not ProdOrderRoutingLine.Get("Production Order Status"::Released, PurchaseLine."Prod. Order No.", PurchaseLine."Routing Reference No.", PurchaseLine."Routing No.", PurchaseLine."Operation No.") then
             exit(false);
 
         if not ProdOrderRoutingLine."Transfer WIP Item" then
@@ -427,7 +425,6 @@ report 99001501 "Subc. Create Transf. Order"
             until PrevProdOrderRoutingLine.Next() = 0;
         end;
 
-        // Fallback: use Prod. Order Line location
         if WIPSourceLocationList.Count() = 0 then begin
             LocCode := ProdOrderLine."Location Code";
             if LocCode <> '' then begin
@@ -507,7 +504,6 @@ report 99001501 "Subc. Create Transf. Order"
         if not ProdOrderRoutingLine."Transfer WIP Item" then
             exit(false);
 
-        // Get expected quantities from source locations
         GetWIPTransferFromLocations(ProdOrderLine, ProdOrderRoutingLine, WIPSourceLocationList, WIPSourceQtyList);
 
         ExpectedQtyBase := 0;
@@ -528,7 +524,6 @@ report 99001501 "Subc. Create Transf. Order"
         if TransferToLocationCode = '' then
             exit(false);
 
-        // Check posted WIP quantity at destination location
         SubcontractorWIPLedgerEntry.SetRange("Prod. Order Status", "Production Order Status"::Released);
         SubcontractorWIPLedgerEntry.SetRange("Prod. Order No.", PurchaseLine."Prod. Order No.");
         SubcontractorWIPLedgerEntry.SetRange("Prod. Order Line No.", PurchaseLine."Prod. Order Line No.");
@@ -539,7 +534,6 @@ report 99001501 "Subc. Create Transf. Order"
         SubcontractorWIPLedgerEntry.CalcSums("Quantity (Base)");
         PostedWIPQtyBase := SubcontractorWIPLedgerEntry."Quantity (Base)";
 
-        // Return true if we need to create a transfer (posted quantity is less than expected)
         exit(PostedWIPQtyBase < ExpectedQtyBase);
     end;
 }

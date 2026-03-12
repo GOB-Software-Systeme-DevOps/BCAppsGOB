@@ -133,7 +133,6 @@ report 99001502 "Subc. Create SubCReturnOrder"
     local procedure CheckTransferToCreate(): Boolean
     var
         PurchaseLine: Record "Purchase Line";
-        TransferCreated: Boolean;
         QtyToPost: Decimal;
     begin
         PurchaseLine.SetCurrentKey("Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
@@ -144,12 +143,12 @@ report 99001502 "Subc. Create SubCReturnOrder"
         if PurchaseLine.FindSet() then
             repeat
                 if HandleComponentReturnForPurchLine(PurchaseLine, false, QtyToPost) then
-                    TransferCreated := true;
+                    exit(true);
                 if HandleWIPReturnForPurchLine(PurchaseLine, false) then
-                    TransferCreated := true;
+                    exit(true);
             until PurchaseLine.Next() = 0;
 
-        exit(TransferCreated);
+        exit(false);
     end;
 
     local procedure HandleComponentReturnForPurchLine(PurchaseLine: Record "Purchase Line"; InsertLine: Boolean; var QtyToPost: Decimal): Boolean
