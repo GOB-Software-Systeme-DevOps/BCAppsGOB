@@ -23,7 +23,7 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Warehouse.Structure;
 
-codeunit 149910 "Subc. WIP Transfer Test"
+codeunit 149911 "Subc. WIP Trans. Create Test"
 {
     // [FEATURE] WIP Item Transfer for Subcontracting
     Subtype = Test;
@@ -988,7 +988,7 @@ codeunit 149910 "Subc. WIP Transfer Test"
 
     local procedure Initialize()
     begin
-        LibraryTestInitialize.OnTestInitialize(Codeunit::"Subc. WIP Transfer Test");
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Subc. WIP Trans. Create Test");
         LibrarySetupStorage.Restore();
 
         SubcontractingMgmtLibrary.Initialize();
@@ -997,7 +997,7 @@ codeunit 149910 "Subc. WIP Transfer Test"
 
         if IsInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Subc. WIP Transfer Test");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Subc. WIP Trans. Create Test");
 
         SubSetupLibrary.InitSetupFields();
         SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
@@ -1013,7 +1013,7 @@ codeunit 149910 "Subc. WIP Transfer Test"
         IsInitialized := true;
         Commit();
 
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Subc. WIP Transfer Test");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Subc. WIP Trans. Create Test");
     end;
 
     local procedure SetTransferWIPItemOnRoutingLine(RoutingNo: Code[20]; WorkCenterNo: Code[20]; TransferWIPItem: Boolean)
