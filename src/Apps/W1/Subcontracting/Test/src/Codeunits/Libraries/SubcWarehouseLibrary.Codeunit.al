@@ -10,6 +10,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
@@ -761,5 +762,20 @@ codeunit 149908 "Subc. Warehouse Library"
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Item.Validate("Serial Nos.", SerialNoSeries.Code);
         Item.Modify(true);
+    end;
+    // ========================================
+    // TRANSFER ORDER WIP FUNCTIONS
+    // ========================================
+    procedure CreateTransferOrderWithWIPItemFlagWithoutRoutingReference(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; FromLocation: Code[10]; ToLocation: Code[10]; InTransitCode: Code[10]; Item: Record Item; Quantity: Decimal)
+    var
+        TransferRoute: Record "Transfer Route";
+    begin
+        if Item."No." = '' then
+            LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateTransferRoute(TransferRoute, FromLocation, ToLocation);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, InTransitCode);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Quantity);
+        TransferLine.Validate("Transfer WIP Item", true);
+        TransferLine.Modify();
     end;
 }
