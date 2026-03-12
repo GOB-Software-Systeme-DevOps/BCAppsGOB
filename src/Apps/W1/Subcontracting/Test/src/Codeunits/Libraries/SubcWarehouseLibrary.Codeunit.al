@@ -44,10 +44,6 @@ codeunit 149908 "Subc. Warehouse Library"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         SubcLibraryMfgManagement: Codeunit "Subc. Library Mfg. Management";
 
-    // ========================================
-    // MANUFACTURING SETUP FUNCTIONS
-    // ========================================
-
     procedure CreateAndCalculateNeededWorkAndMachineCenter(var WorkCenter: array[2] of Record "Work Center"; var MachineCenter: array[2] of Record "Machine Center"; Subcontracting: Boolean)
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
@@ -354,10 +350,6 @@ codeunit 149908 "Subc. Warehouse Library"
         ProductionBOMHeader.Modify(true);
     end;
 
-    // ========================================
-    // LOCATION & WAREHOUSE SETUP FUNCTIONS
-    // ========================================
-
     procedure CreateLocationWithWarehouseHandling(var Location: Record Location)
     begin
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, true, false);
@@ -409,10 +401,6 @@ codeunit 149908 "Subc. Warehouse Library"
         Location.Modify(true);
     end;
 
-    // ========================================
-    // PRODUCTION ORDER FUNCTIONS
-    // ========================================
-
     procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibraryManufacturing.CreateProductionOrder(
@@ -426,10 +414,6 @@ codeunit 149908 "Subc. Warehouse Library"
     begin
         SubcLibraryMfgManagement.CreateLaborReqWkshTemplateAndNameAndUpdateSetup();
     end;
-
-    // ========================================
-    // PURCHASE ORDER FUNCTIONS
-    // ========================================
 
     procedure CreateSubcontractingOrderFromProdOrderRouting(RoutingNo: Code[20]; WorkCenterNo: Code[20]; var PurchaseLine: Record "Purchase Line")
     var
@@ -492,10 +476,6 @@ codeunit 149908 "Subc. Warehouse Library"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
     end;
 
-    // ========================================
-    // WAREHOUSE DOCUMENT FUNCTIONS
-    // ========================================
-
     procedure CreateWarehouseReceiptFromPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -541,10 +521,6 @@ codeunit 149908 "Subc. Warehouse Library"
         PostedWhseReceiptHeader.FindLast();
     end;
 
-    // ========================================
-    // PUT-AWAY FUNCTIONS
-    // ========================================
-
     procedure CreatePutAwayFromPostedWhseReceipt(PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; var WarehouseActivityHeader: Record "Warehouse Activity Header")
     var
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
@@ -581,10 +557,6 @@ codeunit 149908 "Subc. Warehouse Library"
 
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
-
-    // ========================================
-    // PUT-AWAY WORKSHEET FUNCTIONS
-    // ========================================
 
     procedure CreatePutAwayWorksheet(var WhseWorksheetTemplate: Record "Whse. Worksheet Template"; var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
     begin
@@ -641,10 +613,6 @@ codeunit 149908 "Subc. Warehouse Library"
         WarehouseActivityHeader.FindLast();
     end;
 
-    // ========================================
-    // VERIFICATION FUNCTIONS
-    // ========================================
-
     procedure VerifyItemLedgerEntry(ItemNo: Code[20]; ExpectedQuantity: Decimal; LocationCode: Code[10])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -689,10 +657,6 @@ codeunit 149908 "Subc. Warehouse Library"
         Assert.AreEqual(ExpectedQuantity, BinContent.Quantity,
             'Bin contents should show correct quantity after put-away posting');
     end;
-
-    // ========================================
-    // COMPLETE SCENARIO SETUP FUNCTIONS
-    // ========================================
 
     procedure SetupCompleteSubcontractingWarehouseScenario(var Item: Record Item; var Location: Record Location; var ProductionOrder: Record "Production Order"; var PurchaseHeader: Record "Purchase Header"; Quantity: Decimal)
     var
@@ -763,9 +727,7 @@ codeunit 149908 "Subc. Warehouse Library"
         Item.Validate("Serial Nos.", SerialNoSeries.Code);
         Item.Modify(true);
     end;
-    // ========================================
-    // TRANSFER ORDER WIP FUNCTIONS
-    // ========================================
+
     procedure CreateTransferOrderWithWIPItemFlagWithoutRoutingReference(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; FromLocation: Code[10]; ToLocation: Code[10]; InTransitCode: Code[10]; Item: Record Item; Quantity: Decimal)
     var
         TransferRoute: Record "Transfer Route";
