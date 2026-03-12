@@ -4,10 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting;
 
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Warehouse.Document;
 
 tableextension 99001517 "Subc. Transfer Line" extends "Transfer Line"
 {
@@ -101,6 +106,48 @@ tableextension 99001517 "Subc. Transfer Line" extends "Transfer Line"
             Caption = 'Transfer WIP Item';
             DataClassification = CustomerContent;
             ToolTip = 'Specifies whether this transfer line represents a WIP item transfer. When enabled, a WIP item transfer can be created.';
+
+            trigger OnValidate()
+            var
+                Item: Record Item;
+                UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+            begin
+                if "Transfer WIP Item" then begin
+                    CheckForExistingReservationsOrItemTracking();
+                    "Qty. per Unit of Measure" := 0;
+                end else begin
+                    Item.SetLoadFields("Base Unit of Measure");
+                    Item.Get(Rec."Item No.");
+                    "Qty. per Unit of Measure" := UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                end;
+                Validate(Quantity);
+            end;
+        }
+        field(99001561; "Whse. Inbnd. Otsdg. Qty"; Decimal)
+        {
+            AutoFormatType = 0;
+            BlankZero = true;
+            CalcFormula = sum("Warehouse Receipt Line"."Qty. Outstanding" where("Source Type" = const(5741),
+                                                                                        "Source Subtype" = const("1"),
+                                                                                        "Source No." = field("Document No."),
+                                                                                        "Source Line No." = field("Line No.")));
+            Caption = 'Whse. Inbnd. Otsdg. Qty';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(99001562; "Whse Outbnd. Otsdg. Qty"; Decimal)
+        {
+            AutoFormatType = 0;
+            BlankZero = true;
+            CalcFormula = sum("Warehouse Shipment Line"."Qty. Outstanding" where("Source Type" = const(5741),
+                                                                                         "Source Subtype" = const("0"),
+                                                                                         "Source No." = field("Document No."),
+                                                                                         "Source Line No." = field("Line No.")));
+            Caption = 'Whse Outbnd. Otsdg. Qty';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
         }
     }
     keys
@@ -111,4 +158,33 @@ tableextension 99001517 "Subc. Transfer Line" extends "Transfer Line"
         key(Key99001503; "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.") { }
         key(Key99001504; "Prod. Order No.", "Prod. Order Line No.", "Prod. Order Comp. Line No.", "Subcontr. Purch. Order No.", "Return Order") { }
     }
+
+    internal procedure CheckForExistingReservationsOrItemTracking()
+    var
+        ReservationEntry: Record "Reservation Entry";
+        ExistingReservationsErr: Label 'There are existing reservations for this transfer line. Please remove the reservations before changing the line to/from a WIP item transfer.';
+        ExistingItemTrackingErr: Label 'There is existing item tracking for this transfer line. Please remove the item tracking before changing the line to/from a WIP item transfer.';
+        ExistingReservationEntriesErr: Label 'There are existing reservation entries for this transfer line. Please remove the reservation entries before changing the line to/from a WIP item transfer.';
+    begin
+        Rec.SetReservationFilters(ReservationEntry, "Transfer Direction"::Outbound);
+        ReservationEntry.SetRange("Reservation Status", "Reservation Status"::Reservation);
+        if not ReservationEntry.IsEmpty() then
+            Error(ExistingReservationsErr);
+
+        ReservationEntry.Reset();
+        Rec.SetReservationFilters(ReservationEntry, "Transfer Direction"::Inbound);
+        ReservationEntry.SetRange("Reservation Status", "Reservation Status"::Reservation);
+        if not ReservationEntry.IsEmpty() then
+            Error(ExistingReservationsErr);
+
+        ReservationEntry.Reset();
+        Rec.SetReservationFilters(ReservationEntry, "Transfer Direction"::Outbound);
+        ReservationEntry.SetRange("Source Subtype");//Ignore Direction
+        ReservationEntry.SetRange("Reservation Status", "Reservation Status"::Surplus);
+        if not ReservationEntry.IsEmpty() then
+            Error(ExistingItemTrackingErr);
+
+        if Rec.ReservEntryExist() then
+            Error(ExistingReservationEntriesErr);
+    end;
 }

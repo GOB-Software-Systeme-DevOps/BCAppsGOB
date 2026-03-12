@@ -77,6 +77,26 @@ pageextension 99001529 "Subc. Trans. Order Sub." extends "Transfer Order Subform
     }
     actions
     {
+        modify(Reserve)
+        {
+            Enabled = not Rec."Transfer WIP Item";
+        }
+        modify(ReserveFromInventory)
+        {
+            Enabled = not Rec."Transfer WIP Item";
+        }
+        modify("Item &Tracking Lines")
+        {
+            Enabled = not Rec."Transfer WIP Item";
+        }
+        modify(Shipment)
+        {
+            Enabled = not Rec."Transfer WIP Item";
+        }
+        modify(Receipt)
+        {
+            Enabled = not Rec."Transfer WIP Item";
+        }
         addafter("F&unctions")
         {
             group(Production)

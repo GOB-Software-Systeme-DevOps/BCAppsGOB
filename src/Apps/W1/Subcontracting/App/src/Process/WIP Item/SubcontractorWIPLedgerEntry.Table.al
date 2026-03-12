@@ -174,7 +174,7 @@ table 99001560 "Subcontractor WIP Ledger Entry"
         {
             IncludedFields = "Quantity (Base)";
         }
-        key(Key3; "Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.")
+        key(Key3; "Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code")
         {
             IncludedFields = "Quantity (Base)";
         }

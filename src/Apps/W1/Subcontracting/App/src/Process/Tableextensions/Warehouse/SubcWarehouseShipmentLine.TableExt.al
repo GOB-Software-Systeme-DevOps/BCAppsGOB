@@ -5,24 +5,18 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting;
 
-using Microsoft.Warehouse.History;
+using Microsoft.Warehouse.Document;
 
-tableextension 99001526 "Subc. Posted Whse Receipt Line" extends "Posted Whse. Receipt Line"
+tableextension 99001527 "Subc. Warehouse Shipment Line" extends "Warehouse Shipment Line"
 {
     fields
     {
-        field(99001549; "Subc. Purchase Line Type"; Enum "Subc. Purchase Line Type")
-        {
-            Caption = 'Subcontracting Line Type';
-            DataClassification = CustomerContent;
-            Editable = false;
-        }
         field(99001560; "Transfer WIP Item"; Boolean)
         {
             Caption = 'Transfer WIP Item';
             DataClassification = CustomerContent;
             Editable = false;
-            ToolTip = 'Specifies whether this transfer receipt line represents a WIP item transfer.';
+            ToolTip = 'Specifies whether this transfer shipment line represents a WIP item transfer.';
         }
     }
 }
