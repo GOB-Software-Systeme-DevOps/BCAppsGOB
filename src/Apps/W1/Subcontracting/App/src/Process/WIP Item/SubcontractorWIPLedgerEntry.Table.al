@@ -179,4 +179,32 @@ table 99001560 "Subcontractor WIP Ledger Entry"
             IncludedFields = "Quantity (Base)";
         }
     }
+
+    /// <summary>
+    /// Filters the record set to WIP entries for the given production order.
+    /// When SetKey is true, the sort key is aligned to Key3 before applying the filters.
+    /// </summary>
+    procedure SetProductionOrderFilter(ProductionOrder: Record "Production Order"; SetKey: Boolean)
+    begin
+        if SetKey then
+            SetCurrentKey("Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code");
+        SetRange("Prod. Order Status", ProductionOrder.Status);
+        SetRange("Prod. Order No.", ProductionOrder."No.");
+    end;
+
+    /// <summary>
+    /// Filters the record set to WIP entries for the given prod. order routing line.
+    /// When SetKey is true, the sort key is aligned to Key3 before applying the filters.
+    /// </summary>
+    procedure SetProductionOrderRoutingFilter(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; SetKey: Boolean)
+    begin
+        if SetKey then
+            SetCurrentKey("Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code");
+        SetRange("Prod. Order Status", ProdOrderRoutingLine.Status);
+        SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        SetRange("Prod. Order Line No.", ProdOrderRoutingLine."Routing Reference No.");
+        SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+        SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+        SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+    end;
 }
