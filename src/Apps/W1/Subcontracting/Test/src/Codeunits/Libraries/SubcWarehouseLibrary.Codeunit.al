@@ -44,10 +44,6 @@ codeunit 149908 "Subc. Warehouse Library"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         SubcLibraryMfgManagement: Codeunit "Subc. Library Mfg. Management";
 
-    // ========================================
-    // MANUFACTURING SETUP FUNCTIONS
-    // ========================================
-
     procedure CreateAndCalculateNeededWorkAndMachineCenter(var WorkCenter: array[2] of Record "Work Center"; var MachineCenter: array[2] of Record "Machine Center"; Subcontracting: Boolean)
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
@@ -154,6 +150,83 @@ codeunit 149908 "Subc. Warehouse Library"
         LibraryManufacturing.CreateItemManufacturing(
             Item, "Costing Method"::FIFO, LibraryRandom.RandDec(10, 2),
             "Reordering Policy"::" ", "Flushing Method"::Backward, RoutingNo, ProductionBOMNo);
+    end;
+
+    procedure CreateParallelRoutingItemWithSubcontracting(var Item: Record Item; var MachineCenter: array[2] of Record "Machine Center"; var WorkCenter: array[2] of Record "Work Center")
+    var
+        Item2: Record Item;
+        Item3: Record Item;
+        Location: Record Location;
+        ProductionBOMHeader: Record "Production BOM Header";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Vendor1: Record Vendor;
+        Vendor2: Record Vendor;
+        WorkCenterNonSC: Record "Work Center";
+        ProductionBOMNo: Code[20];
+    begin
+        // Create non-subcontracting work center with machine centers for ops 10 and 20
+        SubcLibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenterNonSC, LibraryRandom.RandDec(10, 2));
+        LibraryManufacturing.CreateMachineCenterWithCalendar(
+            MachineCenter[1], WorkCenterNonSC."No.", LibraryRandom.RandDec(10, 1));
+        LibraryManufacturing.CreateMachineCenterWithCalendar(
+            MachineCenter[2], WorkCenterNonSC."No.", LibraryRandom.RandDec(10, 1));
+
+        // Create subcontracting work center for op 30 (parallel SC branch) with dedicated vendor + location
+        SubcLibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenter[1], LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreateSubcontractor(Vendor1);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Vendor1."Subcontr. Location Code" := Location.Code;
+        Vendor1.Modify(true);
+        WorkCenter[1]."Subcontractor No." := Vendor1."No.";
+        WorkCenter[1].Modify(true);
+
+        // Create subcontracting work center for op 40 (last SC operation) with dedicated vendor + location
+        SubcLibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenter[2], LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreateSubcontractor(Vendor2);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Vendor2."Subcontr. Location Code" := Location.Code;
+        Vendor2.Modify(true);
+        WorkCenter[2]."Subcontractor No." := Vendor2."No.";
+        WorkCenter[2].Modify(true);
+
+        // Create a PARALLEL routing: 10 → 20 | 30 → 40
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Machine Center", MachineCenter[1]."No.");
+        RoutingLine."Next Operation No." := '20|30';
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '20', RoutingLine.Type::"Machine Center", MachineCenter[2]."No.");
+        RoutingLine."Previous Operation No." := '10';
+        RoutingLine."Next Operation No." := '40';
+        RoutingLine."Transfer WIP Item" := true;
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '30', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+        RoutingLine."Previous Operation No." := '10';
+        RoutingLine."Next Operation No." := '40';
+        RoutingLine."Transfer WIP Item" := true;
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '40', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+        RoutingLine."Previous Operation No." := '20|30';
+        RoutingLine."Transfer WIP Item" := true;
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        // Create two component items and a certified production BOM
+        LibraryInventory.CreateItem(Item2);
+        LibraryInventory.CreateItem(Item3);
+        ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
+            ProductionBOMHeader, Item2."No.", Item3."No.", 1);
+
+        // Create the finished item linked to the parallel routing and production BOM
+        LibraryManufacturing.CreateItemManufacturing(
+            Item, "Costing Method"::FIFO, LibraryRandom.RandDec(10, 2),
+            "Reordering Policy"::" ", "Flushing Method"::Backward, RoutingHeader."No.", ProductionBOMNo);
     end;
 
     procedure CreateRouting(var MachineCenter: array[2] of Record "Machine Center"; var WorkCenter: array[2] of Record "Work Center"): Code[20]
@@ -277,10 +350,6 @@ codeunit 149908 "Subc. Warehouse Library"
         ProductionBOMHeader.Modify(true);
     end;
 
-    // ========================================
-    // LOCATION & WAREHOUSE SETUP FUNCTIONS
-    // ========================================
-
     procedure CreateLocationWithWarehouseHandling(var Location: Record Location)
     begin
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, true, false);
@@ -332,10 +401,6 @@ codeunit 149908 "Subc. Warehouse Library"
         Location.Modify(true);
     end;
 
-    // ========================================
-    // PRODUCTION ORDER FUNCTIONS
-    // ========================================
-
     procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibraryManufacturing.CreateProductionOrder(
@@ -349,10 +414,6 @@ codeunit 149908 "Subc. Warehouse Library"
     begin
         SubcLibraryMfgManagement.CreateLaborReqWkshTemplateAndNameAndUpdateSetup();
     end;
-
-    // ========================================
-    // PURCHASE ORDER FUNCTIONS
-    // ========================================
 
     procedure CreateSubcontractingOrderFromProdOrderRouting(RoutingNo: Code[20]; WorkCenterNo: Code[20]; var PurchaseLine: Record "Purchase Line")
     var
@@ -415,10 +476,6 @@ codeunit 149908 "Subc. Warehouse Library"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
     end;
 
-    // ========================================
-    // WAREHOUSE DOCUMENT FUNCTIONS
-    // ========================================
-
     procedure CreateWarehouseReceiptFromPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -464,10 +521,6 @@ codeunit 149908 "Subc. Warehouse Library"
         PostedWhseReceiptHeader.FindLast();
     end;
 
-    // ========================================
-    // PUT-AWAY FUNCTIONS
-    // ========================================
-
     procedure CreatePutAwayFromPostedWhseReceipt(PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header"; var WarehouseActivityHeader: Record "Warehouse Activity Header")
     var
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
@@ -504,10 +557,6 @@ codeunit 149908 "Subc. Warehouse Library"
 
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
-
-    // ========================================
-    // PUT-AWAY WORKSHEET FUNCTIONS
-    // ========================================
 
     procedure CreatePutAwayWorksheet(var WhseWorksheetTemplate: Record "Whse. Worksheet Template"; var WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
     begin
@@ -564,10 +613,6 @@ codeunit 149908 "Subc. Warehouse Library"
         WarehouseActivityHeader.FindLast();
     end;
 
-    // ========================================
-    // VERIFICATION FUNCTIONS
-    // ========================================
-
     procedure VerifyItemLedgerEntry(ItemNo: Code[20]; ExpectedQuantity: Decimal; LocationCode: Code[10])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -612,10 +657,6 @@ codeunit 149908 "Subc. Warehouse Library"
         Assert.AreEqual(ExpectedQuantity, BinContent.Quantity,
             'Bin contents should show correct quantity after put-away posting');
     end;
-
-    // ========================================
-    // COMPLETE SCENARIO SETUP FUNCTIONS
-    // ========================================
 
     procedure SetupCompleteSubcontractingWarehouseScenario(var Item: Record Item; var Location: Record Location; var ProductionOrder: Record "Production Order"; var PurchaseHeader: Record "Purchase Header"; Quantity: Decimal)
     var
@@ -686,9 +727,6 @@ codeunit 149908 "Subc. Warehouse Library"
         Item.Validate("Serial Nos.", SerialNoSeries.Code);
         Item.Modify(true);
     end;
-    // ========================================
-    // TRANSFER ORDER WIP FUNCTIONS
-    // ========================================
 
     procedure CreateTransferOrderWithWIPItemFlagWithoutRoutingReference(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; FromLocation: Code[10]; ToLocation: Code[10]; InTransitCode: Code[10]; Item: Record Item; Quantity: Decimal)
     var

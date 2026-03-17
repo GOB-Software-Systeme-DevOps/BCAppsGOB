@@ -57,7 +57,6 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
 
         // [GIVEN] Some Parameters for Creation
         Subcontracting := true;
-        SubcontractingManagementSetup.Get();
         UnitCostCalculation := UnitCostCalculation::Units;
 
         // [GIVEN]
@@ -89,6 +88,8 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
 #pragma warning restore AA0210
         ProductionBOMLine.FindFirst();
 #pragma warning restore
+
+        SubcontractingManagementSetup.Get();
 
         RequisitionLine."Worksheet Template Name" := SubcontractingManagementSetup."Subcontracting Template Name";
         RequisitionLine."Journal Batch Name" := SubcontractingManagementSetup."Subcontracting Batch Name";
