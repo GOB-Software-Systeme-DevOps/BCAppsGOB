@@ -255,6 +255,7 @@ codeunit 139983 "Subc. Management Library"
         WIPLedgerEntry."Work Center No." := WorkCenterNo;
         WIPLedgerEntry."Quantity (Base)" := QuantityBase;
         WIPLedgerEntry."In Transit" := InTransit;
+        WIPLedgerEntry."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
         WIPLedgerEntry.Insert();
     end;
 }

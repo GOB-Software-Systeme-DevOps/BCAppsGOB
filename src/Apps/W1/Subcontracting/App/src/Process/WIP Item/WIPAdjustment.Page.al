@@ -13,6 +13,7 @@ page 99001561 "WIP Adjustment"
     SourceTableTemporary = true;
     DeleteAllowed = false;
     InsertAllowed = false;
+    DataCaptionExpression = CreateCaption();
 
     layout
     {
@@ -23,106 +24,90 @@ page 99001561 "WIP Adjustment"
                 Caption = 'Adjustment';
                 field("Posting Date"; PostingDate)
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Posting Date';
                     ToolTip = 'Specifies the posting date applied to all created adjustment entries.';
                 }
                 field("Document Type"; DocumentType)
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Document Type';
                     ToolTip = 'Specifies the document type applied to all created adjustment entries.';
+                    Editable = false;
                 }
                 field("Document No."; DocumentNo)
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Document No.';
                     ToolTip = 'Specifies the document number applied to all created adjustment entries.';
                 }
                 field(Description; AdjustmentDescription)
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Description';
                     ToolTip = 'Specifies a description applied to all created adjustment entries.';
+                }
+                field("Description 2"; Description2)
+                {
+                    Caption = 'Description 2';
+                    ToolTip = 'Specifies a second description field applied to all created adjustment entries.';
                 }
             }
             group("Production Order")
             {
                 Caption = 'Production Order';
-                field("Item No."; Rec."Item No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    Editable = false;
-                    ToolTip = 'Specifies the item number.';
-                }
-                field("Variant Code"; Rec."Variant Code")
-                {
-                    ApplicationArea = Manufacturing;
-                    Editable = false;
-                    ToolTip = 'Specifies the variant code.';
-                }
-                field("Unit of Measure Code"; Rec."Unit of Measure Code")
-                {
-                    ApplicationArea = Manufacturing;
-                    Editable = false;
-                    ToolTip = 'Specifies the unit of measure code.';
-                }
+                Visible = LineCount = 1;
                 field("Prod. Order Status"; Rec."Prod. Order Status")
                 {
-                    ApplicationArea = Manufacturing;
                     Editable = false;
-                    ToolTip = 'Specifies the production order status.';
+                    Visible = false;
                 }
                 field("Prod. Order No."; Rec."Prod. Order No.")
                 {
-                    ApplicationArea = Manufacturing;
                     Editable = false;
-                    ToolTip = 'Specifies the production order number.';
+                    Visible = false;
                 }
                 field("Prod. Order Line No."; Rec."Prod. Order Line No.")
                 {
-                    ApplicationArea = Manufacturing;
                     Editable = false;
-                    ToolTip = 'Specifies the production order line number.';
+                    Visible = false;
                 }
                 field("Routing No."; Rec."Routing No.")
                 {
-                    ApplicationArea = Manufacturing;
                     Editable = false;
-                    ToolTip = 'Specifies the routing number.';
+                }
+                field("Routing Reference No."; Rec."Routing Reference No.")
+                {
+                    Editable = false;
+                }
+                field("Operation No."; Rec."Operation No.")
+                {
+                    Editable = false;
+                }
+                field("Work Center No."; Rec."Work Center No.")
+                {
+                    Editable = false;
                 }
             }
             group(General)
             {
                 Caption = 'General';
                 Visible = LineCount = 1;
-                field("Routing Reference No."; Rec."Routing Reference No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    Editable = false;
-                    ToolTip = 'Specifies the routing reference number identifying the prod. order routing line.';
-                }
-                field("Operation No."; Rec."Operation No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    Editable = false;
-                    ToolTip = 'Specifies the operation number.';
-                }
-                field("Work Center No."; Rec."Work Center No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    Editable = false;
-                    ToolTip = 'Specifies the work center number.';
-                }
                 field("Location Code"; Rec."Location Code")
                 {
-                    ApplicationArea = Manufacturing;
                     Editable = false;
-                    ToolTip = 'Specifies the location code.';
+                }
+                field("Item No."; Rec."Item No.")
+                {
+                    Editable = false;
+                }
+                field("Variant Code"; Rec."Variant Code")
+                {
+                    Editable = false;
+                    Visible = false;
+                }
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
+                {
+                    Editable = false;
                 }
                 field("Current Quantity"; Rec."Quantity (Base)")
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Current Quantity';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
@@ -130,7 +115,6 @@ page 99001561 "WIP Adjustment"
                 }
                 field("New Quantity"; NewQuantity)
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'New Quantity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the new target WIP quantity after adjustment.';
@@ -143,7 +127,6 @@ page 99001561 "WIP Adjustment"
                 }
                 field("Quantity to Adjust"; QuantityToAdjust)
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Quantity to Adjust';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
@@ -155,45 +138,63 @@ page 99001561 "WIP Adjustment"
             {
                 Caption = 'Lines';
                 Visible = LineCount > 1;
+                field("Prod. Order Status Line"; Rec."Prod. Order Status")
+                {
+                    Editable = false;
+                    Visible = false;
+                }
+                field("Prod. Order No. Line"; Rec."Prod. Order No.")
+                {
+                    Editable = false;
+                    Visible = false;
+                }
+                field("Prod. Order Line No. Line"; Rec."Prod. Order Line No.")
+                {
+                    Editable = false;
+                    Visible = false;
+                }
+                field("Routing No. Line"; Rec."Routing No.")
+                {
+                    Editable = false;
+                }
                 field("Routing Reference No. Line"; Rec."Routing Reference No.")
                 {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Routing Reference No.';
                     Editable = false;
-                    ToolTip = 'Specifies the routing reference number identifying the prod. order routing line.';
                 }
                 field("Operation No. Line"; Rec."Operation No.")
                 {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Operation No.';
                     Editable = false;
-                    ToolTip = 'Specifies the operation number.';
                 }
                 field("Work Center No. Line"; Rec."Work Center No.")
                 {
-                    ApplicationArea = Manufacturing;
-                    Caption = 'Work Center No.';
                     Editable = false;
-                    ToolTip = 'Specifies the work center number.';
+                }
+                field("Item No. Line"; Rec."Item No.")
+                {
+                    Editable = false;
+                }
+                field("Variant Code Line"; Rec."Variant Code")
+                {
+                    Editable = false;
+                    Visible = false;
+                }
+                field("Unit of Measure Code Line"; Rec."Unit of Measure Code")
+                {
+                    Editable = false;
                 }
                 field("Location Code Line"; Rec."Location Code")
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Location Code';
                     Editable = false;
-                    ToolTip = 'Specifies the location code.';
                 }
                 field("Current Quantity Line"; Rec."Quantity (Base)")
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Current Quantity';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
-                    ToolTip = 'Specifies the current WIP quantity for this operation and location.';
                 }
                 field("New Quantity Line"; NewQuantity)
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'New Quantity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the new target WIP quantity after adjustment.';
@@ -206,7 +207,6 @@ page 99001561 "WIP Adjustment"
                 }
                 field("Quantity to Adjust Line"; QuantityToAdjust)
                 {
-                    ApplicationArea = Manufacturing;
                     Caption = 'Quantity to Adjust';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
@@ -243,6 +243,7 @@ page 99001561 "WIP Adjustment"
         DocumentType: Enum "WIP Document Type";
         DocumentNo: Code[20];
         AdjustmentDescription: Text[100];
+        Description2: Text[50];
         NewQuantity: Decimal;
         QuantityToAdjust: Decimal;
         QuantityStyle: Text;
@@ -322,7 +323,9 @@ page 99001561 "WIP Adjustment"
                 WIPLedgerEntry."Posting Date" := PostingDate;
                 WIPLedgerEntry."Document Type" := DocumentType;
                 WIPLedgerEntry."Document No." := DocumentNo;
-                WIPLedgerEntry.Description := CopyStr(AdjustmentDescription, 1, MaxStrLen(WIPLedgerEntry.Description));
+                WIPLedgerEntry.Description := AdjustmentDescription;
+                WIPLedgerEntry."Description 2" := Description2;
+
                 WIPLedgerEntry."Quantity (Base)" := TargetQty - Rec."Quantity (Base)";
                 if WIPLedgerEntry."Quantity (Base)" >= 0 then
                     WIPLedgerEntry."Entry Type" := AdjEntryType::"Positive Adjustment"
@@ -341,5 +344,12 @@ page 99001561 "WIP Adjustment"
             QuantityStyle := 'Strong'
         else
             QuantityStyle := 'Unfavorable';
+    end;
+
+    local procedure CreateCaption(): Text
+    var
+        CaptionLbl: Label 'Production Order %1 %2', Comment = '%1=Prod. Order Status,%2=Prod. Order Number';
+    begin
+        exit(StrSubstNo(CaptionLbl, Rec."Prod. Order Status", Rec."Prod. Order No."));
     end;
 }
