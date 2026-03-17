@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting;
 
+using Microsoft.Inventory.Item;
+
 page 99001561 "WIP Adjustment"
 {
     ApplicationArea = Manufacturing;
@@ -238,6 +240,7 @@ page 99001561 "WIP Adjustment"
     end;
 
     var
+        Item: Record Item;
         NewQuantities: Dictionary of [BigInteger, Decimal];
         PostingDate: Date;
         DocumentType: Enum "WIP Document Type";
@@ -258,6 +261,7 @@ page 99001561 "WIP Adjustment"
     var
         TempBuffer: Record "Subcontractor WIP Ledger Entry" temporary;
         NothingToAdjustErr: Label 'There are no WIP quantities to adjust, because there are no existing ledger entries for the specified source.';
+        UnitOfMeasureCode: Code[10];
         EntrySeq: BigInteger;
     begin
         EntrySeq := 1;
@@ -281,6 +285,7 @@ page 99001561 "WIP Adjustment"
                 TempBuffer.TransferFields(WIPLedgerEntry);
                 TempBuffer."Entry No." := EntrySeq;
                 TempBuffer."Quantity (Base)" := WIPLedgerEntry."Quantity (Base)";
+                TempBuffer."Unit of Measure Code" := GetItemBaseUnitOfMeasure(WIPLedgerEntry."Item No.");
                 TempBuffer.Insert();
                 EntrySeq += 1;
             end;
@@ -351,5 +356,13 @@ page 99001561 "WIP Adjustment"
         CaptionLbl: Label 'Production Order %1 %2', Comment = '%1=Prod. Order Status,%2=Prod. Order Number';
     begin
         exit(StrSubstNo(CaptionLbl, Rec."Prod. Order Status", Rec."Prod. Order No."));
+    end;
+
+    local procedure GetItemBaseUnitOfMeasure(ItemNo: Code[20]): Code[10]
+    begin
+        Item.SetLoadFields("Base Unit of Measure");
+        if ItemNo <> Item."No." then
+            if Item.Get(ItemNo) then
+                exit(Item."Base Unit of Measure");
     end;
 }
