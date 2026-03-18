@@ -4,13 +4,11 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting;
 
-using Microsoft.Foundation.Company;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 
@@ -390,14 +388,14 @@ report 99001502 "Subc. Create SubCReturnOrder"
 
     local procedure WIPReturnTransferLineAlreadyExists(PurchaseLine: Record "Purchase Line"): Boolean
     var
-        TransferLine: Record "Transfer Line";
+        TransferLineToCheck: Record "Transfer Line";
     begin
-        TransferLine.SetRange("Subcontr. Purch. Order No.", PurchaseLine."Document No.");
-        TransferLine.SetRange("Prod. Order No.", PurchaseLine."Prod. Order No.");
-        TransferLine.SetRange("Prod. Order Line No.", PurchaseLine."Prod. Order Line No.");
-        TransferLine.SetRange("Operation No.", PurchaseLine."Operation No.");
-        TransferLine.SetRange("Transfer WIP Item", true);
-        TransferLine.SetRange("Return Order", true);
-        exit(not TransferLine.IsEmpty());
+        TransferLineToCheck.SetRange("Subcontr. Purch. Order No.", PurchaseLine."Document No.");
+        TransferLineToCheck.SetRange("Prod. Order No.", PurchaseLine."Prod. Order No.");
+        TransferLineToCheck.SetRange("Prod. Order Line No.", PurchaseLine."Prod. Order Line No.");
+        TransferLineToCheck.SetRange("Operation No.", PurchaseLine."Operation No.");
+        TransferLineToCheck.SetRange("Transfer WIP Item", true);
+        TransferLineToCheck.SetRange("Return Order", true);
+        exit(not TransferLineToCheck.IsEmpty());
     end;
 }

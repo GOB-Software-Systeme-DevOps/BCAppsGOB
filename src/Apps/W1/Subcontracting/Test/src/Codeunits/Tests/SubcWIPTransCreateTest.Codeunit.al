@@ -4,24 +4,20 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
-using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Family;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.Planning;
-using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Subcontracting;
-using Microsoft.Manufacturing.Family;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
-using Microsoft.Warehouse.Structure;
 
 codeunit 149911 "Subc. WIP Trans. Create Test"
 {
@@ -104,7 +100,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
         PurchaseLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         PurchaseLine.SetRange("Work Center No.", WorkCenter[2]."No.");
+#pragma warning restore AA0210
         PurchaseLine.FindFirst();
 
         Assert.IsTrue(PurchaseLine."Transfer WIP Item",
@@ -174,7 +172,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
         PurchaseLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         PurchaseLine.SetRange("Work Center No.", WorkCenter[2]."No.");
+#pragma warning restore AA0210
         PurchaseLine.FindFirst();
 
         Assert.IsFalse(PurchaseLine."Transfer WIP Item",
@@ -249,7 +249,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         //Only one of the two lines should have the Transfer WIP Item flag set
         TransferLine.SetRange("Document No.");
+#pragma warning disable AA0210
         TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
         Assert.RecordCount(TransferLine, 1);
 
         TransferLine.FindFirst();
@@ -338,7 +340,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         //Only one of the two lines should have the Transfer WIP Item flag set
         TransferLine.SetRange("Document No.");
+#pragma warning disable AA0210
         TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
         Assert.RecordCount(TransferLine, 1);
 
         TransferLine.FindFirst();
@@ -480,7 +484,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         // [GIVEN] Verify first WIP Transfer Line was created
         TransferLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
         TransferLine.SetRange("Return Order", false);
         Assert.RecordCount(TransferLine, 1);
         TransferLine.FindFirst();
@@ -583,7 +589,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         // [THEN] A WIP Return Transfer Line exists
         TransferLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
         TransferLine.SetRange("Return Order", true);
         Assert.RecordIsNotEmpty(TransferLine);
 
@@ -686,7 +694,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         PurchaseLine.SetRange("Work Center No.", WorkCenter[2]."No.");
+#pragma warning restore AA0210
         PurchaseLine.FindFirst();
 
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -698,7 +708,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         // [THEN] A WIP Transfer Line exists for the production order
         TransferLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
         TransferLine.SetRange("Return Order", false);
         Assert.RecordCount(TransferLine, 1);
 
@@ -726,7 +738,6 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
     var
         Item: Record Item;
         MachineCenter: array[2] of Record "Machine Center";
-        ProdOrderLine: Record "Prod. Order Line";
         ProductionOrder: Record "Production Order";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -784,7 +795,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         PurchaseLine.SetRange("Work Center No.", WorkCenter[2]."No.");
+#pragma warning restore AA0210
         PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
@@ -795,7 +808,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         // [THEN] Exactly two WIP Transfer Lines exist (one per parallel predecessor path)
         TransferLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
         TransferLine.SetRange("Return Order", false);
         Assert.RecordCount(TransferLine, 2);
 
@@ -809,7 +824,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
         //        and each header delivers TO Subcontractor 40's location
         //        while coming FROM one of the two distinct source locations
         TransferLine.SetRange("Document No.");
+#pragma warning disable AA0210
         TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
         TransferLine.SetRange("Return Order", false);
         TransferLine.FindSet();
         repeat
@@ -935,7 +952,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
         PurchaseLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         PurchaseLine.SetRange("Work Center No.", WorkCenter[2]."No.");
+#pragma warning restore AA0210
         Assert.RecordCount(PurchaseLine, 2);
 
         // [WHEN] Invoke "Create Transfer Order to Subcontractor" on the purchase order
@@ -947,7 +966,9 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
 
         // [THEN] Exactly 2 WIP Transfer Lines exist – one per family item / prod order line
         TransferLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+#pragma warning disable AA0210
         TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
         TransferLine.SetRange("Return Order", false);
         Assert.RecordCount(TransferLine, 2);
 

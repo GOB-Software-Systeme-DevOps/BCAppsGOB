@@ -14,7 +14,6 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
-using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Capacity;
@@ -710,7 +709,6 @@ codeunit 139989 "Subc. Subcontracting Test"
         WorkCenter: array[2] of Record "Work Center";
         CalculateSubContract: Report "Calculate Subcontracts";
         CarryOutActionMsgReq: Report "Carry Out Action Msg. - Req.";
-        LibraryUtility: Codeunit "Library - Utility";
         GenBusPostingGroup1, GenBusPostingGroup2 : Code[20];
         ProdPostingGroup1, ProdPostingGroup2 : Code[20];
         VATBusPostingGroup1, VATBusPostingGroup2 : Code[20];

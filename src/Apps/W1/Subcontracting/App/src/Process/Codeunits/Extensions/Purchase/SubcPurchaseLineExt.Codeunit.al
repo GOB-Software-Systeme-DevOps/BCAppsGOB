@@ -15,18 +15,30 @@ codeunit 99001534 "Subc. Purchase Line Ext"
 {
     var
         SubcSynchronizeManagement: Codeunit "Subc. Synchronize Management";
+        QtyMismatchTitleLbl: Label 'Quantity Mismatch';
+        QtyMessageLbl: Label 'The quantity (%1) in %2 is greater than the specified quantity (%3) in %4. In order to open item tracking lines, first adjust the quantity on %2 to at least match the quantity on %4. You can adjust the quantity from %5 to %6 by using the action below.',
+        Comment = '%1 = PurchaseLine Outstanding Qty, %2 = Tablecaption PurchaseLine, %3 = ProdOrderLine Remaining Qty, %4 = Tablecaption ProdOrderLine, %5 = Current ProdOrderLine Qty, %6 = New PurchaseLine Qty';
+        NotLastOperationLineErr: Label 'Item tracking lines can only be viewed for subcontracting purchase lines which are linked to a routing line which is the last operation.';
+        CannotOpenProductionOrderErr: Label 'Cannot open Production Order %1.', Comment = '%1=Production Order No.';
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", OnAfterDeleteEvent, '', false, false)]
     local procedure OnAfterDeleteEvent(var Rec: Record "Purchase Line"; RunTrigger: Boolean)
     begin
-        if RunTrigger then
-            if not Rec.IsTemporary() then
-                SubcSynchronizeManagement.DeleteEnhancedDocumentsByDeletePurchLine(Rec);
+        if Rec.IsTemporary() then
+            exit;
+
+        if not RunTrigger then
+            exit;
+
+        SubcSynchronizeManagement.DeleteEnhancedDocumentsByDeletePurchLine(Rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", OnAfterValidateEvent, "Expected Receipt Date", false, false)]
     local procedure OnAfterValidateExpectedReceiptDate(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
+        if Rec.IsTemporary then
+            exit;
+
         if CurrFieldNo <> 0 then
             SubcSynchronizeManagement.SynchronizeExpectedReceiptDate(Rec, xRec);
     end;
@@ -34,6 +46,9 @@ codeunit 99001534 "Subc. Purchase Line Ext"
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", OnAfterValidateEvent, Quantity, false, false)]
     local procedure OnAfterValidateQuantity(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
+        if Rec.IsTemporary then
+            exit;
+
         if CurrFieldNo <> 0 then
             SubcSynchronizeManagement.SynchronizeQuantity(Rec, xRec);
     end;
@@ -41,6 +56,9 @@ codeunit 99001534 "Subc. Purchase Line Ext"
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", OnAfterValidateEvent, "Unit of Measure Code", false, false)]
     local procedure OnAfterValidateUnitOfMeasureCode(var Rec: Record "Purchase Line"; var xRec: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
+        if Rec.IsTemporary then
+            exit;
+
         if CurrFieldNo <> 0 then
             SubcSynchronizeManagement.SynchronizeQuantity(Rec, xRec);
     end;
@@ -75,7 +93,7 @@ codeunit 99001534 "Subc. Purchase Line Ext"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Line", OnBeforeOpenItemTrackingLines, '', false, false)]
-    local procedure "Purchase Line_OnBeforeOpenItemTrackingLines"(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OpenProdOrderLineItemTrackingOnBeforeOpenItemTrackingLines(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
         OpenItemTrackingOfProdOrderLine(PurchaseLine, false);
         IsHandled := true;
@@ -96,9 +114,6 @@ codeunit 99001534 "Subc. Purchase Line Ext"
 
     local procedure CheckOverDeliveryQty(PurchaseLine: Record "Purchase Line"; ProdOrderLine: Record "Prod. Order Line")
     var
-        QtyMismatchTitleLbl: Label 'Quantity Mismatch';
-        QtyMessageLbl: Label 'The quantity (%1) in %2 is greater than the specified quantity (%3) in %4. In order to open item tracking lines, first adjust the quantity on %2 to at least match the quantity on %4. You can adjust the quantity from %5 to %6 by using the action below.',
-        Comment = '%1 = PurchaseLine Outstanding Qty, %2 = Tablecaption PurchaseLine, %3 = ProdOrderLine Remaining Qty, %4 = Tablecaption ProdOrderLine, %5 = Current ProdOrderLine Qty, %6 = New PurchaseLine Qty';
         ShowProductionOrderActionLbl: Label 'Show Prod. Order';
         AdjustQtyActionLbl: Label 'Adjust Quantity';
         OpenItemTrackingAnywayActionLbl: Label 'Open anyway';
@@ -110,17 +125,17 @@ codeunit 99001534 "Subc. Purchase Line Ext"
 
             CannotInvoiceErrorInfo.RecordId := PurchaseLine.RecordId;
             CannotInvoiceErrorInfo.AddAction(
-                StrSubstNo(AdjustQtyActionLbl),
+                AdjustQtyActionLbl,
                 Codeunit::"Subc. Purchase Line Ext",
                 'AdjustProdOrderLineQuantity'
             );
             CannotInvoiceErrorInfo.AddAction(
-                StrSubstNo(ShowProductionOrderActionLbl),
+                ShowProductionOrderActionLbl,
                 Codeunit::"Subc. Purchase Line Ext",
                 'ShowProductionOrder'
             );
             CannotInvoiceErrorInfo.AddAction(
-                StrSubstNo(OpenItemTrackingAnywayActionLbl),
+                OpenItemTrackingAnywayActionLbl,
                 Codeunit::"Subc. Purchase Line Ext",
                 'OpenItemTrackingWithoutAdjustment'
             );
@@ -134,7 +149,6 @@ codeunit 99001534 "Subc. Purchase Line Ext"
         TrackingSpecification: Record "Tracking Specification";
         ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
         ItemTrackingLines: Page "Item Tracking Lines";
-        NotLastOperationLineErr: Label 'Item tracking lines can only be viewed for subcontracting purchase lines which are linked to a routing line which is the last operation.';
         SecondSourceQtyArray: array[3] of Decimal;
     begin
         if PurchaseLine."Subc. Purchase Line Type" = "Subc. Purchase Line Type"::None then
@@ -165,8 +179,8 @@ codeunit 99001534 "Subc. Purchase Line Ext"
         ProductionOrder: Record "Production Order";
         PurchaseLine: Record "Purchase Line";
         PageManagement: Codeunit "Page Management";
-        CannotOpenProductionOrderErr: Label 'Cannot open Production Order %1.', Comment = '%1=Production Order No.';
     begin
+        PurchaseLine.SetLoadFields("Prod. Order No.");
         PurchaseLine.Get(OverDeliveryErrorInfo.RecordId);
         ProductionOrder.Get("Production Order Status"::Released, PurchaseLine."Prod. Order No.");
         if not PageManagement.PageRun(ProductionOrder) then
@@ -178,6 +192,7 @@ codeunit 99001534 "Subc. Purchase Line Ext"
         PurchaseLine: Record "Purchase Line";
         ProdOrderLine: Record "Prod. Order Line";
     begin
+        PurchaseLine.SetLoadFields(Type, "No.", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", Quantity, "Qty. to Receive", "Qty. to Receive (Base)", "Qty. Rounding Precision", "Outstanding Quantity");
         PurchaseLine.Get(OverDeliveryErrorInfo.RecordId);
         ProdOrderLine.Get("Production Order Status"::Released, PurchaseLine."Prod. Order No.", PurchaseLine."Prod. Order Line No.");
         if PurchaseLine.Quantity > ProdOrderLine.Quantity then begin
@@ -193,7 +208,9 @@ codeunit 99001534 "Subc. Purchase Line Ext"
         PurchaseLine: Record "Purchase Line";
         ProdOrderLine: Record "Prod. Order Line";
     begin
+        PurchaseLine.SetLoadFields(Type, "No.", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Qty. to Receive", "Qty. to Receive (Base)", "Qty. Rounding Precision", "Outstanding Quantity");
         PurchaseLine.Get(OverDeliveryErrorInfo.RecordId);
+        ProdOrderLine.SetLoadFields(SystemId);
         ProdOrderLine.Get("Production Order Status"::Released, PurchaseLine."Prod. Order No.", PurchaseLine."Prod. Order Line No.");
         OpenItemTrackingOfProdOrderLine(PurchaseLine, true);
     end;
