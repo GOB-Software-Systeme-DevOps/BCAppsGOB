@@ -52,7 +52,9 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
             DataClassification = CustomerContent;
             ToolTip = 'Specifies an additional operation-specific description line used on transfer orders for the semi-finished item as it is shipped to the subcontracting location.';
         }
+#pragma warning disable AA0232
         field(99001563; "WIP Qty. (Base) at Subc."; Decimal)
+#pragma warning restore AA0232
         {
             AllowInCustomizations = AsReadOnly;
             AutoFormatType = 0;
