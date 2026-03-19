@@ -240,13 +240,13 @@ page 99001504 "Subc. Subcontracting Worksheet"
                     Visible = false;
                 }
             }
-            group(Control20)
+            group(AdditionalInformation)
             {
                 ShowCaption = false;
-                fixed(Control1901776201)
+                fixed(AdditionalInformationFixed)
                 {
                     ShowCaption = false;
-                    group(Control1902759801)
+                    group(DescriptionGroup)
                     {
                         Caption = 'Description';
                         field(Description2; Description2)
@@ -273,12 +273,12 @@ page 99001504 "Subc. Subcontracting Worksheet"
         }
         area(factboxes)
         {
-            systempart(Control1900383207; Links)
+            systempart(LinksFactbox; Links)
             {
                 ApplicationArea = RecordLinks;
                 Visible = false;
             }
-            systempart(Control1905767507; Notes)
+            systempart(NotesFactbox; Notes)
             {
                 ApplicationArea = Notes;
                 Visible = false;
@@ -290,9 +290,9 @@ page 99001504 "Subc. Subcontracting Worksheet"
     {
         area(navigation)
         {
-            group("&Line")
+            group(Line)
             {
-                Caption = '&Line';
+                Caption = 'Line';
                 Image = Line;
                 action(Card)
                 {
@@ -303,10 +303,10 @@ page 99001504 "Subc. Subcontracting Worksheet"
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
                 }
-                action("Item &Tracking Lines")
+                action("Item Tracking Lines")
                 {
                     ApplicationArea = ItemTracking;
-                    Caption = 'Item &Tracking Lines';
+                    Caption = 'Item Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
@@ -335,9 +335,9 @@ page 99001504 "Subc. Subcontracting Worksheet"
         }
         area(processing)
         {
-            group("F&unctions")
+            group(Functions)
             {
-                Caption = 'F&unctions';
+                Caption = 'Functions';
                 Image = "Action";
                 action("Calculate Subcontracts")
                 {
@@ -358,7 +358,7 @@ page 99001504 "Subc. Subcontracting Worksheet"
                 action(CarryOutActionMessage)
                 {
                     ApplicationArea = Manufacturing;
-                    Caption = 'Carry &Out Action Message';
+                    Caption = 'Carry Out Action Message';
                     Ellipsis = true;
                     Image = CarryOutActionMessage;
                     ToolTip = 'Use a batch job to help you create actual supply orders from the order proposals.';
@@ -387,7 +387,7 @@ page 99001504 "Subc. Subcontracting Worksheet"
             {
                 Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
 
-                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                actionref("Item Tracking Lines_Promoted"; "Item Tracking Lines")
                 {
                 }
                 actionref(Dimensions_Promoted; Dimensions)
