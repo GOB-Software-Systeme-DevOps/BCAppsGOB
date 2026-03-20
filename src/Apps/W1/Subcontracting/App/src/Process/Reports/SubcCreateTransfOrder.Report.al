@@ -11,7 +11,6 @@ using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
-using Microsoft.Utilities;
 using Microsoft.Purchases.Vendor;
 
 report 99001501 "Subc. Create Transf. Order"
@@ -291,11 +290,11 @@ report 99001501 "Subc. Create Transf. Order"
             Vendor.TestField("Subcontr. Location Code");
     end;
 
-    local procedure GetTransferToLocationCodeForPurchaseHeader(PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor; var TransferToLocationCode: Code[10])
+    local procedure GetTransferToLocationCodeForPurchaseHeader(PurchaseHeader: Record "Purchase Header"; VendorFromPurchaseHeader: Record Vendor; var TransferToLocationCode: Code[10])
     begin
         TransferToLocationCode := PurchaseHeader."Subc. Location Code";
         if TransferToLocationCode = '' then
-            TransferToLocationCode := Vendor."Subcontr. Location Code";
+            TransferToLocationCode := VendorFromPurchaseHeader."Subcontr. Location Code";
     end;
 
     local procedure HandleWIPTransferForPurchLine(PurchaseLine: Record "Purchase Line"; InsertLine: Boolean): Boolean
@@ -406,7 +405,7 @@ report 99001501 "Subc. Create Transf. Order"
         PrevProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         PrevProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
         PrevProdOrderRoutingLine.SetFilter("Operation No.", ProdOrderRoutingLine."Previous Operation No.");
-        PrevProdOrderRoutingLine.SetLoadFields("Operation No.");
+        PrevProdOrderRoutingLine.SetLoadFields("Operation No.", "Transfer WIP Item");
         if PrevProdOrderRoutingLine.FindSet() then begin
             TransferWIPItem := PrevProdOrderRoutingLine."Transfer WIP Item";
             repeat
@@ -474,12 +473,12 @@ report 99001501 "Subc. Create Transf. Order"
 
     local procedure CheckCreateWIPTransfer(PurchaseLine: Record "Purchase Line"): Boolean
     var
-        TransferLine: Record "Transfer Line";
+        TransferLineToCheck: Record "Transfer Line";
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         SubcontractorWIPLedgerEntry: Record "Subcontractor WIP Ledger Entry";
         PurchaseHeader: Record "Purchase Header";
-        VendorLocal: Record Vendor;
+        VendorFromPurchOrder: Record Vendor;
         WIPSourceQtyList: Dictionary of [Code[10], Decimal];
         WIPSourceLocationList: List of [Code[10]];
         TransferToLocationCode: Code[10];
@@ -487,12 +486,12 @@ report 99001501 "Subc. Create Transf. Order"
         PostedWIPQtyBase: Decimal;
         LocCode: Code[10];
     begin
-        TransferLine.SetRange("Subcontr. Purch. Order No.", PurchaseLine."Document No.");
-        TransferLine.SetRange("Prod. Order No.", PurchaseLine."Prod. Order No.");
-        TransferLine.SetRange("Prod. Order Line No.", PurchaseLine."Prod. Order Line No.");
-        TransferLine.SetRange("Operation No.", PurchaseLine."Operation No.");
-        TransferLine.SetRange("Transfer WIP Item", true);
-        if not TransferLine.IsEmpty() then
+        TransferLineToCheck.SetRange("Subcontr. Purch. Order No.", PurchaseLine."Document No.");
+        TransferLineToCheck.SetRange("Prod. Order No.", PurchaseLine."Prod. Order No.");
+        TransferLineToCheck.SetRange("Prod. Order Line No.", PurchaseLine."Prod. Order Line No.");
+        TransferLineToCheck.SetRange("Operation No.", PurchaseLine."Operation No.");
+        TransferLineToCheck.SetRange("Transfer WIP Item", true);
+        if not TransferLineToCheck.IsEmpty() then
             exit(false);
 
         if not ProdOrderLine.Get("Production Order Status"::Released, PurchaseLine."Prod. Order No.", PurchaseLine."Prod. Order Line No.") then
@@ -516,10 +515,10 @@ report 99001501 "Subc. Create Transf. Order"
         if not PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.") then
             exit(false);
 
-        if not VendorLocal.Get(PurchaseHeader."Buy-from Vendor No.") then
+        if not VendorFromPurchOrder.Get(PurchaseHeader."Buy-from Vendor No.") then
             exit(false);
 
-        GetTransferToLocationCodeForPurchaseHeader(PurchaseHeader, VendorLocal, TransferToLocationCode);
+        GetTransferToLocationCodeForPurchaseHeader(PurchaseHeader, VendorFromPurchOrder, TransferToLocationCode);
 
         if TransferToLocationCode = '' then
             exit(false);

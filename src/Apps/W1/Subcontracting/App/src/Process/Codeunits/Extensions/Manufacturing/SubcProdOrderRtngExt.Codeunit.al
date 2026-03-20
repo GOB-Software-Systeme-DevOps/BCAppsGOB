@@ -14,7 +14,13 @@ codeunit 99001520 "Subc. Prod. Order Rtng. Ext."
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", OnAfterDeleteEvent, '', false, false)]
     local procedure OnAfterDeleteProdOrderRtngLine(var Rec: Record "Prod. Order Routing Line"; RunTrigger: Boolean)
     begin
-        HandleSubcontractingAfterRoutingLineDelete(Rec, RunTrigger);
+        if Rec.IsTemporary then
+            exit;
+
+        if not RunTrigger then
+            exit;
+
+        HandleSubcontractingAfterRoutingLineDelete(Rec);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", OnBeforeValidateEvent, "No.", false, false)]
@@ -22,6 +28,9 @@ codeunit 99001520 "Subc. Prod. Order Rtng. Ext."
     var
         SubcontractingManagement: Codeunit "Subcontracting Management";
     begin
+        if Rec.IsTemporary then
+            exit;
+
         if (xRec."No." <> Rec."No.") and (Rec."Routing Link Code" <> '') then
             SubcontractingManagement.UpdLinkedComponents(Rec, true);
     end;
@@ -29,6 +38,8 @@ codeunit 99001520 "Subc. Prod. Order Rtng. Ext."
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", OnAfterValidateEvent, "Routing Link Code", false, false)]
     local procedure OnAfterValidateRoutingLinkCode(var Rec: Record "Prod. Order Routing Line"; var xRec: Record "Prod. Order Routing Line"; CurrFieldNo: Integer)
     begin
+        if Rec.IsTemporary then
+            exit;
         HandleRoutingLinkCodeValidation(Rec, xRec);
     end;
 
@@ -37,6 +48,8 @@ codeunit 99001520 "Subc. Prod. Order Rtng. Ext."
     var
         SubcPriceManagement: Codeunit "Subc. Price Management";
     begin
+        if Rec.IsTemporary then
+            exit;
         SubcPriceManagement.GetSubcPriceList(Rec);
     end;
 
@@ -57,7 +70,7 @@ codeunit 99001520 "Subc. Prod. Order Rtng. Ext."
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Route Management", OnCalculateOnBeforeProdOrderRtngLineLoopIteration, '', false, false)]
-    local procedure "Prod. Order Route Management_OnCalculateOnBeforeProdOrderRtngLineLoopIteration"(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    local procedure CheckSubcontractingOnCalculateOnBeforeProdOrderRtngLineLoopIteration(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
         ProdOrderRoutingLine.CheckForSubcontractingPurchaseLineTypeMismatch();
     end;
@@ -88,16 +101,16 @@ codeunit 99001520 "Subc. Prod. Order Rtng. Ext."
                     SubcontractingManagement.UpdLinkedComponents(ProdOrderRoutingLine, true);
     end;
 
-    local procedure HandleSubcontractingAfterRoutingLineDelete(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; RunTrigger: Boolean)
+    local procedure HandleSubcontractingAfterRoutingLineDelete(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     var
         WorkCenter: Record "Work Center";
         SubcontractingManagement: Codeunit "Subcontracting Management";
     begin
-        if RunTrigger then
-            if ProdOrderRoutingLine.Status = ProdOrderRoutingLine.Status::Released then
-                if ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Work Center" then
-                    if WorkCenter.Get(ProdOrderRoutingLine."No.") then
-                        if (ProdOrderRoutingLine."Routing Link Code" <> '') and (WorkCenter."Subcontractor No." <> '') then
-                            SubcontractingManagement.DelLocationLinkedComponents(ProdOrderRoutingLine, false);
+        if ProdOrderRoutingLine.Status = ProdOrderRoutingLine.Status::Released then
+            if ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Work Center" then begin
+                WorkCenter.Get(ProdOrderRoutingLine."No.");
+                if (ProdOrderRoutingLine."Routing Link Code" <> '') and (WorkCenter."Subcontractor No." <> '') then
+                    SubcontractingManagement.DelLocationLinkedComponents(ProdOrderRoutingLine, false);
+            end;
     end;
 }
