@@ -130,7 +130,7 @@ codeunit 149914 "Subc. WIP Adjustment Test"
     [ModalPageHandler]
     procedure WIPAdjustmentPageHandler(var WIPAdjustmentPage: TestPage "WIP Adjustment")
     begin
-        WIPAdjustmentPage."New Quantity".SetValue(HandlerNewQuantity);
+        WIPAdjustmentPage."New Quantity (Base)".SetValue(HandlerNewQuantity);
         WIPAdjustmentPage."Document No.".SetValue(HandlerDocumentNo);
         WIPAdjustmentPage.Description.SetValue(HandlerDescription);
         WIPAdjustmentPage."Description 2".SetValue(HandlerDescription2);

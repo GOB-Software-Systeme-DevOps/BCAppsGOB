@@ -96,6 +96,7 @@ pageextension 99001503 "Subc. Prod. Order Rtng." extends "Prod. Order Routing"
                 begin
                     WIPLedgerEntry.SetProductionOrderRoutingFilter(Rec, true);
                     WIPAdjustmentPage.SetWIPLedgerEntry(WIPLedgerEntry);
+                    WIPAdjustmentPage.SetDocumentNo(Rec."Prod. Order No.");
                     WIPAdjustmentPage.RunModal();
                 end;
             }

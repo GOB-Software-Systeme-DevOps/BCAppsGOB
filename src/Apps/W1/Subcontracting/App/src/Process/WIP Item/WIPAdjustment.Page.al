@@ -24,11 +24,6 @@ page 99001561 "WIP Adjustment"
             group(Adjustment)
             {
                 Caption = 'Adjustment';
-                field("Posting Date"; PostingDate)
-                {
-                    Caption = 'Posting Date';
-                    ToolTip = 'Specifies the posting date applied to all created adjustment entries.';
-                }
                 field("Document Type"; DocumentType)
                 {
                     Caption = 'Document Type';
@@ -39,16 +34,6 @@ page 99001561 "WIP Adjustment"
                 {
                     Caption = 'Document No.';
                     ToolTip = 'Specifies the document number applied to all created adjustment entries.';
-                }
-                field(Description; AdjustmentDescription)
-                {
-                    Caption = 'Description';
-                    ToolTip = 'Specifies a description applied to all created adjustment entries.';
-                }
-                field("Description 2"; Description2)
-                {
-                    Caption = 'Description 2';
-                    ToolTip = 'Specifies a second description field applied to all created adjustment entries.';
                 }
             }
             group("Production Order")
@@ -104,36 +89,46 @@ page 99001561 "WIP Adjustment"
                     Editable = false;
                     Visible = false;
                 }
-                field("Unit of Measure Code"; Rec."Unit of Measure Code")
+                field(Description; Rec.Description)
                 {
-                    Editable = false;
                 }
-                field("Current Quantity"; Rec."Quantity (Base)")
+                field("Description 2"; Rec."Description 2")
                 {
-                    Caption = 'Current Quantity';
+                    Visible = false;
+                }
+                field("Current Quantity (Base)"; Rec."Quantity (Base)")
+                {
+                    Caption = 'Current Quantity (Base)';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
-                    ToolTip = 'Specifies the current WIP quantity for this operation and location.';
+                    ToolTip = 'Specifies the current WIP quantity base for this operation and location.';
                 }
-                field("New Quantity"; NewQuantity)
+                field("New Quantity (Base)"; NewQuantityBase)
                 {
-                    Caption = 'New Quantity';
+                    AutoFormatType = 0;
+                    Caption = 'New Quantity (Base)';
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies the new target WIP quantity after adjustment.';
+                    ToolTip = 'Specifies the new target WIP quantity base after adjustment.';
 
                     trigger OnValidate()
                     begin
-                        NewQuantities.Set(Rec."Entry No.", NewQuantity);
+                        NewQuantities.Set(Rec."Entry No.", NewQuantityBase);
                         UpdateQuantityStyle();
                     end;
                 }
-                field("Quantity to Adjust"; QuantityToAdjust)
+                field("Quantity to Adjust (Base)"; QuantityToAdjustBase)
                 {
-                    Caption = 'Quantity to Adjust';
+                    AutoFormatType = 0;
+                    Caption = 'Quantity to Adjust (Base)';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
                     StyleExpr = QuantityStyle;
-                    ToolTip = 'Specifies the quantity that will be adjusted (New Quantity minus Current Quantity).';
+                    ToolTip = 'Specifies the quantity that will be adjusted (New Quantity (Base) minus Current Quantity (Base)).';
+                }
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
+                {
+                    Editable = false;
+                    Caption = 'Base Unit of Measure';
                 }
             }
             repeater(Lines)
@@ -180,9 +175,12 @@ page 99001561 "WIP Adjustment"
                     Editable = false;
                     Visible = false;
                 }
-                field("Unit of Measure Code Line"; Rec."Unit of Measure Code")
+                field(DescriptionLine; Rec.Description)
                 {
-                    Editable = false;
+                }
+                field("Description 2 Line"; Rec."Description 2")
+                {
+                    Visible = false;
                 }
                 field("Location Code Line"; Rec."Location Code")
                 {
@@ -191,29 +189,36 @@ page 99001561 "WIP Adjustment"
                 }
                 field("Current Quantity Line"; Rec."Quantity (Base)")
                 {
-                    Caption = 'Current Quantity';
+                    Caption = 'Current Quantity (Base)';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
                 }
-                field("New Quantity Line"; NewQuantity)
+                field("New Quantity Line"; NewQuantityBase)
                 {
-                    Caption = 'New Quantity';
+                    AutoFormatType = 0;
+                    Caption = 'New Quantity (Base)';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the new target WIP quantity after adjustment.';
 
                     trigger OnValidate()
                     begin
-                        NewQuantities.Set(Rec."Entry No.", NewQuantity);
+                        NewQuantities.Set(Rec."Entry No.", NewQuantityBase);
                         UpdateQuantityStyle();
                     end;
                 }
-                field("Quantity to Adjust Line"; QuantityToAdjust)
+                field("Quantity to Adjust Line"; QuantityToAdjustBase)
                 {
-                    Caption = 'Quantity to Adjust';
+                    AutoFormatType = 0;
+                    Caption = 'Qty. to Adjust (Base)';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
                     StyleExpr = QuantityStyle;
                     ToolTip = 'Specifies the quantity that will be adjusted (New Quantity minus Current Quantity).';
+                }
+                field("Unit of Measure Code Line"; Rec."Unit of Measure Code")
+                {
+                    Caption = 'Base Unit of Measure';
+                    Editable = false;
                 }
             }
         }
@@ -221,7 +226,7 @@ page 99001561 "WIP Adjustment"
 
     trigger OnAfterGetRecord()
     begin
-        NewQuantities.Get(Rec."Entry No.", NewQuantity);
+        NewQuantities.Get(Rec."Entry No.", NewQuantityBase);
         UpdateQuantityStyle();
     end;
 
@@ -229,6 +234,7 @@ page 99001561 "WIP Adjustment"
     begin
         PostingDate := WorkDate();
         DocumentType := DocumentType::"Adjustment (Manual)";
+
         if Rec.FindFirst() then;
     end;
 
@@ -245,10 +251,8 @@ page 99001561 "WIP Adjustment"
         PostingDate: Date;
         DocumentType: Enum "WIP Document Type";
         DocumentNo: Code[20];
-        AdjustmentDescription: Text[100];
-        Description2: Text[50];
-        NewQuantity: Decimal;
-        QuantityToAdjust: Decimal;
+        NewQuantityBase: Decimal;
+        QuantityToAdjustBase: Decimal;
         QuantityStyle: Text;
         LineCount: Integer;
 
@@ -261,7 +265,6 @@ page 99001561 "WIP Adjustment"
     var
         TempBuffer: Record "Subcontractor WIP Ledger Entry" temporary;
         NothingToAdjustErr: Label 'There are no WIP quantities to adjust, because there are no existing ledger entries for the specified source.';
-        UnitOfMeasureCode: Code[10];
         EntrySeq: BigInteger;
     begin
         EntrySeq := 1;
@@ -284,6 +287,8 @@ page 99001561 "WIP Adjustment"
                 TempBuffer.Init();
                 TempBuffer.TransferFields(WIPLedgerEntry);
                 TempBuffer."Entry No." := EntrySeq;
+                TempBuffer."Document Line No." := 0;
+                TempBuffer."In Transit" := false;
                 TempBuffer."Quantity (Base)" := WIPLedgerEntry."Quantity (Base)";
                 TempBuffer."Unit of Measure Code" := GetItemBaseUnitOfMeasure(WIPLedgerEntry."Item No.");
                 TempBuffer.Insert();
@@ -302,6 +307,11 @@ page 99001561 "WIP Adjustment"
 
         LineCount := Rec.Count();
         if Rec.FindFirst() then;
+    end;
+
+    procedure SetDocumentNo(DocNo: Code[20])
+    begin
+        DocumentNo := DocNo;
     end;
 
     local procedure CreateAdjustmentEntries()
@@ -328,8 +338,6 @@ page 99001561 "WIP Adjustment"
                 WIPLedgerEntry."Posting Date" := PostingDate;
                 WIPLedgerEntry."Document Type" := DocumentType;
                 WIPLedgerEntry."Document No." := DocumentNo;
-                WIPLedgerEntry.Description := AdjustmentDescription;
-                WIPLedgerEntry."Description 2" := Description2;
 
                 WIPLedgerEntry."Quantity (Base)" := TargetQty - Rec."Quantity (Base)";
                 if WIPLedgerEntry."Quantity (Base)" >= 0 then
@@ -344,8 +352,8 @@ page 99001561 "WIP Adjustment"
 
     local procedure UpdateQuantityStyle()
     begin
-        QuantityToAdjust := NewQuantity - Rec."Quantity (Base)";
-        if QuantityToAdjust >= 0 then
+        QuantityToAdjustBase := NewQuantityBase - Rec."Quantity (Base)";
+        if QuantityToAdjustBase >= 0 then
             QuantityStyle := 'Strong'
         else
             QuantityStyle := 'Unfavorable';
@@ -362,7 +370,7 @@ page 99001561 "WIP Adjustment"
     begin
         Item.SetLoadFields("Base Unit of Measure");
         if ItemNo <> Item."No." then
-            if Item.Get(ItemNo) then
-                exit(Item."Base Unit of Measure");
+            Item.Get(ItemNo);
+        exit(Item."Base Unit of Measure");
     end;
 }

@@ -62,6 +62,7 @@ pageextension 99001504 "Subc. Rel. Prod. Order" extends "Released Production Ord
                 begin
                     WIPLedgerEntry.SetProductionOrderFilter(Rec, true);
                     WIPAdjustmentPage.SetWIPLedgerEntry(WIPLedgerEntry);
+                    WIPAdjustmentPage.SetDocumentNo(Rec."No.");
                     WIPAdjustmentPage.RunModal();
                 end;
             }
