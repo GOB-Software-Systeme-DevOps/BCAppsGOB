@@ -266,7 +266,6 @@ page 99001561 "WIP Adjustment"
     /// </summary>
     procedure SetWIPLedgerEntry(var WIPLedgerEntry: Record "Subcontractor WIP Ledger Entry")
     var
-        TempBuffer: Record "Subcontractor WIP Ledger Entry" temporary;
         EntrySeq: BigInteger;
     begin
         EntrySeq := 1;
@@ -345,8 +344,6 @@ page 99001561 "WIP Adjustment"
     end;
 
     local procedure UpdateQuantityStyle()
-    var
-        ControlStyle: Enum "Control Style";
     begin
         QuantityToAdjustBase := NewQuantityBase - Rec."Quantity (Base)";
         if QuantityToAdjustBase >= 0 then
