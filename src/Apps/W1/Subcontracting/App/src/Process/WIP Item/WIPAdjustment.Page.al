@@ -15,7 +15,8 @@ page 99001561 "WIP Adjustment"
     SourceTableTemporary = true;
     DeleteAllowed = false;
     InsertAllowed = false;
-    DataCaptionExpression = CreateCaption();
+    DataCaptionExpression = CreatePageCaption();
+    UsageCategory = None;
 
     layout
     {
@@ -255,6 +256,8 @@ page 99001561 "WIP Adjustment"
         QuantityToAdjustBase: Decimal;
         QuantityStyle: Text;
         LineCount: Integer;
+        CaptionLbl: Label 'Production Order %1 %2', Comment = '%1=Prod. Order Status,%2=Prod. Order Number';
+        NothingToAdjustErr: Label 'There are no WIP quantities to adjust, because there are no existing ledger entries for the specified source.';
 
     /// <summary>
     /// Populates the page source table with one row per (Routing Reference No., Operation No., Location Code)
@@ -264,46 +267,41 @@ page 99001561 "WIP Adjustment"
     procedure SetWIPLedgerEntry(var WIPLedgerEntry: Record "Subcontractor WIP Ledger Entry")
     var
         TempBuffer: Record "Subcontractor WIP Ledger Entry" temporary;
-        NothingToAdjustErr: Label 'There are no WIP quantities to adjust, because there are no existing ledger entries for the specified source.';
         EntrySeq: BigInteger;
     begin
         EntrySeq := 1;
+
+        if not Rec.IsEmpty() then
+            Rec.DeleteAll();
+
         if not WIPLedgerEntry.FindSet() then
             Error(NothingToAdjustErr);
 
         repeat
-            TempBuffer.SetRange("Prod. Order Status", WIPLedgerEntry."Prod. Order Status");
-            TempBuffer.SetRange("Prod. Order No.", WIPLedgerEntry."Prod. Order No.");
-            TempBuffer.SetRange("Prod. Order Line No.", WIPLedgerEntry."Prod. Order Line No.");
-            TempBuffer.SetRange("Routing Reference No.", WIPLedgerEntry."Routing Reference No.");
-            TempBuffer.SetRange("Routing No.", WIPLedgerEntry."Routing No.");
-            TempBuffer.SetRange("Operation No.", WIPLedgerEntry."Operation No.");
-            TempBuffer.SetRange("Location Code", WIPLedgerEntry."Location Code");
-            if TempBuffer.FindFirst() then begin
-                TempBuffer."Quantity (Base)" += WIPLedgerEntry."Quantity (Base)";
-                TempBuffer.Modify();
+            Rec.SetRange("Prod. Order Status", WIPLedgerEntry."Prod. Order Status");
+            Rec.SetRange("Prod. Order No.", WIPLedgerEntry."Prod. Order No.");
+            Rec.SetRange("Prod. Order Line No.", WIPLedgerEntry."Prod. Order Line No.");
+            Rec.SetRange("Routing Reference No.", WIPLedgerEntry."Routing Reference No.");
+            Rec.SetRange("Routing No.", WIPLedgerEntry."Routing No.");
+            Rec.SetRange("Operation No.", WIPLedgerEntry."Operation No.");
+            Rec.SetRange("Location Code", WIPLedgerEntry."Location Code");
+            if Rec.FindFirst() then begin
+                Rec."Quantity (Base)" += WIPLedgerEntry."Quantity (Base)";
+                Rec.Modify();
+                NewQuantities.Set(Rec."Entry No.", Rec."Quantity (Base)");
             end else begin
-                TempBuffer.Reset();
-                TempBuffer.Init();
-                TempBuffer.TransferFields(WIPLedgerEntry);
-                TempBuffer."Entry No." := EntrySeq;
-                TempBuffer."Document Line No." := 0;
-                TempBuffer."In Transit" := false;
-                TempBuffer."Quantity (Base)" := WIPLedgerEntry."Quantity (Base)";
-                TempBuffer."Unit of Measure Code" := GetItemBaseUnitOfMeasure(WIPLedgerEntry."Item No.");
-                TempBuffer.Insert();
+                Rec.Init();
+                Rec.TransferFields(WIPLedgerEntry);
+                Rec."Entry No." := EntrySeq;
+                Rec."Document Line No." := 0;
+                Rec."In Transit" := false;
+                Rec."Quantity (Base)" := WIPLedgerEntry."Quantity (Base)";
+                Rec."Unit of Measure Code" := GetItemBaseUnitOfMeasure(WIPLedgerEntry."Item No.");
+                Rec.Insert();
+                NewQuantities.Add(Rec."Entry No.", Rec."Quantity (Base)");
                 EntrySeq += 1;
             end;
         until WIPLedgerEntry.Next() = 0;
-
-        TempBuffer.Reset();
-        if TempBuffer.FindSet() then
-            repeat
-                Rec := TempBuffer;
-                Rec.Insert();
-                NewQuantities.Add(Rec."Entry No.", Rec."Quantity (Base)");
-            until TempBuffer.Next() = 0;
-
 
         LineCount := Rec.Count();
         if Rec.FindFirst() then;
@@ -317,40 +315,38 @@ page 99001561 "WIP Adjustment"
     local procedure CreateAdjustmentEntries()
     var
         WIPLedgerEntry: Record "Subcontractor WIP Ledger Entry";
+        TempWIPLedgerEntry: Record "Subcontractor WIP Ledger Entry" temporary;
         AdjEntryType: Enum "WIP Ledger Entry Type";
-        NextEntryNo: BigInteger;
         TargetQty: Decimal;
     begin
-        if WIPLedgerEntry.FindLast() then
-            NextEntryNo := WIPLedgerEntry."Entry No." + 1
-        else
-            NextEntryNo := 1;
+        TempWIPLedgerEntry.Copy(Rec, true);
 
-        if not Rec.FindSet() then
-            exit;
+        if not TempWIPLedgerEntry.FindSet() then
+            Error(NothingToAdjustErr);
 
         repeat
-            NewQuantities.Get(Rec."Entry No.", TargetQty);
-            if TargetQty <> Rec."Quantity (Base)" then begin
+            NewQuantities.Get(TempWIPLedgerEntry."Entry No.", TargetQty);
+            if TargetQty <> TempWIPLedgerEntry."Quantity (Base)" then begin
                 WIPLedgerEntry.Init();
-                WIPLedgerEntry.TransferFields(Rec);
-                WIPLedgerEntry."Entry No." := NextEntryNo;
+                WIPLedgerEntry.TransferFields(TempWIPLedgerEntry);
+                WIPLedgerEntry."Entry No." := WIPLedgerEntry.GetNextEntryNo();
                 WIPLedgerEntry."Posting Date" := PostingDate;
                 WIPLedgerEntry."Document Type" := DocumentType;
                 WIPLedgerEntry."Document No." := DocumentNo;
 
-                WIPLedgerEntry."Quantity (Base)" := TargetQty - Rec."Quantity (Base)";
+                WIPLedgerEntry."Quantity (Base)" := TargetQty - TempWIPLedgerEntry."Quantity (Base)";
                 if WIPLedgerEntry."Quantity (Base)" >= 0 then
                     WIPLedgerEntry."Entry Type" := AdjEntryType::"Positive Adjustment"
                 else
                     WIPLedgerEntry."Entry Type" := AdjEntryType::"Negative Adjustment";
                 WIPLedgerEntry.Insert(true);
-                NextEntryNo += 1;
             end;
-        until Rec.Next() = 0;
+        until TempWIPLedgerEntry.Next() = 0;
     end;
 
     local procedure UpdateQuantityStyle()
+    var
+        ControlStyle: Enum "Control Style";
     begin
         QuantityToAdjustBase := NewQuantityBase - Rec."Quantity (Base)";
         if QuantityToAdjustBase >= 0 then
@@ -359,9 +355,7 @@ page 99001561 "WIP Adjustment"
             QuantityStyle := 'Unfavorable';
     end;
 
-    local procedure CreateCaption(): Text
-    var
-        CaptionLbl: Label 'Production Order %1 %2', Comment = '%1=Prod. Order Status,%2=Prod. Order Number';
+    local procedure CreatePageCaption(): Text
     begin
         exit(StrSubstNo(CaptionLbl, Rec."Prod. Order Status", Rec."Prod. Order No."));
     end;

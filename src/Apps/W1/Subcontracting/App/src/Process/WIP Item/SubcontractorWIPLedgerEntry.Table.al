@@ -202,9 +202,18 @@ table 99001560 "Subcontractor WIP Ledger Entry"
             SetCurrentKey("Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code");
         SetRange("Prod. Order Status", ProdOrderRoutingLine.Status);
         SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
-        SetRange("Prod. Order Line No.", ProdOrderRoutingLine."Routing Reference No.");
         SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
         SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
         SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+    end;
+    /// <summary>
+    /// Gets the next entry number for the Subcontractor WIP Ledger Entry table.
+    /// </summary>
+    /// <returns>The next entry number.</returns>
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Subcontractor WIP Ledger Entry"));
     end;
 }

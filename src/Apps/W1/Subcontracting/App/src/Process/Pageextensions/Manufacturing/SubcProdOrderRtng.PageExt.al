@@ -73,7 +73,6 @@ pageextension 99001503 "Subc. Prod. Order Rtng." extends "Prod. Order Routing"
                 RunObject = page "WIP Ledger Entries";
                 RunPageLink = "Prod. Order Status" = field(Status),
                               "Prod. Order No." = field("Prod. Order No."),
-                              "Prod. Order Line No." = field("Routing Reference No."),
                               "Routing Reference No." = field("Routing Reference No."),
                               "Routing No." = field("Routing No."),
                               "Operation No." = field("Operation No.");

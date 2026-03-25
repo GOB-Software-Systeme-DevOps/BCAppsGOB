@@ -27,7 +27,6 @@ pageextension 149913 "Subc. Prod. Order Rtng. TST" extends "Prod. Order Routing"
                     WIPLedgerEntry: Record "Subcontractor WIP Ledger Entry";
                     SubcMgmtLibrary: Codeunit "Subc. Management Library";
                     WIPEntryCreateDlg: Page "Subc. WIP Entry Create Dialog";
-                    WIPAdjustmentPage: Page "WIP Adjustment";
                 begin
                     if WIPEntryCreateDlg.RunModal() <> Action::OK then
                         exit;
