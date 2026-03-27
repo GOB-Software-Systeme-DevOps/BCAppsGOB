@@ -236,7 +236,8 @@ page 99001561 "WIP Adjustment"
         PostingDate := WorkDate();
         DocumentType := DocumentType::"Adjustment (Manual)";
 
-        if Rec.FindFirst() then;
+        if not Rec.FindFirst() then
+            Error(NothingToAdjustErr);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -320,8 +321,7 @@ page 99001561 "WIP Adjustment"
     begin
         TempWIPLedgerEntry.Copy(Rec, true);
 
-        if not TempWIPLedgerEntry.FindSet() then
-            Error(NothingToAdjustErr);
+        TempWIPLedgerEntry.FindSet();
 
         repeat
             NewQuantities.Get(TempWIPLedgerEntry."Entry No.", TargetQty);
@@ -347,9 +347,9 @@ page 99001561 "WIP Adjustment"
     begin
         QuantityToAdjustBase := NewQuantityBase - Rec."Quantity (Base)";
         if QuantityToAdjustBase >= 0 then
-            QuantityStyle := 'Strong'
+            QuantityStyle := Format(PageStyle::Strong)
         else
-            QuantityStyle := 'Unfavorable';
+            QuantityStyle := Format(PageStyle::Unfavorable);
     end;
 
     local procedure CreatePageCaption(): Text
