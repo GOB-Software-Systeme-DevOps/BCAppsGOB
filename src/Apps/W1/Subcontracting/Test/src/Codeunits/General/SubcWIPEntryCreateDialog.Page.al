@@ -28,6 +28,7 @@ page 149912 "Subc. WIP Entry Create Dialog"
                 }
                 field("Quantity (Base)"; QuantityBase)
                 {
+                    AutoFormatType = 0;
                     ApplicationArea = Manufacturing;
                     Caption = 'Quantity (Base)';
                     DecimalPlaces = 0 : 5;
