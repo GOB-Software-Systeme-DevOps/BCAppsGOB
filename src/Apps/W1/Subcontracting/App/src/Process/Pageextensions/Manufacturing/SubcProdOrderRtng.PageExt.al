@@ -65,9 +65,40 @@ pageextension 99001503 "Subc. Prod. Order Rtng." extends "Prod. Order Routing"
                 RunPageLink = "Document Type" = const(Order), "Prod. Order No." = field("Prod. Order No."), "Routing No." = field("Routing No."), "Routing Reference No." = field("Routing Reference No."), "Operation No." = field("Operation No.");
                 ToolTip = 'Shows Purchase Order Lines for Subcontracting.';
             }
+            action("WIP Ledger Entries")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'WIP Ledger Entries';
+                Image = LedgerEntries;
+                RunObject = page "WIP Ledger Entries";
+                RunPageLink = "Prod. Order Status" = field(Status),
+                              "Prod. Order No." = field("Prod. Order No."),
+                              "Routing Reference No." = field("Routing Reference No."),
+                              "Routing No." = field("Routing No."),
+                              "Operation No." = field("Operation No.");
+                ToolTip = 'View the Subcontractor WIP Ledger Entries for this routing line.';
+            }
         }
         addlast("F&unctions")
         {
+            action("WIP Adjustment")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'WIP Adjustment';
+                Image = AdjustEntries;
+                ToolTip = 'Manually adjust the WIP quantity for the selected prod. order routing line.';
+
+                trigger OnAction()
+                var
+                    WIPLedgerEntry: Record "Subcontractor WIP Ledger Entry";
+                    WIPAdjustmentPage: Page "WIP Adjustment";
+                begin
+                    WIPLedgerEntry.SetProductionOrderRoutingFilter(Rec, true);
+                    WIPAdjustmentPage.SetWIPLedgerEntry(WIPLedgerEntry);
+                    WIPAdjustmentPage.SetDocumentNo(Rec."Prod. Order No.");
+                    WIPAdjustmentPage.RunModal();
+                end;
+            }
             action(CreateSubcontracting)
             {
                 ApplicationArea = Manufacturing;

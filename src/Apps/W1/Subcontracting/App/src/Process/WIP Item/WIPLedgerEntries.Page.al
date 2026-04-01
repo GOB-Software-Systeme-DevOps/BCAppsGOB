@@ -101,4 +101,33 @@ page 99001560 "WIP Ledger Entries"
             }
         }
     }
+    actions
+    {
+        area(Processing)
+        {
+            action("WIP Adjustment")
+            {
+                ApplicationArea = Manufacturing;
+                Caption = 'WIP Adjustment';
+                Image = AdjustEntries;
+                ToolTip = 'Manually adjust the WIP quantity for the selected WIP ledger entry.';
+
+                trigger OnAction()
+                var
+                    WIPLedgerEntry: Record "Subcontractor WIP Ledger Entry";
+                    WIPAdjustmentPage: Page "WIP Adjustment";
+                begin
+                    WIPLedgerEntry := Rec;
+                    WIPLedgerEntry.SetRecFilter();
+                    WIPAdjustmentPage.SetWIPLedgerEntry(WIPLedgerEntry);
+                    WIPAdjustmentPage.SetDocumentNo(Rec."Document No.");
+                    WIPAdjustmentPage.RunModal();
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref(WipAdjustment_Promoted; "WIP Adjustment") { }
+        }
+    }
 }
