@@ -149,6 +149,17 @@ tableextension 99001517 "Subc. Transfer Line" extends "Transfer Line"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(99001563; "Prev. Operation No."; Code[10])
+        {
+            AllowInCustomizations = AsReadOnly;
+            Caption = 'Previous Operation No.';
+            DataClassification = CustomerContent;
+            Editable = false;
+            TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = const(Released),
+                                                                              "Prod. Order No." = field("Prod. Order No."),
+                                                                              "Routing No." = field("Routing No."));
+            ToolTip = 'Specifies the number of the related previous production operation no.';
+        }
     }
     keys
     {
@@ -186,5 +197,17 @@ tableextension 99001517 "Subc. Transfer Line" extends "Transfer Line"
 
         if Rec.ReservEntryExist() then
             Error(ExistingReservationEntriesErr);
+    end;
+
+    procedure CalcBaseQty(Quantity: Decimal) BaseQty: Decimal
+    var
+        Item: Record Item;
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
+        QtyPerUoM: Decimal;
+    begin
+        Item.SetLoadFields("Base Unit of Measure");
+        Item.Get("Item No.");
+        QtyPerUoM := UnitOfMeasureManagement.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+        BaseQty := UnitOfMeasureManagement.CalcBaseQty(Quantity, QtyPerUoM);
     end;
 }

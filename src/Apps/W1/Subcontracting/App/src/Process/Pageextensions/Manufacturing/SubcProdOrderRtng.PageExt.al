@@ -11,6 +11,20 @@ pageextension 99001503 "Subc. Prod. Order Rtng." extends "Prod. Order Routing"
 {
     layout
     {
+        modify(Type)
+        {
+            trigger OnAfterValidate()
+            begin
+                UpdateWIPEnabled();
+            end;
+        }
+        modify("No.")
+        {
+            trigger OnAfterValidate()
+            begin
+                UpdateWIPEnabled();
+            end;
+        }
         addafter(Description)
         {
             field(Subcontracting; Rec.Subcontracting)
@@ -20,6 +34,7 @@ pageextension 99001503 "Subc. Prod. Order Rtng." extends "Prod. Order Routing"
             field("Transfer WIP Item"; Rec."Transfer WIP Item")
             {
                 ApplicationArea = Manufacturing;
+                Enabled = TransferWIPItemEnabled;
             }
             field("Transfer Description"; Rec."Transfer Description")
             {
@@ -104,6 +119,8 @@ pageextension 99001503 "Subc. Prod. Order Rtng." extends "Prod. Order Routing"
                 ApplicationArea = Manufacturing;
                 Caption = 'Create Subcontracting Order';
                 Image = CreateDocument;
+                Enabled = CreateSubcontractingEnabled;
+                Visible = CreateSubcontractingVisible;
                 ToolTip = 'Create Purchase Orders for Subcontracting directly from the Production Routing Line.';
                 trigger OnAction()
                 var
@@ -139,4 +156,36 @@ pageextension 99001503 "Subc. Prod. Order Rtng." extends "Prod. Order Routing"
             }
         }
     }
+    var
+        TransferWIPItemEnabled: Boolean;
+        CreateSubcontractingEnabled: Boolean;
+        CreateSubcontractingVisible: Boolean;
+
+    trigger OnOpenPage()
+    var
+        StatusFilter: Text;
+    begin
+        StatusFilter := Rec.GetFilter(Rec.Status);
+        if StatusFilter.Contains(Format("Production Order Status"::Released)) then
+            CreateSubcontractingVisible := true
+        else
+            CreateSubcontractingVisible := false;
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        UpdateWIPEnabled();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        UpdateWIPEnabled();
+        CreateSubcontractingEnabled := Rec.Subcontracting and (Rec.Status = "Production Order Status"::Released);
+    end;
+
+    local procedure UpdateWIPEnabled()
+    begin
+        Rec.Calcfields(Subcontracting);
+        TransferWIPItemEnabled := Rec.Subcontracting;
+    end;
 }

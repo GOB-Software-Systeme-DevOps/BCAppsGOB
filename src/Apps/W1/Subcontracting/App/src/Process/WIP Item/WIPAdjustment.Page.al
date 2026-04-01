@@ -294,7 +294,7 @@ page 99001561 "WIP Adjustment"
                 Rec.TransferFields(WIPLedgerEntry);
                 Rec."Entry No." := EntrySeq;
                 Rec."Document Line No." := 0;
-                Rec."In Transit" := false;
+                Rec."In Transit" := WIPLedgerEntry."In Transit";
                 Rec."Quantity (Base)" := WIPLedgerEntry."Quantity (Base)";
                 Rec."Unit of Measure Code" := GetItemBaseUnitOfMeasure(WIPLedgerEntry."Item No.");
                 Rec.Insert();

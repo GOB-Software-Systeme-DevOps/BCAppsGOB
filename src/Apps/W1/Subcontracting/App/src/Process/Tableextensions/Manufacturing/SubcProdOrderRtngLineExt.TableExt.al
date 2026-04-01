@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting;
 
+using Microsoft.Inventory.Location;
+using Microsoft.Manufacturing.Capacity;
+
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
@@ -13,6 +16,35 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
 {
     fields
     {
+        modify(Type)
+        {
+            trigger OnAfterValidate()
+            begin
+                if Type = xRec.Type then
+                    exit;
+
+                if Type <> "Capacity Type"::"Work Center" then
+                    "Transfer WIP Item" := false;
+            end;
+        }
+        modify("No.")
+        {
+            trigger OnAfterValidate()
+            var
+                WorkCenter: Record "Work Center";
+            begin
+                if "No." = xRec."No." then
+                    exit;
+                if Type <> "Capacity Type"::"Work Center" then begin
+                    "Transfer WIP Item" := false;
+                    exit;
+                end;
+                WorkCenter.SetLoadFields("Subcontractor No.");
+                WorkCenter.Get("No.");
+                if WorkCenter."Subcontractor No." = '' then
+                    "Transfer WIP Item" := false;
+            end;
+        }
         field(99001550; "Vendor No. Subc. Price"; Code[20])
         {
             AllowInCustomizations = AsReadOnly;
@@ -37,6 +69,14 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
             Caption = 'Transfer WIP Item';
             DataClassification = CustomerContent;
             ToolTip = 'Specifies whether the production order parent item (WIP item) is transferred to the subcontractor for this operation.';
+
+            trigger OnValidate()
+            begin
+                if "Transfer WIP Item" then begin
+                    CalcFields(Subcontracting);
+                    TestField(Subcontracting, true);
+                end;
+            end;
         }
         field(99001561; "Transfer Description"; Text[100])
         {
@@ -64,7 +104,8 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
                                                                                         "Routing Reference No." = field("Routing Reference No."),
                                                                                         "Routing No." = field("Routing No."),
                                                                                         "Operation No." = field("Operation No."),
-                                                                                        "Location Code" = field("WIP Location Filter")));
+                                                                                        "Location Code" = field("WIP Location Filter"),
+                                                                                        "In Transit" = const(false)));
             Caption = 'WIP Qty. (Base) at Subcontractor';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -81,7 +122,6 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
                                                                                         "Routing Reference No." = field("Routing Reference No."),
                                                                                         "Routing No." = field("Routing No."),
                                                                                         "Operation No." = field("Operation No."),
-                                                                                        "Location Code" = field("WIP Location Filter"),
                                                                                         "In Transit" = const(true)));
             Caption = 'WIP Qty. (Base) in Transit';
             DecimalPlaces = 0 : 5;
@@ -93,6 +133,7 @@ tableextension 99001506 "Subc. ProdOrderRtngLine Ext." extends "Prod. Order Rout
         {
             Caption = 'WIP Location Filter';
             FieldClass = FlowFilter;
+            TableRelation = Location;
             ToolTip = 'Specifies the location filter used for FlowField calculations.';
         }
         field(99001535; "Prod. Order Line Filter"; Integer)

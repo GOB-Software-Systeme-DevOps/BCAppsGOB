@@ -12,6 +12,7 @@ page 99001502 "Subc. Routing Info Factbox"
     Caption = 'Subcontracting Routing Details';
     Editable = false;
     PageType = CardPart;
+    RefreshOnActivate = true;
     SourceTable = "Prod. Order Routing Line";
     layout
     {

@@ -12,6 +12,7 @@ page 99001560 "WIP Ledger Entries"
     PageType = List;
     SourceTable = "Subcontractor WIP Ledger Entry";
     UsageCategory = History;
+    SaveValues = false;
 
     layout
     {

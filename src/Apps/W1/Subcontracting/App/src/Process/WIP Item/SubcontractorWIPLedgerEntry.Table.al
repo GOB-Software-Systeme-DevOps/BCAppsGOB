@@ -175,10 +175,15 @@ table 99001560 "Subcontractor WIP Ledger Entry"
         {
             IncludedFields = "Quantity (Base)";
         }
-        key(Key3; "Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code")
+        key(Key3; "Prod. Order No.", "Prod. Order Status", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code")
         {
             IncludedFields = "Quantity (Base)";
         }
+        key(Key4; "Prod. Order No.", "Prod. Order Status", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code", "Item No.", "Variant Code")
+        {
+            IncludedFields = "Quantity (Base)";
+        }
+        key(Key5; "Document No.", "Posting Date") { }
     }
 
     /// <summary>
@@ -188,9 +193,9 @@ table 99001560 "Subcontractor WIP Ledger Entry"
     procedure SetProductionOrderFilter(ProductionOrder: Record "Production Order"; SetKey: Boolean)
     begin
         if SetKey then
-            SetCurrentKey("Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code");
-        SetRange("Prod. Order Status", ProductionOrder.Status);
+            SetCurrentKey("Prod. Order No.", "Prod. Order Status", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code");
         SetRange("Prod. Order No.", ProductionOrder."No.");
+        SetRange("Prod. Order Status", ProductionOrder.Status);
     end;
 
     /// <summary>
@@ -200,9 +205,9 @@ table 99001560 "Subcontractor WIP Ledger Entry"
     procedure SetProductionOrderRoutingFilter(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; SetKey: Boolean)
     begin
         if SetKey then
-            SetCurrentKey("Prod. Order Status", "Prod. Order No.", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code");
-        SetRange("Prod. Order Status", ProdOrderRoutingLine.Status);
+            SetCurrentKey("Prod. Order No.", "Prod. Order Status", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code");
         SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        SetRange("Prod. Order Status", ProdOrderRoutingLine.Status);
         SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
         SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
         SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
