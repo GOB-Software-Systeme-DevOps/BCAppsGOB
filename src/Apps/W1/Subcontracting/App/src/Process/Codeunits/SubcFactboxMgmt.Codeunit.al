@@ -682,7 +682,8 @@ codeunit 99001507 "Subc. Factbox Mgmt."
                 NoOfTransferHeaders = 0:
                     Message(NoTransferExistsTxt);
                 NoOfTransferHeaders = 1:
-                    Page.Run(Page::"Transfer Order", TransferHeader);
+                    if TransferHeader.FindFirst() then
+                        Page.Run(Page::"Transfer Order", TransferHeader);
                 NoOfTransferHeaders > 1:
                     Page.Run(Page::"Transfer Orders", TransferHeader);
             end;

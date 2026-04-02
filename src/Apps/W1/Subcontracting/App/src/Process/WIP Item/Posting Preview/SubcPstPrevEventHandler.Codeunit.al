@@ -14,7 +14,7 @@ codeunit 99001559 "Subc. Pst. Prev. Event Handler"
         DocumentMaskTok: Label '***', Locked = true;
 
     [EventSubscriber(ObjectType::Table, Database::"Subcontractor WIP Ledger Entry", OnAfterInsertEvent, '', false, false)]
-    local procedure OnInsertWarehouseEntry(var Rec: Record "Subcontractor WIP Ledger Entry")
+    local procedure OnInsertWIPEntry(var Rec: Record "Subcontractor WIP Ledger Entry")
     begin
         if Rec.IsTemporary() then
             exit;

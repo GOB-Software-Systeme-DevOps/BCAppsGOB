@@ -79,6 +79,7 @@ Comment = '%1=Transfer Header No';
     begin
         SubcontractorWIPLedgerEntry.SetProductionOrderFilter(xProductionOrder, true);
         SubcontractorWIPLedgerEntry.ModifyAll("Prod. Order Status", NewStatus);
+        SubcontractorWIPLedgerEntry.SetRange("Prod. Order Status", NewStatus);
         SubcontractorWIPLedgerEntry.ModifyAll("Prod. Order No.", ToProdOrder."No.");
     end;
 }

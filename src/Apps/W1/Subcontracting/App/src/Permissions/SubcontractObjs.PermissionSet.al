@@ -9,9 +9,11 @@ permissionset 99001501 "Subcontract. - Objs"
     Caption = 'Subcontracting - Objects';
     Assignable = true;
     Access = Internal;
-    Permissions = // Tables
-    table "Subc. Management Setup" = X,
+    Permissions =
+    // Tables
+        table "Subc. Management Setup" = X,
         table "Subcontractor Price" = X,
+
     // Codeunits
         codeunit "Single Instance Dictionary" = X,
         codeunit "Subc. Business Setup Ext." = X,
@@ -65,6 +67,7 @@ permissionset 99001501 "Subcontract. - Objs"
         codeunit "Subc. WhsePurchRelease Ext" = X,
         codeunit "Subc. Work Center Extension" = X,
         codeunit "Subcontracting Install" = X,
+
     // Pages
         page "Subc. Management Setup" = X,
         page "Subc. Prod. Order Components" = X,
@@ -77,6 +80,7 @@ permissionset 99001501 "Subcontract. - Objs"
         page "Subc. Temp Routing Lines" = X,
         page "Subc. Transfer Line Factbox" = X,
         page "Subcontractor Prices" = X,
+
     // Reports
         report "Subc. Create Prod. Routing" = X,
         report "Subc. Create Transf. Order" = X,

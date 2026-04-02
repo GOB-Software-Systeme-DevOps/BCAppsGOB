@@ -62,6 +62,7 @@ pageextension 99001544 "Subc.Change Status Prod. Order" extends "Change Status o
         if ProductionOrder.Status <> "Production Order Status"::Released then begin
             WIPQuantityCleanUpEnabled := false;
             WIPQuantityCleanUpVisible := false;
+            WIPQuantityCleanUp := false;
             exit;
         end;
         SubcontractorWIPLedgerEntry.SetCurrentKey("Prod. Order No.", "Prod. Order Status", "Prod. Order Line No.", "Routing Reference No.", "Routing No.", "Operation No.", "Location Code");
@@ -69,5 +70,7 @@ pageextension 99001544 "Subc.Change Status Prod. Order" extends "Change Status o
         SubcontractorWIPLedgerEntry.SetRange("Prod. Order Status", "Production Order Status"::Released);
         WIPQuantityCleanUpEnabled := not SubcontractorWIPLedgerEntry.IsEmpty();
         WIPQuantityCleanUpVisible := WIPQuantityCleanUpEnabled;
+        if not WIPQuantityCleanUpEnabled then
+            WIPQuantityCleanUp := false;
     end;
 }
