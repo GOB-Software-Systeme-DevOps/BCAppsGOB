@@ -3,6 +3,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace MS.Subcontracting;
 
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
@@ -14,6 +15,7 @@ using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
+using System.Reflection;
 
 codeunit 99001559 "Subc. Prod. Def. Subscriber"
 {
@@ -22,42 +24,63 @@ codeunit 99001559 "Subc. Prod. Def. Subscriber"
     var
         StoredPurchLine: Record "Purchase Line";
 
-    // ----------------------------------------
-    // Production Definition Manager events
-    // ----------------------------------------
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Production Definition Manager", 'OnBeforeRunForPurchaseLine', '', false, false)]
-    local procedure OnBeforeRunForPurchaseLine(var PurchLine: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Def. Source Initializer", 'OnBeforeInitializeFromSource', '', false, false)]
+    local procedure OnBeforeInitializeFromSource(var TempData: Codeunit "Prod. Definition Temp Data"; Source: Variant; var IsHandled: Boolean)
     var
-        SubManagementSetup: Record "Subc. Management Setup";
-        ManufacturingSetup: Record "Manufacturing Setup";
-        Vendor: Record Vendor;
+        PurchLine: Record "Purchase Line";
+        DataTypeManagement: Codeunit "Data Type Management";
+        SourceRecRef: RecordRef;
     begin
+        if not DataTypeManagement.GetRecordRef(Source, SourceRecRef) then
+            exit;
+        if SourceRecRef.Number <> Database::"Purchase Line" then
+            exit;
+        SourceRecRef.SetTable(PurchLine);
+        TempData.SetGlobalSourceType("Prod. Definition Source"::PurchaseLine);
+        ValidatePurchLineForWizard(PurchLine);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Def. Source Initializer", 'OnInitializeFromSource', '', false, false)]
+    local procedure OnInitializeFromSource(var TempData: Codeunit "Prod. Definition Temp Data"; Source: Variant; var IsHandled: Boolean)
+    var
+        PurchLine: Record "Purchase Line";
+        TempProdOrder: Record "Production Order" temporary;
+        DataTypeManagement: Codeunit "Data Type Management";
+        SourceRecRef: RecordRef;
+        TempProdOrderNoLbl: Label 'TEMP-%1', Locked = true, MaxLength = 20;
+    begin
+        if TempData.GetGlobalSourceType() <> "Prod. Definition Source"::PurchaseLine then
+            exit;
+
+        if not DataTypeManagement.GetRecordRef(Source, SourceRecRef) then
+            exit;
+        if SourceRecRef.Number <> Database::"Purchase Line" then
+            exit;
+        SourceRecRef.SetTable(PurchLine);
         StoredPurchLine := PurchLine;
 
-        SubManagementSetup.Get();
-        SubManagementSetup.TestField("Rtng. Link Code Purch. Prov.");
-        SubManagementSetup.TestField("Preset Component Item No.");
+        TempData.SetGlobalItemInfo(PurchLine."No.", PurchLine.Description);
+        TempData.SetNewPurchLine(PurchLine);
 
-        ManufacturingSetup.Get();
-        ManufacturingSetup.TestField("Released Order Nos.");
-        ManufacturingSetup.TestField("Production BOM Nos.");
-        ManufacturingSetup.TestField("Routing Nos.");
-        ManufacturingSetup.TestField("Default Work Center No.");
+        TempProdOrder.Init();
+        TempProdOrder.Status := "Production Order Status"::Released;
+        TempProdOrder."No." := CopyStr(StrSubstNo(TempProdOrderNoLbl, CopyStr(Format(CreateGuid()), 2, 10)), 1, MaxStrLen(TempProdOrder."No."));
+        TempProdOrder."Source Type" := "Prod. Order Source Type"::Item;
+        TempProdOrder."Source No." := PurchLine."No.";
+        if PurchLine."Variant Code" <> '' then
+            TempProdOrder."Variant Code" := PurchLine."Variant Code";
+        TempProdOrder."Due Date" := PurchLine."Expected Receipt Date";
+        TempProdOrder.Quantity := PurchLine."Quantity (Base)";
+        TempProdOrder."Location Code" := PurchLine."Location Code";
+        TempProdOrder."Created from Purchase Order" := true;
+        TempProdOrder.Insert();
+        TempData.SetNewProdOrder(TempProdOrder);
 
-        Vendor.Get(PurchLine."Buy-from Vendor No.");
-        Vendor.TestField("Subcontr. Location Code");
+        TempData.CreateTemporaryProdOrderLine();
+        TempData.ClearTemporaryProductionTables();
 
-        PurchLine.TestField(Type, "Purchase Line Type"::Item);
-        PurchLine.TestField("Prod. Order No.", '');
-        PurchLine.TestField("Prod. Order Line No.", 0);
-        PurchLine.TestField(Quantity);
-        PurchLine.TestField("Location Code");
-        PurchLine.TestField("Expected Receipt Date");
-        PurchLine.TestField("Drop Shipment", false);
-        PurchLine.TestField("Special Order", false);
-
-        PurchLine.TestStatusOpen();
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Production Definition Manager", 'OnAfterPostWizardProcessing', '', false, false)]
@@ -70,52 +93,54 @@ codeunit 99001559 "Subc. Prod. Def. Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Definition Temp Data", 'OnBeforeInsertDefaultTemporaryBOMLine', '', false, false)]
     local procedure OnBeforeInsertDefaultTemporaryBOMLine(var TempBOMLine: Record "Production BOM Line" temporary)
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        SubManagementSetup.Get();
+        ManufacturingSetup.SetLoadFields("Rtng. Link Code Purch. Prov.", "Default Component Item No.");
+        ManufacturingSetup.Get();
         TempBOMLine."Subcontracting Type" := "Subcontracting Type"::InventoryByVendor;
-        TempBOMLine."Routing Link Code" := SubManagementSetup."Rtng. Link Code Purch. Prov.";
-        if SubManagementSetup."Preset Component Item No." <> '' then
-            TempBOMLine."No." := SubManagementSetup."Preset Component Item No.";
+        TempBOMLine."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
+        if ManufacturingSetup."Default Component Item No." <> '' then
+            TempBOMLine."No." := ManufacturingSetup."Default Component Item No.";
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Definition Temp Data", 'OnAfterInitializeNewTemporaryRoutingInformation', '', false, false)]
     local procedure OnAfterInitializeNewTemporaryRoutingInformation(var TempRoutingHeader: Record "Routing Header" temporary; var TempRoutingLine: Record "Routing Line" temporary; ItemNo: Code[20])
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         Location: Record Location;
         PutAwayOperationLbl: Label 'Put-Away Operation';
     begin
-        SubManagementSetup.Get();
+        ManufacturingSetup.Get();
 
-        if SubManagementSetup."Put-Away Work Center No." <> '' then
+        if ManufacturingSetup."Put-Away Work Center No." <> '' then
             if (StoredPurchLine."Location Code" <> '') and Location.Get(StoredPurchLine."Location Code") then
                 if Location."Prod. Output Whse. Handling" <> Location."Prod. Output Whse. Handling"::"No Warehouse Handling" then begin
                     TempRoutingLine.Init();
                     TempRoutingLine."Routing No." := TempRoutingHeader."No.";
                     TempRoutingLine."Operation No." := '20';
                     TempRoutingLine.Type := TempRoutingLine.Type::"Work Center";
-                    TempRoutingLine.Validate("No.", SubManagementSetup."Put-Away Work Center No.");
-                    TempRoutingLine.Validate("Work Center No.", SubManagementSetup."Put-Away Work Center No.");
+                    TempRoutingLine.Validate("No.", ManufacturingSetup."Put-Away Work Center No.");
+                    TempRoutingLine.Validate("Work Center No.", ManufacturingSetup."Put-Away Work Center No.");
                     TempRoutingLine.Description := CopyStr(PutAwayOperationLbl, 1, MaxStrLen(TempRoutingLine.Description));
                     TempRoutingLine.Insert();
                 end;
     end;
-    
+
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Definition Temp Data", 'OnAfterCreateTemporaryComponentFromBOMLine', '', false, false)]
     local procedure OnAfterCreateTemporaryComponentFromBOMLine(var TempProdOrderComponent: Record "Prod. Order Component" temporary; ProductionBOMLine: Record "Production BOM Line")
     var
-        SubManagementSetup: Record "Subc. Management Setup";
-        SubcontractingManagement: Codeunit "Subcontracting Management";
+        ManufacturingSetup: Record "Manufacturing Setup";
         Vendor: Record Vendor;
+        SubcontractingManagement: Codeunit "Subcontracting Management";
     begin
         TempProdOrderComponent."Subcontracting Type" := ProductionBOMLine."Subcontracting Type";
         TempProdOrderComponent."Orig. Location Code" := TempProdOrderComponent."Location Code";
         TempProdOrderComponent."Orig. Bin Code" := TempProdOrderComponent."Bin Code";
 
-        SubManagementSetup.Get();
-        if TempProdOrderComponent."Routing Link Code" = SubManagementSetup."Rtng. Link Code Purch. Prov." then
+        ManufacturingSetup.SetLoadFields("Rtng. Link Code Purch. Prov.");
+        ManufacturingSetup.Get();
+        if TempProdOrderComponent."Routing Link Code" = ManufacturingSetup."Rtng. Link Code Purch. Prov." then
             case TempProdOrderComponent."Subcontracting Type" of
                 "Subcontracting Type"::InventoryByVendor, "Subcontracting Type"::Purchase:
                     begin
@@ -150,7 +175,7 @@ codeunit 99001559 "Subc. Prod. Def. Subscriber"
         ProdOrderRoutingLine."Vendor No. Subc. Price" := TempProdOrderRoutingLine."Vendor No. Subc. Price";
     end;
 
-    [EventSubscriber(ObjectType::PageExtension, PageExtension::TempProdOrderCompSubcExt, 'OnAfterSubcontractingTypeChangedToNonTransfer', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Temp Prod. Order Comp. List", 'OnAfterSubcontractingTypeChangedToNonTransfer', '', false, false)]
     local procedure TempProdOrderCompSubcExt_OnAfterSubcontractingTypeChangedToNonTransfer(var ProdOrderComponent: Record "Prod. Order Component")
     var
         Vendor: Record Vendor;
@@ -161,20 +186,58 @@ codeunit 99001559 "Subc. Prod. Def. Subscriber"
             if Vendor."Subcontr. Location Code" <> '' then
                 ProdOrderComponent.Validate("Location Code", Vendor."Subcontr. Location Code");
     end;
-   [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Definition Temp Data", 'OnBeforeInsertDefaultRoutingOperation', '', false, false)]
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Definition Temp Data", 'OnBeforeInsertDefaultRoutingOperation', '', false, false)]
     local procedure OnBeforeInsertDefaultRoutingOperation(var TempRoutingLine: Record "Routing Line" temporary)
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         Vendor: Record Vendor;
     begin
-        SubManagementSetup.Get();
+        ManufacturingSetup.SetLoadFields("Rtng. Link Code Purch. Prov.");
+        ManufacturingSetup.Get();
 
         if Vendor.Get(StoredPurchLine."Buy-from Vendor No.") and (Vendor."Work Center No." <> '') then begin
             TempRoutingLine."No." := Vendor."Work Center No.";
             TempRoutingLine.Validate("No.");
             TempRoutingLine.Validate("Work Center No.", Vendor."Work Center No.");
         end;
-        TempRoutingLine."Routing Link Code" := SubManagementSetup."Rtng. Link Code Purch. Prov.";
+        TempRoutingLine."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
+    end;
+
+    local procedure ValidatePurchLineForWizard(var PurchaseLine: Record "Purchase Line")
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Vendor: Record Vendor;
+    begin
+        PurchaseLine.TestField(Type, "Purchase Line Type"::Item);
+        PurchaseLine.TestField("Prod. Order No.", '');
+        PurchaseLine.TestField("Prod. Order Line No.", 0);
+        PurchaseLine.TestField("Qty. Assigned", 0);
+        PurchaseLine.TestField("Qty. Rcd. Not Invoiced", 0);
+
+        PurchaseLine.TestStatusOpen();
+
+        ManufacturingSetup.Get();
+        ManufacturingSetup.TestField("Rtng. Link Code Purch. Prov.");
+        ManufacturingSetup.TestField("Released Order Nos.");
+        ManufacturingSetup.TestField("Production BOM Nos.");
+        ManufacturingSetup.TestField("Routing Nos.");
+        ManufacturingSetup.TestField("Default Work Center No.");
+        ManufacturingSetup.TestField("Default Component Item No.");
+
+        Vendor.Get(PurchaseLine."Buy-from Vendor No.");
+        Vendor.TestField("Subcontr. Location Code");
+
+        PurchaseLine.TestField(Type, "Purchase Line Type"::Item);
+        PurchaseLine.TestField("Prod. Order No.", '');
+        PurchaseLine.TestField("Prod. Order Line No.", 0);
+        PurchaseLine.TestField(Quantity);
+        PurchaseLine.TestField("Location Code");
+        PurchaseLine.TestField("Expected Receipt Date");
+        PurchaseLine.TestField("Drop Shipment", false);
+        PurchaseLine.TestField("Special Order", false);
+
+        PurchaseLine.TestStatusOpen();
     end;
 
     local procedure UpdatePurchaseLineWithProdOrder(var PurchLine: Record "Purchase Line"; ProdOrder: Record "Production Order")

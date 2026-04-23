@@ -8,6 +8,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 
 codeunit 139988 "Subc. Setup Library"
@@ -22,6 +23,7 @@ codeunit 139988 "Subc. Setup Library"
         Item: Record Item;
         RoutingLink: Record "Routing Link";
         SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
     begin
         // Create Work Center for subcontracting
@@ -42,56 +44,61 @@ codeunit 139988 "Subc. Setup Library"
         SubManagementSetup."Rtng. Link Code Purch. Prov." := RoutingLink."Code";
         SubManagementSetup."Def. provision flushing method" := "Flushing Method Routing"::Backward;
         SubManagementSetup."Component at Location" := SubManagementSetup."Component at Location"::Purchase;
-        SubManagementSetup."Preset Component Item No." := Item."No.";
+
+        SubManagementSetup.Modify();
+
+        // Set wizard fields on Manufacturing Setup
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Default Component Item No." := Item."No.";
 
         // Set all Select fields to Edit as default
-        SubManagementSetup.ShowRtngBOMSelect_Nothing := SubManagementSetup.ShowRtngBOMSelect_Nothing::Edit;
-        SubManagementSetup.ShowRtngBOMSelect_Partial := SubManagementSetup.ShowRtngBOMSelect_Partial::Edit;
-        SubManagementSetup.ShowRtngBOMSelect_Both := SubManagementSetup.ShowRtngBOMSelect_Both::Edit;
-        SubManagementSetup.ShowProdRtngCompSelect_Nothing := SubManagementSetup.ShowProdRtngCompSelect_Nothing::Edit;
-        SubManagementSetup.ShowProdRtngCompSelect_Partial := SubManagementSetup.ShowProdRtngCompSelect_Partial::Edit;
-        SubManagementSetup.ShowProdRtngCompSelect_Both := SubManagementSetup.ShowProdRtngCompSelect_Both::Edit;
+        ManufacturingSetup.ShowRtngBOMSelect_Nothing := "Prod. Definition Display"::Edit;
+        ManufacturingSetup.ShowRtngBOMSelect_Partial := "Prod. Definition Display"::Edit;
+        ManufacturingSetup.ShowRtngBOMSelect_Both := "Prod. Definition Display"::Edit;
+        ManufacturingSetup.ShowProdCompSelect_Nothing := "Prod. Definition Display"::Edit;
+        ManufacturingSetup.ShowProdCompSelect_Partial := "Prod. Definition Display"::Edit;
+        ManufacturingSetup.ShowProdCompSelect_Both := "Prod. Definition Display"::Edit;
 
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Modify();
     end;
 
-    procedure ConfigureSubManagementForNothingPresentScenario(ShowRtngBOMSelect: Enum "Subc. Show/Edit Type"; ShowProdRtngCompSelect: Enum "Subc. Show/Edit Type")
+    procedure ConfigureSubManagementForNothingPresentScenario(ShowRtngBOMSelect: Enum "Prod. Definition Display"; ShowProdCompSelect: Enum "Prod. Definition Display")
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        SubManagementSetup.Get();
+        ManufacturingSetup.Get();
 
         // Configure for NothingPresent scenario
-        SubManagementSetup.ShowRtngBOMSelect_Nothing := ShowRtngBOMSelect;
-        SubManagementSetup.ShowProdRtngCompSelect_Nothing := ShowProdRtngCompSelect;
+        ManufacturingSetup.ShowRtngBOMSelect_Nothing := ShowRtngBOMSelect;
+        ManufacturingSetup.ShowProdCompSelect_Nothing := ShowProdCompSelect;
 
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Modify();
     end;
 
-    procedure ConfigureSubManagementForPartiallyPresentScenario(ShowRtngBOMSelect: Enum "Subc. Show/Edit Type"; ShowProdRtngCompSelect: Enum "Subc. Show/Edit Type")
+    procedure ConfigureSubManagementForPartiallyPresentScenario(ShowRtngBOMSelect: Enum "Prod. Definition Display"; ShowProdCompSelect: Enum "Prod. Definition Display")
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        SubManagementSetup.Get();
+        ManufacturingSetup.Get();
 
         // Configure for PartiallyPresent scenario
-        SubManagementSetup.ShowRtngBOMSelect_Partial := ShowRtngBOMSelect;
-        SubManagementSetup.ShowProdRtngCompSelect_Partial := ShowProdRtngCompSelect;
+        ManufacturingSetup.ShowRtngBOMSelect_Partial := ShowRtngBOMSelect;
+        ManufacturingSetup.ShowProdCompSelect_Partial := ShowProdCompSelect;
 
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Modify();
     end;
 
-    procedure ConfigureSubManagementForBothPresentScenario(ShowRtngBOMSelect: Enum "Subc. Show/Edit Type"; ShowProdRtngCompSelect: Enum "Subc. Show/Edit Type")
+    procedure ConfigureSubManagementForBothPresentScenario(ShowRtngBOMSelect: Enum "Prod. Definition Display"; ShowProdCompSelect: Enum "Prod. Definition Display")
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        SubManagementSetup.Get();
+        ManufacturingSetup.Get();
 
         // Configure for BothPresent scenario
-        SubManagementSetup.ShowRtngBOMSelect_Both := ShowRtngBOMSelect;
-        SubManagementSetup.ShowProdRtngCompSelect_Both := ShowProdRtngCompSelect;
+        ManufacturingSetup.ShowRtngBOMSelect_Both := ShowRtngBOMSelect;
+        ManufacturingSetup.ShowProdCompSelect_Both := ShowProdCompSelect;
 
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Modify();
     end;
 
     internal procedure InitialSetupForGenProdPostingGroup()

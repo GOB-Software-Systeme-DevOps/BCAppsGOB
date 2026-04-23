@@ -9,7 +9,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Purchases.Document;
 
 codeunit 139996 "Subc. Wiz. Variant Test"
@@ -39,14 +39,13 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened: Boolean;
         NoToSelect, VersionToSelect : Code[20];
 
-    // ==================== SCENARIO C: Variant Editing ====================
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardNewBOMVariant')]
+    [HandlerFunctions('HandleProductionDefinitionWizardNewBOMVariant')]
     procedure TestC1_NewBOMVariant_LinesEditable()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -61,7 +60,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -70,7 +69,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have opened and new BOM variant should be creatable with editable lines
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -78,13 +77,13 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardModifyBOMLines')]
+    [HandlerFunctions('HandleProductionDefinitionWizardModifyBOMLines')]
     procedure TestC2_ModifyBOMLines_ChangesAppliedToComponents()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -99,7 +98,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -108,7 +107,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and changes should be applied to production order components
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -136,11 +135,11 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardNewRoutingVariant')]
+    [HandlerFunctions('HandleProductionDefinitionWizardNewRoutingVariant')]
     procedure TestC3_NewRoutingVariant_LinesEditable()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -155,7 +154,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -164,7 +163,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have opened and new Routing variant should be creatable with editable lines
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -172,13 +171,13 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardModifyRoutingLines')]
+    [HandlerFunctions('HandleProductionDefinitionWizardModifyRoutingLines')]
     procedure TestC4_ModifyRoutingLines_ChangesAppliedToOperations()
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -193,7 +192,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -202,7 +201,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and changes should be applied to production order routing lines
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -230,16 +229,14 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrderRoutingLinesMatchTempRecords(ProdOrder, TempProdOrderRoutingLine);
     end;
 
-    // ==================== SCENARIO H: Saving of Variants ====================
-
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSaveToStockkeeping')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSaveToStockkeeping')]
     procedure TestH1_SaveWithStockkeeping_NewVariantInStockkeeping()
     var
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         BOMNo: Code[20];
         ItemNo: Code[20];
@@ -259,7 +256,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         SubCreateProdOrdWizLibrary.CreateStockkeepingUnit(StockkeepingUnit, ItemNo, LocationCode);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line with location
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -270,7 +267,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and new BOM variant should be saved to stockkeeping unit
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -287,13 +284,13 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSaveToItem')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSaveToItem')]
     procedure TestH2_SaveWithItem_NewVariantInItem()
     var
         Item: Record Item;
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         OriginalBOMNo: Code[20];
@@ -313,7 +310,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         OriginalBOMNo := Item."Production BOM No.";
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -322,7 +319,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and new BOM variant should be saved to item
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -340,13 +337,13 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSaveNoChanges')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSaveNoChanges')]
     procedure TestH3_SaveNoChanges_NoNewVariant()
     var
         Item: Record Item;
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         OriginalBOMNo: Code[20];
@@ -366,7 +363,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         OriginalBOMNo := Item."Production BOM No.";
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -375,7 +372,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully but no new variant should be created
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -391,16 +388,15 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         Assert.IsTrue(ProductionBOMVersion.IsEmpty(), 'No new BOM version should exist when no changes made');
     end;
 
-    // ==================== SCENARIO I: Versions  ====================
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardNewBOMVersion')]
+    [HandlerFunctions('HandleProductionDefinitionWizardNewBOMVersion')]
     procedure TestI1_NewBOMVersion_NewestVersionUsed()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -419,7 +415,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         SubCreateProdOrdWizLibrary.CreateBOMVersionWithTwoLines(BOMNo, 'B');
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -428,7 +424,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should use the new BOM version
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -446,13 +442,13 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardNewRoutingVersion')]
+    [HandlerFunctions('HandleProductionDefinitionWizardNewRoutingVersion')]
     procedure TestI2_NewRoutingVersion_NewestVersionUsed()
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -471,7 +467,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         SubCreateProdOrdWizLibrary.CreateRoutingVersionWithTwoLines(RoutingNo, 'B');
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -480,7 +476,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should use the new Routing version
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -498,16 +494,14 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrderRoutingLinesMatchTempRecords(ProdOrder, TempProdOrderRoutingLine);
     end;
 
-    // ==================== SCENARIO J: Variantenwahl / Wechsel ====================
-
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSelectBOMVariant,SelectBOMVersion')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSelectBOMVariant,SelectBOMVersion')]
     procedure TestJ1_SelectExistingBOMVariant_LinesExchanged()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -526,7 +520,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         SubCreateProdOrdWizLibrary.CreateBOMVersionWithTwoLines(BOMNo, 'B');
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -535,7 +529,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and used alternate BOM version
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -556,13 +550,13 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSelectRoutingVariant,SelectRoutingVersion')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSelectRoutingVariant,SelectRoutingVersion')]
     procedure TestJ2_SelectExistingRoutingVariant_LinesExchanged()
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -581,7 +575,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         SubCreateProdOrdWizLibrary.CreateRoutingVersionWithTwoLines(RoutingNo, 'B');
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -590,7 +584,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and used alternate Routing version
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -610,203 +604,195 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrderRoutingLinesMatchTempRecords(ProdOrder, TempProdOrderRoutingLine);
     end;
 
-    // ==================== MODAL PAGE HANDLERS ====================
-
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardNewBOMVariant(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardNewBOMVariant(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO C1] Handle wizard to create new BOM variant
         WizardWasOpened := true;
 
         // Navigate through wizard steps until we can create a new BOM version
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
             // Check if we can create a new BOM version on this step
-            if PurchProvisionWizard.CreateBOMVersion.Visible() then begin
-                PurchProvisionWizard.CreateBOMVersion.SetValue(true);
+            if ProductionDefinitionWizard.CreateBOMVersionField.Visible() then begin
+                ProductionDefinitionWizard.CreateBOMVersionField.SetValue(true);
                 // Verify that BOM lines are now editable
-                Assert.IsTrue(PurchProvisionWizard.BOMLinesPart.Editable(), 'BOM lines should be editable when creating new version');
+                Assert.IsTrue(ProductionDefinitionWizard.BOMLinesPart.Editable(), 'BOM lines should be editable when creating new version');
             end;
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardModifyBOMLines(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardModifyBOMLines(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO C2] Handle wizard to modify BOM lines
         WizardWasOpened := true;
 
         // Navigate through wizard steps and modify BOM lines
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
             // Check if we can create a new BOM version on this step
-            if PurchProvisionWizard.CreateBOMVersion.Visible() then begin
-                PurchProvisionWizard.CreateBOMVersion.SetValue(true);
+            if ProductionDefinitionWizard.CreateBOMVersionField.Visible() then begin
+                ProductionDefinitionWizard.CreateBOMVersionField.SetValue(true);
                 // Verify that BOM lines are now editable
-                Assert.IsTrue(PurchProvisionWizard.BOMLinesPart.Editable(), 'BOM lines should be editable when creating new version');
-                PurchProvisionWizard.BOMLinesPart.First();
+                Assert.IsTrue(ProductionDefinitionWizard.BOMLinesPart.Editable(), 'BOM lines should be editable when creating new version');
+                ProductionDefinitionWizard.BOMLinesPart.First();
                 // Modify the quantity per of the first BOM line
-                PurchProvisionWizard.BOMLinesPart."Quantity per".SetValue(5);
+                ProductionDefinitionWizard.BOMLinesPart."Quantity per".SetValue(5);
             end;
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardNewRoutingVariant(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardNewRoutingVariant(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO C3] Handle wizard to create new Routing variant
         WizardWasOpened := true;
 
         // Navigate through wizard steps until we can create a new Routing version
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
             // Check if we can create a new Routing version on this step
-            if PurchProvisionWizard.CreateRoutingVersion.Visible() then begin
-                PurchProvisionWizard.CreateRoutingVersion.SetValue(true);
+            if ProductionDefinitionWizard.CreateRoutingVersionField.Visible() then begin
+                ProductionDefinitionWizard.CreateRoutingVersionField.SetValue(true);
                 // Verify that Routing lines are now editable
-                Assert.IsTrue(PurchProvisionWizard.RoutingLinesPart.Editable(), 'Routing lines should be editable when creating new version');
+                Assert.IsTrue(ProductionDefinitionWizard.RoutingLinesPart.Editable(), 'Routing lines should be editable when creating new version');
             end;
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardModifyRoutingLines(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardModifyRoutingLines(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO C4] Handle wizard to modify Routing lines
         WizardWasOpened := true;
 
         // Navigate through wizard steps and modify Routing lines
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
             // Check if we can create a new Routing version on this step
-            if PurchProvisionWizard.CreateRoutingVersion.Visible() then begin
-                PurchProvisionWizard.CreateRoutingVersion.SetValue(true);
+            if ProductionDefinitionWizard.CreateRoutingVersionField.Visible() then begin
+                ProductionDefinitionWizard.CreateRoutingVersionField.SetValue(true);
                 // Verify that Routing lines are now editable
-                Assert.IsTrue(PurchProvisionWizard.RoutingLinesPart.Editable(), 'Routing lines should be editable when creating new version');
-                PurchProvisionWizard.RoutingLinesPart.First();
+                Assert.IsTrue(ProductionDefinitionWizard.RoutingLinesPart.Editable(), 'Routing lines should be editable when creating new version');
+                ProductionDefinitionWizard.RoutingLinesPart.First();
                 // Modify some routing lines here
-                PurchProvisionWizard.RoutingLinesPart."Run Time".SetValue(10);
-                PurchProvisionWizard.RoutingLinesPart."Setup Time".SetValue(20);
+                ProductionDefinitionWizard.RoutingLinesPart."Run Time".SetValue(10);
+                ProductionDefinitionWizard.RoutingLinesPart."Setup Time".SetValue(20);
             end;
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
-    // ==================== SCENARIO H HANDLERS ====================
-
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSaveToStockkeeping(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSaveToStockkeeping(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO H1] Handle wizard to save new variant to stockkeeping unit
         WizardWasOpened := true;
 
-        Assert.IsFalse(PurchProvisionWizard.SaveBomRtngToSource.Editable(), 'Save to source should not be Editable initially');
-        PurchProvisionWizard.SaveBOMRouting.SetValue(true);
-        Assert.IsTrue(PurchProvisionWizard.SaveBomRtngToSource.Editable(), 'Save to source should be Editable after enabling save');
-        PurchProvisionWizard.SaveBomRtngToSource.SetValue("Subc. RtngBOMSourceType"::StockkeepingUnit);
+        Assert.IsFalse(ProductionDefinitionWizard.SaveBomRtngToSourceField.Editable(), 'Save to source should not be Editable initially');
+        ProductionDefinitionWizard.SaveBOMRoutingField.SetValue(true);
+        Assert.IsTrue(ProductionDefinitionWizard.SaveBomRtngToSourceField.Editable(), 'Save to source should be Editable after enabling save');
+        ProductionDefinitionWizard.SaveBomRtngToSourceField.SetValue("Prod. Definition Source"::StockkeepingUnit);
 
         // Navigate through wizard steps and enable saving to stockkeeping
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
             // Check if we can create a new BOM version and save it
-            if PurchProvisionWizard.CreateBOMVersion.Visible() then
-                PurchProvisionWizard.CreateBOMVersion.SetValue(true);
+            if ProductionDefinitionWizard.CreateBOMVersionField.Visible() then
+                ProductionDefinitionWizard.CreateBOMVersionField.SetValue(true);
             // Enable saving the variant (simulated)
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSaveToItem(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSaveToItem(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO H2] Handle wizard to save new variant to item
         WizardWasOpened := true;
 
-        Assert.IsFalse(PurchProvisionWizard.SaveBomRtngToSource.Editable(), 'Save to source should not be Editable initially');
-        PurchProvisionWizard.SaveBOMRouting.SetValue(true);
-        Assert.IsTrue(PurchProvisionWizard.SaveBomRtngToSource.Editable(), 'Save to source should be Editable after enabling save');
-        PurchProvisionWizard.SaveBomRtngToSource.SetValue("Subc. RtngBOMSourceType"::Item);
+        Assert.IsFalse(ProductionDefinitionWizard.SaveBomRtngToSourceField.Editable(), 'Save to source should not be Editable initially');
+        ProductionDefinitionWizard.SaveBOMRoutingField.SetValue(true);
+        Assert.IsTrue(ProductionDefinitionWizard.SaveBomRtngToSourceField.Editable(), 'Save to source should be Editable after enabling save');
+        ProductionDefinitionWizard.SaveBomRtngToSourceField.SetValue("Prod. Definition Source"::Item);
 
         // Navigate through wizard steps and enable saving to item
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
             // Check if we can create a new BOM version and save it
-            if PurchProvisionWizard.CreateBOMVersion.Visible() then
-                PurchProvisionWizard.CreateBOMVersion.SetValue(true);
+            if ProductionDefinitionWizard.CreateBOMVersionField.Visible() then
+                ProductionDefinitionWizard.CreateBOMVersionField.SetValue(true);
             // Enable saving the variant (simulated)
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSaveNoChanges(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSaveNoChanges(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO H3] Handle wizard without making changes (no save needed)
         WizardWasOpened := true;
 
-        Assert.AreEqual(Format("Subc. RtngBOMSourceType"::Empty), PurchProvisionWizard.SaveBomRtngToSource.Value(), 'Save to source should be empty initially');
+        Assert.AreEqual(Format("Prod. Definition Source"::Empty), ProductionDefinitionWizard.SaveBomRtngToSourceField.Value(), 'Save to source should be empty initially');
 
         // Navigate through wizard steps without making changes
-        while PurchProvisionWizard.ActionNext.Enabled() do
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
             // Don't create new versions or make changes
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
-    // ==================== SCENARIO I HANDLERS ====================
-
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardNewBOMVersion(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardNewBOMVersion(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO I1] Handle wizard to use new BOM version
         WizardWasOpened := true;
 
         // Navigate through wizard steps and use new BOM version
-        while PurchProvisionWizard.ActionNext.Enabled() do
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
             // The wizard should automatically select the newest version
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardNewRoutingVersion(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardNewRoutingVersion(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO I2] Handle wizard to use new Routing version
         WizardWasOpened := true;
 
         // Navigate through wizard steps and use new Routing version
-        while PurchProvisionWizard.ActionNext.Enabled() do
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
             // The wizard should automatically select the newest version
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
-    // ==================== SCENARIO J HANDLERS ====================
-
     [ModalPageHandler]
     [HandlerFunctions('SelectBOMVersion')]
-    procedure HandlePurchProvisionWizardSelectBOMVariant(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSelectBOMVariant(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         BOMVersion: Record "Production BOM Version";
         NewItemNo: Text;
@@ -815,41 +801,41 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         // [SCENARIO J1] Handle wizard to select existing BOM variant and verify lines are updated
         WizardWasOpened := true;
 
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Get the current BOM lines before changing version
-        if PurchProvisionWizard.BOMLinesPart.First() then
-            OriginalItemNo := PurchProvisionWizard.BOMLinesPart."No.".Value();
+        if ProductionDefinitionWizard.BOMLinesPart.First() then
+            OriginalItemNo := ProductionDefinitionWizard.BOMLinesPart."No.".Value();
 
         // Find and select the alternate BOM version 'B'
-        BOMVersion.SetRange("Production BOM No.", PurchProvisionWizard."Production BOM No.".Value());
+        BOMVersion.SetRange("Production BOM No.", ProductionDefinitionWizard.ProductionBOMNoField.Value());
         BOMVersion.SetRange("Version Code", 'A');
         Assert.IsTrue(BOMVersion.FindFirst(), 'BOM version A should exist for selected BOM');
 
         // Select the alternate BOM version
         NoToSelect := BOMVersion."Production BOM No.";
         VersionToSelect := BOMVersion."Version Code";
-        PurchProvisionWizard.SelectedBOMVersion.AssistEdit();
+        ProductionDefinitionWizard.SelectedBOMVersionField.AssistEdit();
 
         // Verify that the BOM lines have been updated after version change
-        if PurchProvisionWizard.BOMLinesPart.First() then begin
-            NewItemNo := PurchProvisionWizard.BOMLinesPart."No.".Value();
+        if ProductionDefinitionWizard.BOMLinesPart.First() then begin
+            NewItemNo := ProductionDefinitionWizard.BOMLinesPart."No.".Value();
             // The lines should be different between versions (different component items)
             Assert.AreNotEqual(OriginalItemNo, NewItemNo, 'BOM lines should be updated when version is changed');
         end;
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
     [HandlerFunctions('SelectRoutingVersion')]
-    procedure HandlePurchProvisionWizardSelectRoutingVariant(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSelectRoutingVariant(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         RoutingVersion: Record "Routing Version";
         NewWorkCenterNo: Text;
@@ -858,58 +844,58 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         // [SCENARIO J2] Handle wizard to select existing Routing variant and verify lines are updated
         WizardWasOpened := true;
 
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke(); //Components
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke(); //Components
 
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke(); //Routing
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke(); //Routing
 
         // Get the current Routing lines before changing version
-        if PurchProvisionWizard.RoutingLinesPart.First() then
-            OriginalWorkCenterNo := PurchProvisionWizard.RoutingLinesPart."No.".Value();
+        if ProductionDefinitionWizard.RoutingLinesPart.First() then
+            OriginalWorkCenterNo := ProductionDefinitionWizard.RoutingLinesPart."No.".Value();
 
         // Find and select the alternate Routing version 'A'
-        RoutingVersion.SetRange("Routing No.", PurchProvisionWizard."Routing No.".Value());
+        RoutingVersion.SetRange("Routing No.", ProductionDefinitionWizard.RoutingNoField.Value());
         RoutingVersion.SetRange("Version Code", 'A');
         Assert.IsTrue(RoutingVersion.FindFirst(), 'Routing version A should exist for selected Routing');
 
         // Set global variables for the SelectRoutingVersion handler
         NoToSelect := RoutingVersion."Routing No.";
         VersionToSelect := RoutingVersion."Version Code";
-        PurchProvisionWizard.SelectedRoutingVersion.AssistEdit();
+        ProductionDefinitionWizard.SelectedRoutingVersionField.AssistEdit();
 
         // Verify that the Routing lines have been updated after version change
-        if PurchProvisionWizard.RoutingLinesPart.First() then begin
-            NewWorkCenterNo := PurchProvisionWizard.RoutingLinesPart."No.".Value();
+        if ProductionDefinitionWizard.RoutingLinesPart.First() then begin
+            NewWorkCenterNo := ProductionDefinitionWizard.RoutingLinesPart."No.".Value();
             // The lines should be different between versions (different work centers)
             Assert.AreNotEqual(OriginalWorkCenterNo, NewWorkCenterNo, 'Routing lines should be updated when version is changed');
         end;
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSwitchVariants(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSwitchVariants(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO J3] Handle wizard to switch between variants
         WizardWasOpened := true;
 
         // Navigate through wizard steps and switch between variants
-        while PurchProvisionWizard.ActionNext.Enabled() do
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
             // Switch between variants (simulated)
-            PurchProvisionWizard.ActionNext.Invoke();
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardInvalidVariant(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardInvalidVariant(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO J4] Handle wizard to select invalid variant (should cause error)
         WizardWasOpened := true;

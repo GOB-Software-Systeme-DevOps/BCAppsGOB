@@ -9,7 +9,8 @@ using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Purchases.Document;
 
 codeunit 139998 "Subc. Wiz. Save Test"
@@ -38,21 +39,19 @@ codeunit 139998 "Subc. Wiz. Save Test"
         SaveBOMRouting: Boolean;
         WizardFinishedSuccessfully: Boolean;
         WizardWasOpened: Boolean;
-        SaveBomRtngToSource: Enum "Subc. RtngBOMSourceType";
+        SaveBomRtngToSource: Enum "Prod. Definition Source";
         BOMShouldExistLbl: Label 'BOM %1 should exist', Locked = true;
         RoutingShouldExistLbl: Label 'Routing %1 should exist', Locked = true;
 
-    // ==================== SCENARIO H: BOM/Routing Save Tests ====================
-
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardNoSave')]
+    [HandlerFunctions('HandleProductionDefinitionWizardNoSave')]
     procedure TestH1_NoSaveFlag_BOMNotSaved()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO H1] SaveBOMRouting = false - BOM should not be saved to source
@@ -63,7 +62,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
 
         // Configure setup to edit both for nothing present scenario
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
         SetAlwaysSaveModifiedVersions(false);
 
         // Create purchase line
@@ -77,7 +76,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully but BOM should not be saved to item
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -106,7 +105,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSaveToItem')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSaveToItem')]
     procedure TestH2_SaveToItem_BOMSavedToItem()
     var
         Item: Record Item;
@@ -114,7 +113,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO H2] SaveBomRtngToSource = Item - BOM should be saved to item
@@ -125,7 +124,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
 
         // Configure setup to edit both for nothing present scenario
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
         SetAlwaysSaveModifiedVersions(false);
 
         // Create purchase line
@@ -139,7 +138,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and BOM should be saved to item
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -171,7 +170,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSaveToStockkeepingUnit')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSaveToStockkeepingUnit')]
     procedure TestH3_SaveToStockkeepingUnit_BOMSavedToSKU()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
@@ -179,7 +178,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         ItemNo: Code[20];
     begin
@@ -191,7 +190,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
 
         // Configure setup to edit both for nothing present scenario
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
         SetAlwaysSaveModifiedVersions(false);
 
         // Create purchase line
@@ -206,7 +205,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and BOM should be saved to SKU
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -241,7 +240,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardCreateNewVersion')]
+    [HandlerFunctions('HandleProductionDefinitionWizardCreateNewVersion')]
     procedure TestH4_AlwaysSaveModifiedVersionsTrue_VersionSaved()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
@@ -250,7 +249,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
         RoutingVersion: Record "Routing Version";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -265,7 +264,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both and always save modified versions
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
         SetAlwaysSaveModifiedVersions(true);
 
         // Create purchase line
@@ -279,7 +278,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and version should be saved
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -313,13 +312,13 @@ codeunit 139998 "Subc. Wiz. Save Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardCreateNewVersionNoSave')]
+    [HandlerFunctions('HandleProductionDefinitionWizardCreateNewVersionNoSave')]
     procedure TestH5_AlwaysSaveModifiedVersionsFalse_VersionNotSaved()
     var
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
         RoutingVersion: Record "Routing Version";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -334,7 +333,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both but don't always save modified versions
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
         SetAlwaysSaveModifiedVersions(false);
 
         // Create purchase line
@@ -348,7 +347,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully but version should not be saved
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -369,13 +368,13 @@ codeunit 139998 "Subc. Wiz. Save Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardCreateNewVersionSaveToItem')]
+    [HandlerFunctions('HandleProductionDefinitionWizardCreateNewVersionSaveToItem')]
     procedure TestH6_SaveToItemWithNewVersion_VersionSaved()
     var
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
         RoutingVersion: Record "Routing Version";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -390,7 +389,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both but don't always save modified versions
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
         SetAlwaysSaveModifiedVersions(false);
 
         // Create purchase line
@@ -404,7 +403,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and version should be saved
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -424,155 +423,151 @@ codeunit 139998 "Subc. Wiz. Save Test"
         Assert.IsFalse(RoutingVersion.IsEmpty(), 'Routing Version should have been created');
     end;
 
-    // ==================== MODAL PAGE HANDLERS ====================
-
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardNoSave(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardNoSave(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // Handle wizard without saving BOM/Routing
         WizardWasOpened := true;
 
         // Set save options
-        PurchProvisionWizard.SaveBOMRouting.SetValue(SaveBOMRouting);
+        ProductionDefinitionWizard.SaveBOMRoutingField.SetValue(SaveBOMRouting);
 
         // Navigate through all wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSaveToItem(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSaveToItem(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // Handle wizard with save to item
         WizardWasOpened := true;
 
         // Set save options
-        PurchProvisionWizard.SaveBOMRouting.SetValue(SaveBOMRouting);
+        ProductionDefinitionWizard.SaveBOMRoutingField.SetValue(SaveBOMRouting);
         if SaveBOMRouting then
-            PurchProvisionWizard.SaveBomRtngToSource.SetValue(SaveBomRtngToSource);
+            ProductionDefinitionWizard.SaveBomRtngToSourceField.SetValue(SaveBomRtngToSource);
 
         // Navigate through all wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSaveToStockkeepingUnit(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSaveToStockkeepingUnit(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // Handle wizard with save to stockkeeping unit
         WizardWasOpened := true;
 
         // Set save options
-        PurchProvisionWizard.SaveBOMRouting.SetValue(SaveBOMRouting);
+        ProductionDefinitionWizard.SaveBOMRoutingField.SetValue(SaveBOMRouting);
         if SaveBOMRouting then
-            PurchProvisionWizard.SaveBomRtngToSource.SetValue(SaveBomRtngToSource);
+            ProductionDefinitionWizard.SaveBomRtngToSourceField.SetValue(SaveBomRtngToSource);
 
         // Navigate through all wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardCreateNewVersion(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardCreateNewVersion(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // Handle wizard with new version creation
         WizardWasOpened := true;
 
         // Set save options
-        PurchProvisionWizard.SaveBOMRouting.SetValue(SaveBOMRouting);
+        ProductionDefinitionWizard.SaveBOMRoutingField.SetValue(SaveBOMRouting);
         if SaveBOMRouting then
-            PurchProvisionWizard.SaveBomRtngToSource.SetValue(SaveBomRtngToSource);
+            ProductionDefinitionWizard.SaveBomRtngToSourceField.SetValue(SaveBomRtngToSource);
 
         // Navigate to BOM step and create new version
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.CreateBOMVersion.SetValue(true);
+        ProductionDefinitionWizard.CreateBOMVersionField.SetValue(true);
 
         // Navigate to Routing step and create new version
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.CreateRoutingVersion.SetValue(true);
+        ProductionDefinitionWizard.CreateRoutingVersionField.SetValue(true);
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardCreateNewVersionNoSave(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardCreateNewVersionNoSave(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // Handle wizard with new version creation but no save
         WizardWasOpened := true;
 
         // Set save options (no save)
-        PurchProvisionWizard.SaveBOMRouting.SetValue(SaveBOMRouting);
+        ProductionDefinitionWizard.SaveBOMRoutingField.SetValue(SaveBOMRouting);
 
         // Navigate to BOM step and create new version
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.CreateBOMVersion.SetValue(true);
+        ProductionDefinitionWizard.CreateBOMVersionField.SetValue(true);
 
         // Navigate to Routing step and create new version
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.CreateRoutingVersion.SetValue(true);
+        ProductionDefinitionWizard.CreateRoutingVersionField.SetValue(true);
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardCreateNewVersionSaveToItem(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardCreateNewVersionSaveToItem(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // Handle wizard with new version creation and save to item
         WizardWasOpened := true;
 
         // Set save options
-        PurchProvisionWizard.SaveBOMRouting.SetValue(SaveBOMRouting);
+        ProductionDefinitionWizard.SaveBOMRoutingField.SetValue(SaveBOMRouting);
         if SaveBOMRouting then
-            PurchProvisionWizard.SaveBomRtngToSource.SetValue(SaveBomRtngToSource);
+            ProductionDefinitionWizard.SaveBomRtngToSourceField.SetValue(SaveBomRtngToSource);
 
         // Navigate to BOM step and create new version
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.CreateBOMVersion.SetValue(true);
+        ProductionDefinitionWizard.CreateBOMVersionField.SetValue(true);
 
         // Navigate to Routing step and create new version
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.CreateRoutingVersion.SetValue(true);
+        ProductionDefinitionWizard.CreateRoutingVersionField.SetValue(true);
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
-
-    // ==================== HELPER METHODS ====================
 
     local procedure VerifyItemHasNoBOMRouting(ItemNo: Code[20])
     var
@@ -608,14 +603,11 @@ codeunit 139998 "Subc. Wiz. Save Test"
 
     local procedure SetAlwaysSaveModifiedVersions(AlwaysSave: Boolean)
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        if not SubManagementSetup.Get() then begin
-            SubManagementSetup.Init();
-            SubManagementSetup.Insert();
-        end;
-        SubManagementSetup."Always Save Modified Versions" := AlwaysSave;
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Always Save Modified Versions" := AlwaysSave;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure Initialize()

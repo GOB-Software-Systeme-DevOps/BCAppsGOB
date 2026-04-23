@@ -5,7 +5,6 @@
 namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Foundation.Company;
-using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
@@ -91,48 +90,6 @@ table 99001501 "Subc. Management Setup"
         field(130; RefItemChargeToRcptSubLines; Boolean)
         {
             Caption = 'Item Charge to Subcontracting Purch. Receipt Lines';
-        }
-        field(200; ShowRtngBOMSelect_Both; Enum "Subc. Show/Edit Type")
-        {
-            Caption = 'Routing/BOM Selection - Both';
-        }
-        field(210; ShowProdRtngCompSelect_Both; Enum "Subc. Show/Edit Type")
-        {
-            Caption = 'Show Prod. Routing/Component Selection - Both';
-        }
-        field(220; ShowRtngBOMSelect_Partial; Enum "Subc. Show/Edit Type")
-        {
-            Caption = 'Routing/BOM Selection - Partial';
-        }
-        field(230; ShowProdRtngCompSelect_Partial; Enum "Subc. Show/Edit Type")
-        {
-            Caption = 'Show Prod. Routing/Component Selection - Partial';
-        }
-        field(240; ShowRtngBOMSelect_Nothing; Enum "Subc. Show/Edit Type")
-        {
-            Caption = 'Routing/BOM Selection - Nothing';
-        }
-        field(250; ShowProdRtngCompSelect_Nothing; Enum "Subc. Show/Edit Type")
-        {
-            Caption = 'Show Prod. Routing/Component Selection - Nothing';
-        }
-        field(260; "Always Save Modified Versions"; Boolean)
-        {
-            Caption = 'Always Save Modified Versions';
-        }
-        field(270; "Put-Away Work Center No."; Code[20])
-        {
-            Caption = 'Put-Away Work Center No.';
-            TableRelation = "Work Center";
-        }
-        field(280; AllowEditUISelection; Boolean)
-        {
-            Caption = 'Allow Edit UI Selection';
-        }
-        field(290; "Preset Component Item No."; Code[20])
-        {
-            Caption = 'Preset Component Item No.';
-            TableRelation = Item;
         }
     }
     keys

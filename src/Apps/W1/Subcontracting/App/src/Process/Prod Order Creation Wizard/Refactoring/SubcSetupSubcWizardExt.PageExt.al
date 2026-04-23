@@ -5,7 +5,7 @@ namespace MS.Subcontracting;
 
 using Microsoft.Manufacturing.Setup;
 
-pageextension 99001567 "Mfg. Setup Subc. Wizard Ext" extends "Manufacturing Setup"
+pageextension 99001567 "Subc. Setup Subc. Wizard Ext" extends "Manufacturing Setup"
 {
     layout
     {
@@ -15,6 +15,11 @@ pageextension 99001567 "Mfg. Setup Subc. Wizard Ext" extends "Manufacturing Setu
             {
                 ApplicationArea = Manufacturing;
                 ToolTip = 'Specifies the work center used for the subcontracting put-away routing operation.';
+            }
+            field("Rtng. Link Code Purch. Prov."; Rec."Rtng. Link Code Purch. Prov.")
+            {
+                ApplicationArea = Manufacturing;
+                ToolTip = 'Specifies the routing link code used to connect purchase provision components to their routing operation.';
             }
         }
     }

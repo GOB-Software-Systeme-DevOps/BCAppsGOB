@@ -8,7 +8,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 
@@ -44,13 +44,13 @@ codeunit 139980 "Subc. Wiz. Change Test"
     // ==================== SCENARIO N: Component Change Tests ====================
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardModifyComponents')]
+    [HandlerFunctions('HandleProductionDefinitionWizardModifyComponents')]
     procedure TestN1_ComponentQuantityChanged_ChangesAppliedToProdOrder()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -65,7 +65,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -77,7 +77,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and component changes should be applied
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -94,13 +94,13 @@ codeunit 139980 "Subc. Wiz. Change Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardAddComponent')]
+    [HandlerFunctions('HandleProductionDefinitionWizardAddComponent')]
     procedure TestN2_ComponentAdded_NewComponentInProdOrder()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -115,7 +115,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -130,7 +130,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and new component should be added
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -147,13 +147,13 @@ codeunit 139980 "Subc. Wiz. Change Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardDeleteComponent')]
+    [HandlerFunctions('HandleProductionDefinitionWizardDeleteComponent')]
     procedure TestN3_ComponentDeleted_ComponentRemovedFromProdOrder()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -174,7 +174,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         OriginalComponentCount := TempProdOrderComponent.Count();
 
         // Configure setup to edit components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -183,7 +183,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and component should be deleted
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -207,13 +207,13 @@ codeunit 139980 "Subc. Wiz. Change Test"
     // ==================== SCENARIO O: Routing Change Tests ====================
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardModifyRouting')]
+    [HandlerFunctions('HandleProductionDefinitionWizardModifyRouting')]
     procedure TestO1_RoutingOperationChanged_ChangesAppliedToProdOrder()
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -228,7 +228,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit routing
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -240,7 +240,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and routing changes should be applied
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -257,13 +257,13 @@ codeunit 139980 "Subc. Wiz. Change Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardAddRoutingOperation')]
+    [HandlerFunctions('HandleProductionDefinitionWizardAddRoutingOperation')]
     procedure TestO2_RoutingOperationAdded_NewOperationInProdOrder()
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -284,7 +284,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         OriginalOperationCount := TempProdOrderRoutingLine.Count();
 
         // Configure setup to edit routing
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -297,7 +297,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and new operation should be added
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -319,13 +319,13 @@ codeunit 139980 "Subc. Wiz. Change Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardDeleteRoutingOperation')]
+    [HandlerFunctions('HandleProductionDefinitionWizardDeleteRoutingOperation')]
     procedure TestO3_RoutingOperationDeleted_OperationRemovedFromProdOrder()
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -346,7 +346,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         OriginalOperationCount := TempProdOrderRoutingLine.Count();
 
         // Configure setup to edit routing
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -355,7 +355,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and operation should be deleted
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -379,14 +379,14 @@ codeunit 139980 "Subc. Wiz. Change Test"
     // ==================== SCENARIO P: Combined Change Tests ====================
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardModifyBoth')]
+    [HandlerFunctions('HandleProductionDefinitionWizardModifyBoth')]
     procedure TestP1_BothComponentsAndRoutingChanged_AllChangesApplied()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -401,7 +401,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -414,7 +414,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and all changes should be applied
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -435,14 +435,14 @@ codeunit 139980 "Subc. Wiz. Change Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardNoChanges')]
+    [HandlerFunctions('HandleProductionDefinitionWizardNoChanges')]
     procedure TestP2_NoChanges_OriginalDataUsed()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -457,7 +457,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -466,7 +466,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and original data should be used
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -486,7 +486,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
     // ==================== MODAL PAGE HANDLERS ====================
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardModifyComponents(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardModifyComponents(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         Step: Option Intro,BOM,Routing,Components,ProdRouting;
     begin
@@ -495,24 +495,24 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         Step := Step::Intro;
         // Navigate through all wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             Step := Step + 1;
             // Check if we're on the components step
             if Step = Step::Components then begin
-                Assert.IsTrue(PurchProvisionWizard.ComponentsPart.Editable(), 'Components part should be editable');
+                Assert.IsTrue(ProductionDefinitionWizard.ComponentsPart.Editable(), 'Components part should be editable');
                 // Modify the first component's quantity
-                PurchProvisionWizard.ComponentsPart.First();
-                PurchProvisionWizard.ComponentsPart."Quantity per".SetValue(ModifiedQuantity);
+                ProductionDefinitionWizard.ComponentsPart.First();
+                ProductionDefinitionWizard.ComponentsPart."Quantity per".SetValue(ModifiedQuantity);
             end;
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardAddComponent(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardAddComponent(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         Step: Option Intro,BOM,Routing,Components,ProdRouting;
     begin
@@ -521,28 +521,28 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         Step := Step::Intro;
         // Navigate to components step
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             Step := Step + 1;
             // Check if we're on the components step
             if Step = Step::Components then begin
                 // Add a new component line
-                Assert.IsTrue(PurchProvisionWizard.ComponentsPart.Editable(), 'Components part should be editable');
-                PurchProvisionWizard.ComponentsPart."Item No.".SetValue(NewComponentNo);
-                PurchProvisionWizard.ComponentsPart."Quantity per".SetValue(ModifiedQuantity);
+                Assert.IsTrue(ProductionDefinitionWizard.ComponentsPart.Editable(), 'Components part should be editable');
+                ProductionDefinitionWizard.ComponentsPart."Item No.".SetValue(NewComponentNo);
+                ProductionDefinitionWizard.ComponentsPart."Quantity per".SetValue(ModifiedQuantity);
             end;
         end;
 
         // Continue to finish
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardDeleteComponent(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardDeleteComponent(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         Step: Option Intro,BOM,Routing,Components,ProdRouting;
     begin
@@ -551,28 +551,28 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         Step := Step::Intro;
         // Navigate to components step
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             Step := Step + 1;
             // Check if we're on the components step
             if Step = Step::Components then begin
-                Assert.IsTrue(PurchProvisionWizard.ComponentsPart.Editable(), 'Components part should be editable');
+                Assert.IsTrue(ProductionDefinitionWizard.ComponentsPart.Editable(), 'Components part should be editable');
                 // Delete the first component using Sub Delete action
-                PurchProvisionWizard.ComponentsPart.First();
-                PurchProvisionWizard.ComponentsPart."Sub Delete".Invoke();
+                ProductionDefinitionWizard.ComponentsPart.First();
+                ProductionDefinitionWizard.ComponentsPart."Sub Delete".Invoke();
             end;
         end;
 
         // Continue to finish
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardAddRoutingOperation(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardAddRoutingOperation(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         Step: Option Intro,BOM,Routing,Components,ProdRouting;
     begin
@@ -582,31 +582,31 @@ codeunit 139980 "Subc. Wiz. Change Test"
         Step := Step::Intro;
 
         // Navigate to routing step
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             Step := Step + 1;
             // Check if we're on the routing step
             if Step = Step::ProdRouting then begin
                 // Add a new routing operation
-                Assert.IsTrue(PurchProvisionWizard.ProdOrderRoutingPart.Editable(), 'Routing part should be editable');
-                PurchProvisionWizard.ProdOrderRoutingPart.New();
-                PurchProvisionWizard.ProdOrderRoutingPart."Operation No.".SetValue('0030');
-                PurchProvisionWizard.ProdOrderRoutingPart.Type.SetValue("Capacity Type"::"Work Center");
-                PurchProvisionWizard.ProdOrderRoutingPart."No.".SetValue(NewWorkCenterNo);
-                PurchProvisionWizard.ProdOrderRoutingPart."Run Time".SetValue(ModifiedRunTime);
+                Assert.IsTrue(ProductionDefinitionWizard.ProdOrderRoutingPart.Editable(), 'Routing part should be editable');
+                ProductionDefinitionWizard.ProdOrderRoutingPart.New();
+                ProductionDefinitionWizard.ProdOrderRoutingPart."Operation No.".SetValue('0030');
+                ProductionDefinitionWizard.ProdOrderRoutingPart.Type.SetValue("Capacity Type"::"Work Center");
+                ProductionDefinitionWizard.ProdOrderRoutingPart."No.".SetValue(NewWorkCenterNo);
+                ProductionDefinitionWizard.ProdOrderRoutingPart."Run Time".SetValue(ModifiedRunTime);
             end;
         end;
 
         // Continue to finish
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardDeleteRoutingOperation(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardDeleteRoutingOperation(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         Step: Option Intro,BOM,Routing,Components,ProdRouting;
     begin
@@ -615,28 +615,28 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         Step := Step::Intro;
         // Navigate to routing step
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             Step := Step + 1;
             // Check if we're on the routing step
             if Step = Step::ProdRouting then begin
-                Assert.IsTrue(PurchProvisionWizard.ProdOrderRoutingPart.Editable(), 'Routing part should be editable');
+                Assert.IsTrue(ProductionDefinitionWizard.ProdOrderRoutingPart.Editable(), 'Routing part should be editable');
                 // Delete the first routing operation using Sub Delete action
-                PurchProvisionWizard.ProdOrderRoutingPart.First();
-                PurchProvisionWizard.ProdOrderRoutingPart."Sub Delete".Invoke();
+                ProductionDefinitionWizard.ProdOrderRoutingPart.First();
+                ProductionDefinitionWizard.ProdOrderRoutingPart."Sub Delete".Invoke();
             end;
         end;
 
         // Continue to finish
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardModifyRouting(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardModifyRouting(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         Step: Option Intro,BOM,Routing,Components,ProdRouting;
     begin
@@ -645,23 +645,23 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         Step := Step::Intro;
         // Navigate through all wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             Step := Step + 1;
             if Step = Step::ProdRouting then begin
                 // Modify the first routing line's run time
-                Assert.IsTrue(PurchProvisionWizard.ProdOrderRoutingPart.Editable(), 'Routing part should be editable');
-                PurchProvisionWizard.ProdOrderRoutingPart.First();
-                PurchProvisionWizard.ProdOrderRoutingPart."Run Time".SetValue(ModifiedRunTime);
+                Assert.IsTrue(ProductionDefinitionWizard.ProdOrderRoutingPart.Editable(), 'Routing part should be editable');
+                ProductionDefinitionWizard.ProdOrderRoutingPart.First();
+                ProductionDefinitionWizard.ProdOrderRoutingPart."Run Time".SetValue(ModifiedRunTime);
             end;
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardModifyBoth(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardModifyBoth(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         Step: Option Intro,BOM,Routing,Components,ProdRouting;
     begin
@@ -670,38 +670,38 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         Step := Step::Intro;
         // Navigate through all wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             Step := Step + 1;
             if Step = Step::Components then begin
                 // Modify the first component's quantity
-                Assert.IsTrue(PurchProvisionWizard.ComponentsPart.Editable(), 'Components part should be editable');
-                PurchProvisionWizard.ComponentsPart.First();
-                PurchProvisionWizard.ComponentsPart."Quantity per".SetValue(ModifiedQuantity);
+                Assert.IsTrue(ProductionDefinitionWizard.ComponentsPart.Editable(), 'Components part should be editable');
+                ProductionDefinitionWizard.ComponentsPart.First();
+                ProductionDefinitionWizard.ComponentsPart."Quantity per".SetValue(ModifiedQuantity);
             end else
                 if Step = Step::ProdRouting then begin
                     // Modify the first routing line's run time
-                    Assert.IsTrue(PurchProvisionWizard.ProdOrderRoutingPart.Editable(), 'Routing part should be editable');
-                    PurchProvisionWizard.ProdOrderRoutingPart.First();
-                    PurchProvisionWizard.ProdOrderRoutingPart."Run Time".SetValue(ModifiedRunTime);
+                    Assert.IsTrue(ProductionDefinitionWizard.ProdOrderRoutingPart.Editable(), 'Routing part should be editable');
+                    ProductionDefinitionWizard.ProdOrderRoutingPart.First();
+                    ProductionDefinitionWizard.ProdOrderRoutingPart."Run Time".SetValue(ModifiedRunTime);
                 end;
         end;
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardNoChanges(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardNoChanges(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // Handle wizard without any changes
         WizardWasOpened := true;
 
         // Navigate through all wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 

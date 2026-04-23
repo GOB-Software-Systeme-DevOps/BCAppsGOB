@@ -32,7 +32,7 @@ pageextension 99001562 PurchOrderSubformSubcWizardExt extends "Purchase Order Su
                     BindSubscription(SubcSubscriber);
                     BindSubscription(SubcTempBind);
                     BindSubscription(SubcCreateBind);
-                    ProdDefMgr.RunForPurchaseLine(CurrPurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+                    ProdDefMgr.RunForSource(CurrPurchLine, "Prod. Definition Mode"::CreateProductionOrder);
                     UnbindSubscription(SubcSubscriber);
                     UnbindSubscription(SubcTempBind);
                     UnbindSubscription(SubcCreateBind);

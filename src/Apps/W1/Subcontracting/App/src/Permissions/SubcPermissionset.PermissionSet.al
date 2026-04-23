@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting;
 
+using Microsoft.Manufacturing.Planning;
+using MS.Subcontracting;
+
 permissionset 99001500 "Subc. Permissionset"
 {
     Assignable = true;
@@ -19,9 +22,7 @@ permissionset 99001500 "Subc. Permissionset"
         codeunit "Subc. Calc BOM Tree Ext." = X,
         codeunit "Subc. Calc Subcontracts Ext." = X,
         codeunit "Subc. Carry Out Action Ext." = X,
-        codeunit "Subc. Create Prod. Ord. Opt." = X,
         codeunit "Subc. Create Prod. Rtng. Ext." = X,
-        codeunit "Subc. CrPurchSubcon(Yes/No)" = X,
         codeunit "Subc. DirectTransferLine Ext." = X,
         codeunit "Subc. Factbox Mgmt." = X,
         codeunit "Subc. ItemChargeAssPurchExt" = X,
@@ -35,7 +36,6 @@ permissionset 99001500 "Subc. Permissionset"
         codeunit "Subc. Prod. Order Comp. Ext." = X,
         codeunit "Subc. Prod. Order Rtng. Ext." = X,
         codeunit "Subc. Prod. Ord. Comp. Res." = X,
-        codeunit "Subc. ProdOrderCreateBind" = X,
         codeunit "Subc. Purch. Post Ext" = X,
         codeunit "Subc. Purchase Header Ext" = X,
         codeunit "Subc. Purchase Line Ext" = X,
@@ -46,8 +46,6 @@ permissionset 99001500 "Subc. Permissionset"
         codeunit "Subcontracting Management" = X,
         codeunit "Subcontracting Management Ext." = X,
         codeunit "Subc. Synchronize Management" = X,
-        codeunit "Subc. Temp Data Initializer" = X,
-        codeunit "Subc. TempProdOrdBind" = X,
         codeunit "Subc. Transfer Line Ext." = X,
         codeunit "Subc. Transfer Rcpt Line Ext." = X,
         codeunit "Subc. Transfer Shpt Line Ext." = X,
@@ -57,7 +55,6 @@ permissionset 99001500 "Subc. Permissionset"
         codeunit "Subc. Trans Rcpt Header Ext" = X,
         codeunit "Subc. Trans Shpt Header Ext" = X,
         codeunit "Subc. Vendor Extension" = X,
-        codeunit "Subc. Version Mgmt." = X,
         codeunit "Subc. WhsePostReceipt Ext" = X,
         codeunit "Subc. WhsePurchRelease Ext" = X,
         codeunit "Subc. Work Center Extension" = X,
@@ -65,17 +62,19 @@ permissionset 99001500 "Subc. Permissionset"
         page "Subc. Management Setup" = X,
         page "Subc. Prod. Order Components" = X,
         page "Subc. Purchase Line Factbox" = X,
-        page "Subc. PurchProvisionWizard" = X,
         page "Subc. Routing Info Factbox" = X,
-        page "Subc. Temp BOM Lines" = X,
-        page "Subc. Temp Prod Order Comp" = X,
-        page "Subc. TempProdOrdRtngLines" = X,
-        page "Subc. Temp Routing Lines" = X,
         page "Subc. Transfer Line Factbox" = X,
         page "Subcontractor Prices" = X,
         report "Subc. Create Prod. Routing" = X,
         report "Subc. Create Transf. Order" = X,
         report "Subc. Create SubCReturnOrder" = X,
         report "Subc. Detailed Calculation" = X,
-        report "Subc. Dispatching List" = X;
+        report "Subc. Dispatching List" = X,
+        report "Subc. Calculate Subcontracts" = X,
+        codeunit "Subc. Prod. Def. Subscriber" = X,
+        codeunit "Subc. Prod. Order Create Bind" = X,
+        codeunit "Subc. Purchase Order Creator" = X,
+        codeunit "Subc. Temp Prod. Ord. Bind" = X,
+        codeunit "Subc. Worksheet Handler" = X,
+        page "Subc. Subcontracting Worksheet" = X;
 }

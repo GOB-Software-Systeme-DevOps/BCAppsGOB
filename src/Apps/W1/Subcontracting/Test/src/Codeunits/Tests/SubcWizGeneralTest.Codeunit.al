@@ -5,7 +5,7 @@
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Purchases.Document;
 
 codeunit 139993 "Subc. Wiz. General Test"
@@ -34,11 +34,11 @@ codeunit 139993 "Subc. Wiz. General Test"
         WizardFinishedSuccessfully: Boolean;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizard')]
+    [HandlerFunctions('HandleProductionDefinitionWizard')]
     procedure TestOpenAndFinishingWizard()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO] Test Open wizard functionality
@@ -54,21 +54,21 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizard')]
+    [HandlerFunctions('HandleProductionDefinitionWizard')]
     procedure TestCreateProdOrderWizardNothingPresentScenario()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO] Test Production Order Creation Wizard for NothingPresent scenario
@@ -84,7 +84,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -99,14 +99,14 @@ codeunit 139993 "Subc. Wiz. General Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizard')]
+    [HandlerFunctions('HandleProductionDefinitionWizard')]
     procedure TestCreateProdOrderWizardBothPresentScenario()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -130,7 +130,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -146,14 +146,14 @@ codeunit 139993 "Subc. Wiz. General Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizard')]
+    [HandlerFunctions('HandleProductionDefinitionWizard')]
     procedure TestCreateProdOrderWizardRoutingPresentBOMFromSetupScenario()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
         RoutingNo: Code[20];
     begin
@@ -173,7 +173,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -189,14 +189,14 @@ codeunit 139993 "Subc. Wiz. General Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizard')]
+    [HandlerFunctions('HandleProductionDefinitionWizard')]
     procedure TestCreateProdOrderWizardBOMPresentRoutingFromSetupScenario()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
     begin
@@ -216,7 +216,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -232,7 +232,7 @@ codeunit 139993 "Subc. Wiz. General Test"
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizard(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizard(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO] Handle the Production Order Creation Wizard for all scenarios
         // The wizard should navigate through all steps and finish successfully
@@ -241,12 +241,12 @@ codeunit 139993 "Subc. Wiz. General Test"
         // This handler works for both NothingPresent and BothPresent scenarios
 
         // Click Next to proceed through the wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Click Finish to complete the wizard
-        if PurchProvisionWizard.ActionFinish.Enabled() then begin
-            PurchProvisionWizard.ActionFinish.Invoke();
+        if ProductionDefinitionWizard.ActionFinish.Enabled() then begin
+            ProductionDefinitionWizard.ActionFinish.Invoke();
             WizardFinishedSuccessfully := true;
         end;
     end;

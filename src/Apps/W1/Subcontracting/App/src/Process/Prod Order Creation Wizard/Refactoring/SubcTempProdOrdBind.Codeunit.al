@@ -13,6 +13,7 @@ codeunit 99001561 "Subc. Temp Prod. Ord. Bind"
     var
         DummyProdOrderLine: Record "Prod. Order Line";
         DummyProdOrderRoutingLine: Record "Prod. Order Routing Line";
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Definition Temp Data", 'OnBeforeBuildTemporaryStructureFromBOMRouting', '', false, false)]
     local procedure ProdDefinitionTempData_OnBeforeBuildTemporaryStructureFromBOMRouting(var TempGlobalProdOrderLine: Record "Prod. Order Line" temporary)
     begin
@@ -26,7 +27,7 @@ codeunit 99001561 "Subc. Temp Prod. Ord. Bind"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Production Definition Manager", 'OnAfterPostWizardProcessing', '', false, false)]
-    local procedure OnAfterPostWizardProcessing(var TempData: Codeunit "Prod. Definition Temp Data"; var ProdOrder: Record "Production Order")
+    local procedure OnAfterPostWizardProcessing()
     begin
         DeleteDummyProdOrderLine();
     end;

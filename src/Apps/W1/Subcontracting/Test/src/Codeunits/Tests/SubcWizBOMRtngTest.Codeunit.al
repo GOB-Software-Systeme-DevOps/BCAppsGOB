@@ -7,7 +7,7 @@ namespace Microsoft.Manufacturing.Subcontracting.Test;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Purchases.Document;
 
 codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
@@ -37,16 +37,14 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened: Boolean;
         BOMNoToSelect, RoutingNoToSelect : Code[20];
 
-    // ==================== SCENARIO J: BOM/Routing Selection (not just versions) ====================
-
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSelectDifferentBOM,SelectBOM')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSelectDifferentBOM,SelectBOM')]
     procedure TestJ1_SelectDifferentBOM_LinesExchanged()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo1, BOMNo2 : Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -62,7 +60,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo1, RoutingNo);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -74,7 +72,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and used the selected BOM
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -95,13 +93,13 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSelectDifferentRouting,SelectRouting')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSelectDifferentRouting,SelectRouting')]
     procedure TestJ2_SelectDifferentRouting_LinesExchanged()
     var
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo1, RoutingNo2 : Code[20];
@@ -117,7 +115,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo1);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -129,7 +127,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and used the selected Routing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -150,14 +148,14 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSelectBothDifferent,SelectBOM,SelectRouting')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSelectBothDifferent,SelectBOM,SelectRouting')]
     procedure TestJ3_SelectDifferentBOMAndRouting_BothLinesExchanged()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo1, BOMNo2 : Code[20];
         ItemNo: Code[20];
         RoutingNo1, RoutingNo2 : Code[20];
@@ -174,7 +172,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo1, RoutingNo1);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -187,7 +185,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully and used both selected BOM and Routing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -211,13 +209,13 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardSelectSameBOM,SelectBOM')]
+    [HandlerFunctions('HandleProductionDefinitionWizardSelectSameBOM,SelectBOM')]
     procedure TestJ4_SelectSameBOM_NoChanges()
     var
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -232,7 +230,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -244,7 +242,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
 
         // [THEN] Wizard should have finished successfully with original BOM
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -267,7 +265,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
     // ==================== MODAL PAGE HANDLERS ====================
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSelectDifferentBOM(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSelectDifferentBOM(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         NewItemNo: Text;
         OriginalItemNo: Text;
@@ -276,33 +274,33 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := true;
 
         // Navigate to BOM step
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Get the current BOM lines before changing BOM
-        if PurchProvisionWizard.BOMLinesPart.First() then
-            OriginalItemNo := PurchProvisionWizard.BOMLinesPart."No.".Value();
+        if ProductionDefinitionWizard.BOMLinesPart.First() then
+            OriginalItemNo := ProductionDefinitionWizard.BOMLinesPart."No.".Value();
 
         // Select the different BOM
-        PurchProvisionWizard."Production BOM No.".AssistEdit();
+        ProductionDefinitionWizard.ProductionBOMNoField.AssistEdit();
 
         // Verify that the BOM lines have been updated after BOM change
-        if PurchProvisionWizard.BOMLinesPart.First() then begin
-            NewItemNo := PurchProvisionWizard.BOMLinesPart."No.".Value();
+        if ProductionDefinitionWizard.BOMLinesPart.First() then begin
+            NewItemNo := ProductionDefinitionWizard.BOMLinesPart."No.".Value();
             // The lines should be different between BOMs (different component items)
             Assert.AreNotEqual(OriginalItemNo, NewItemNo, 'BOM lines should be updated when BOM is changed');
         end;
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSelectDifferentRouting(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSelectDifferentRouting(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         NewWorkCenterNo: Text;
         OriginalWorkCenterNo: Text;
@@ -311,37 +309,37 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := true;
 
         // Navigate to BOM step
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Navigate to Routing step
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Get the current Routing lines before changing Routing
-        if PurchProvisionWizard.RoutingLinesPart.First() then
-            OriginalWorkCenterNo := PurchProvisionWizard.RoutingLinesPart."No.".Value();
+        if ProductionDefinitionWizard.RoutingLinesPart.First() then
+            OriginalWorkCenterNo := ProductionDefinitionWizard.RoutingLinesPart."No.".Value();
 
         // Select the different Routing
-        PurchProvisionWizard."Routing No.".AssistEdit();
+        ProductionDefinitionWizard.RoutingNoField.AssistEdit();
 
         // Verify that the Routing lines have been updated after Routing change
-        if PurchProvisionWizard.RoutingLinesPart.First() then begin
-            NewWorkCenterNo := PurchProvisionWizard.RoutingLinesPart."No.".Value();
+        if ProductionDefinitionWizard.RoutingLinesPart.First() then begin
+            NewWorkCenterNo := ProductionDefinitionWizard.RoutingLinesPart."No.".Value();
             // The lines should be different between Routings (different work centers)
             Assert.AreNotEqual(OriginalWorkCenterNo, NewWorkCenterNo, 'Routing lines should be updated when Routing is changed');
         end;
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSelectBothDifferent(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSelectBothDifferent(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         NewItemNo, OriginalItemNo : Text;
         NewWorkCenterNo, OriginalWorkCenterNo : Text;
@@ -350,49 +348,49 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := true;
 
         // Navigate to BOM step
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Get the current BOM lines before changing BOM
-        if PurchProvisionWizard.BOMLinesPart.First() then
-            OriginalItemNo := PurchProvisionWizard.BOMLinesPart."No.".Value();
+        if ProductionDefinitionWizard.BOMLinesPart.First() then
+            OriginalItemNo := ProductionDefinitionWizard.BOMLinesPart."No.".Value();
 
         // Select the different BOM
-        PurchProvisionWizard."Production BOM No.".AssistEdit();
+        ProductionDefinitionWizard.ProductionBOMNoField.AssistEdit();
 
         // Verify that the BOM lines have been updated
-        if PurchProvisionWizard.BOMLinesPart.First() then begin
-            NewItemNo := PurchProvisionWizard.BOMLinesPart."No.".Value();
+        if ProductionDefinitionWizard.BOMLinesPart.First() then begin
+            NewItemNo := ProductionDefinitionWizard.BOMLinesPart."No.".Value();
             Assert.AreNotEqual(OriginalItemNo, NewItemNo, 'BOM lines should be updated when BOM is changed');
         end;
 
         // Navigate to Routing step
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Get the current Routing lines before changing Routing
-        if PurchProvisionWizard.RoutingLinesPart.First() then
-            OriginalWorkCenterNo := PurchProvisionWizard.RoutingLinesPart."No.".Value();
+        if ProductionDefinitionWizard.RoutingLinesPart.First() then
+            OriginalWorkCenterNo := ProductionDefinitionWizard.RoutingLinesPart."No.".Value();
 
         // Select the different Routing
-        PurchProvisionWizard."Routing No.".AssistEdit();
+        ProductionDefinitionWizard.RoutingNoField.AssistEdit();
 
         // Verify that the Routing lines have been updated
-        if PurchProvisionWizard.RoutingLinesPart.First() then begin
-            NewWorkCenterNo := PurchProvisionWizard.RoutingLinesPart."No.".Value();
+        if ProductionDefinitionWizard.RoutingLinesPart.First() then begin
+            NewWorkCenterNo := ProductionDefinitionWizard.RoutingLinesPart."No.".Value();
             Assert.AreNotEqual(OriginalWorkCenterNo, NewWorkCenterNo, 'Routing lines should be updated when Routing is changed');
         end;
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardSelectSameBOM(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardSelectSameBOM(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         NewItemNo: Text;
         OriginalItemNo: Text;
@@ -401,27 +399,27 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := true;
 
         // Navigate to BOM step
-        if PurchProvisionWizard.ActionNext.Enabled() then
-            PurchProvisionWizard.ActionNext.Invoke();
+        if ProductionDefinitionWizard.ActionNext.Enabled() then
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Get the current BOM lines before "changing" BOM
-        if PurchProvisionWizard.BOMLinesPart.First() then
-            OriginalItemNo := PurchProvisionWizard.BOMLinesPart."No.".Value();
+        if ProductionDefinitionWizard.BOMLinesPart.First() then
+            OriginalItemNo := ProductionDefinitionWizard.BOMLinesPart."No.".Value();
 
         // Select the same BOM (this should not change anything)
-        PurchProvisionWizard."Production BOM No.".AssistEdit();
+        ProductionDefinitionWizard.ProductionBOMNoField.AssistEdit();
 
         // Verify that the BOM lines remain the same
-        if PurchProvisionWizard.BOMLinesPart.First() then begin
-            NewItemNo := PurchProvisionWizard.BOMLinesPart."No.".Value();
+        if ProductionDefinitionWizard.BOMLinesPart.First() then begin
+            NewItemNo := ProductionDefinitionWizard.BOMLinesPart."No.".Value();
             Assert.AreEqual(OriginalItemNo, NewItemNo, 'BOM lines should remain the same when same BOM is selected');
         end;
 
         // Navigate through remaining wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 

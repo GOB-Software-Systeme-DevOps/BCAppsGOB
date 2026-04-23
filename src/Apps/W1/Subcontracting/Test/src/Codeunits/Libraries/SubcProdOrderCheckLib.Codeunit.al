@@ -47,10 +47,12 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
     var
         TempProdOrderComponent2: Record "Prod. Order Component" temporary;
         SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         LineNo: Integer;
     begin
         // Fill temporary Production Order Component from setup configuration
         SubManagementSetup.Get();
+        ManufacturingSetup.Get();
 
         TempProdOrderComponent2.Copy(TempProdOrderComponent, true);
         if TempProdOrderComponent2.FindLast() then
@@ -60,7 +62,7 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
 
         TempProdOrderComponent.Init();
         TempProdOrderComponent."Line No." := LineNo;
-        TempProdOrderComponent."Item No." := SubManagementSetup."Preset Component Item No.";
+        TempProdOrderComponent."Item No." := ManufacturingSetup."Default Component Item No.";
         TempProdOrderComponent."Location Code" := GetVendorSubcontractingLocation(PurchLine."Buy-from Vendor No.");
         TempProdOrderComponent."Routing Link Code" := SubManagementSetup."Rtng. Link Code Purch. Prov.";
         TempProdOrderComponent."Flushing Method" := SubManagementSetup."Def. provision flushing method";
