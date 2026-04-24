@@ -47,7 +47,6 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         PurchLine: Record "Purchase Line";
         ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         ItemNo: Code[20];
         PutAwayWorkCenterNo: Code[20];
@@ -82,7 +81,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
 
         // [WHEN] Run the Production Order Creation process
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Production order should be created with 2 routing operations
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
@@ -115,7 +114,6 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
         ManufacturingSetup: Record "Manufacturing Setup";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         ItemNo: Code[20];
         OperationCount: Integer;
@@ -145,7 +143,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
 
         // [WHEN] Run the Production Order Creation process
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Production order should be created with 1 routing operation only
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
@@ -177,7 +175,6 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         PurchLine: Record "Purchase Line";
         ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         ItemNo: Code[20];
         PutAwayWorkCenterNo: Code[20];
@@ -212,7 +209,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
 
         // [WHEN] Run the Production Order Creation process
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Production order should be created with 1 routing operation only
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
@@ -244,7 +241,6 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         PurchLine: Record "Purchase Line";
         ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         ItemNo: Code[20];
         PutAwayWorkCenterNo: Code[20];
@@ -280,7 +276,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
 
         // [WHEN] Run the Production Order Creation process
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Put-away operation should use the configured work center
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");

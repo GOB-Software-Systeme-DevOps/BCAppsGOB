@@ -5,37 +5,46 @@
 namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Inventory.Requisition;
+using Microsoft.Manufacturing.Setup;
 
 codeunit 99001503 "Subcontracting Comp. Init."
 {
     procedure CreateBasicSubcontractingMgtSetup()
     begin
-        CreateSubcontractingManagementSetup();
+        InitializeManufacturingSetupDefaults();
     end;
 
-    local procedure CreateSubcontractingManagementSetup()
+    local procedure InitializeManufacturingSetupDefaults()
     var
-        SubcManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        if not SubcManagementSetup.Get() then begin
-            SubcManagementSetup.Init();
-            CreateLaborReqWkshTemplateAndNameAndUpdateSetup(SubcManagementSetup);
-            SubcManagementSetup."Direct Transfer" := true;
-            SubcManagementSetup."Create Prod. Order Info Line" := true;
-            Evaluate(SubcManagementSetup."Subc. Inb. Whse. Handling Time", GetDefaultInboundWhseHandlingTime());
-            SubcManagementSetup.Insert(true);
-        end;
+        if not ManufacturingSetup.Get() then
+            exit;
+
+        if ManufacturingSetup."Subcontracting Template Name" = '' then
+            CreateLaborReqWkshTemplateAndNameAndUpdateSetup(ManufacturingSetup);
+
+        if not ManufacturingSetup."Direct Transfer" then
+            ManufacturingSetup."Direct Transfer" := true;
+
+        if not ManufacturingSetup."Create Prod. Order Info Line" then
+            ManufacturingSetup."Create Prod. Order Info Line" := true;
+
+        if Format(ManufacturingSetup."Subc. Inb. Whse. Handling Time") = '' then
+            Evaluate(ManufacturingSetup."Subc. Inb. Whse. Handling Time", GetDefaultInboundWhseHandlingTime());
+
+        ManufacturingSetup.Modify();
     end;
 
-    procedure CreateLaborReqWkshTemplateAndNameAndUpdateSetup(var SubcManagementSetup: Record "Subc. Management Setup")
+    procedure CreateLaborReqWkshTemplateAndNameAndUpdateSetup(var ManufacturingSetup: Record "Manufacturing Setup")
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         CreateReqWkshTemplate(ReqWkshTemplate, false);
         CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
-        SubcManagementSetup."Subcontracting Template Name" := ReqWkshTemplate.Name;
-        SubcManagementSetup."Subcontracting Batch Name" := RequisitionWkshName.Name;
+        ManufacturingSetup."Subcontracting Template Name" := ReqWkshTemplate.Name;
+        ManufacturingSetup."Subcontracting Batch Name" := RequisitionWkshName.Name;
     end;
 
     procedure CreateReqWkshTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Recurring: Boolean)

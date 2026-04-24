@@ -9,7 +9,6 @@ using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Subcontracting;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -46,12 +45,10 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
     procedure CreateTempProdOrderComponentFromSetup(var TempProdOrderComponent: Record "Prod. Order Component" temporary; PurchLine: Record "Purchase Line")
     var
         TempProdOrderComponent2: Record "Prod. Order Component" temporary;
-        SubManagementSetup: Record "Subc. Management Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
         LineNo: Integer;
     begin
         // Fill temporary Production Order Component from setup configuration
-        SubManagementSetup.Get();
         ManufacturingSetup.Get();
 
         TempProdOrderComponent2.Copy(TempProdOrderComponent, true);
@@ -64,8 +61,8 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
         TempProdOrderComponent."Line No." := LineNo;
         TempProdOrderComponent."Item No." := ManufacturingSetup."Default Component Item No.";
         TempProdOrderComponent."Location Code" := GetVendorSubcontractingLocation(PurchLine."Buy-from Vendor No.");
-        TempProdOrderComponent."Routing Link Code" := SubManagementSetup."Rtng. Link Code Purch. Prov.";
-        TempProdOrderComponent."Flushing Method" := SubManagementSetup."Def. provision flushing method";
+        TempProdOrderComponent."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
+        TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. provision flushing method";
 
         TempProdOrderComponent.Insert();
     end;
@@ -81,25 +78,25 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
 
     procedure CreateTempProdOrderRoutingFromSetup(var TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary; OperationNo: Code[10])
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
     begin
-        SubManagementSetup.Get();
+        ManufacturingSetup.Get();
 
         TempProdOrderRoutingLine.Init();
         TempProdOrderRoutingLine."Operation No." := OperationNo;
         TempProdOrderRoutingLine.Type := TempProdOrderRoutingLine.Type::"Work Center";
-        TempProdOrderRoutingLine."No." := SubManagementSetup."Common Work Center No.";
-        TempProdOrderRoutingLine."Routing Link Code" := SubManagementSetup."Rtng. Link Code Purch. Prov.";
+        TempProdOrderRoutingLine."No." := ManufacturingSetup."Default Work Center No.";
+        TempProdOrderRoutingLine."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
 
-        if SubManagementSetup."Common Work Center No." <> '' then
-            if WorkCenter.Get(SubManagementSetup."Common Work Center No.") then begin
+        if ManufacturingSetup."Default Work Center No." <> '' then
+            if WorkCenter.Get(ManufacturingSetup."Default Work Center No.") then begin
                 TempProdOrderRoutingLine."Work Center No." := WorkCenter."No.";
                 TempProdOrderRoutingLine."Unit Cost Calculation" := WorkCenter."Unit Cost Calculation";
                 TempProdOrderRoutingLine."Direct Unit Cost" := WorkCenter."Direct Unit Cost";
                 TempProdOrderRoutingLine."Indirect Cost %" := WorkCenter."Indirect Cost %";
                 TempProdOrderRoutingLine."Overhead Rate" := WorkCenter."Overhead Rate";
-                TempProdOrderRoutingLine."Flushing Method" := SubManagementSetup."Def. provision flushing method";
+                TempProdOrderRoutingLine."Flushing Method" := ManufacturingSetup."Def. provision flushing method";
             end;
 
         TempProdOrderRoutingLine.Insert();
@@ -291,7 +288,7 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
     procedure CreateTempProdOrderComponentFromBOM(var TempProdOrderComponent: Record "Prod. Order Component" temporary; BOMNo: Code[20]; PurchLine: Record "Purchase Line")
     var
         ProductionBOMLine: Record "Production BOM Line";
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         LineNo: Integer;
     begin
         // Create temporary Production Order Components based on BOM lines
@@ -302,8 +299,8 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
         else
             LineNo := 0;
 
-        SubManagementSetup.SetLoadFields("Def. provision flushing method");
-        SubManagementSetup.Get();
+        ManufacturingSetup.SetLoadFields("Def. provision flushing method");
+        ManufacturingSetup.Get();
 
         ProductionBOMLine.SetRange("Production BOM No.", BOMNo);
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
@@ -323,7 +320,7 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
                 if ProdOrderRefreshed then
                     TempProdOrderComponent."Flushing Method" := "Flushing Method"::"Pick + Manual"
                 else
-                    TempProdOrderComponent."Flushing Method" := SubManagementSetup."Def. provision flushing method";
+                    TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. provision flushing method";
                 TempProdOrderComponent.Insert();
             until ProductionBOMLine.Next() = 0;
     end;

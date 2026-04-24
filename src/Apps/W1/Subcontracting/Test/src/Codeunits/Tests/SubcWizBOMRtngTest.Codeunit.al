@@ -44,7 +44,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo1, BOMNo2 : Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -72,7 +71,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and used the selected BOM
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -99,7 +98,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo1, RoutingNo2 : Code[20];
@@ -127,7 +125,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and used the selected Routing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -155,7 +153,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo1, BOMNo2 : Code[20];
         ItemNo: Code[20];
         RoutingNo1, RoutingNo2 : Code[20];
@@ -185,7 +182,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and used both selected BOM and Routing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -215,7 +212,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -242,7 +238,7 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully with original BOM
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');

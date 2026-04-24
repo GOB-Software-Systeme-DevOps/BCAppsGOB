@@ -11,8 +11,7 @@ permissionset 99001501 "Subcontract. - Objs"
     Caption = 'Subcontracting - Objects';
     Assignable = true;
     Access = Internal;
-    Permissions = table "Subc. Management Setup" = X,
-        table "Subcontractor Price" = X,
+    Permissions = table "Subcontractor Price" = X,
     // Codeunits
         codeunit "Single Instance Dictionary" = X,
         codeunit "Subc. Business Setup Ext." = X,
@@ -21,9 +20,7 @@ permissionset 99001501 "Subcontract. - Objs"
         codeunit "Subc. Calc BOM Tree Ext." = X,
         codeunit "Subc. Calc Subcontracts Ext." = X,
         codeunit "Subc. Carry Out Action Ext." = X,
-        codeunit "Subc. Create Prod. Rtng. Ext." = X,
-        codeunit "Subc. DirectTransferLine Ext." = X,
-        codeunit "Subc. Factbox Mgmt." = X,
+
         codeunit "Subc. ItemChargeAssPurchExt" = X,
         codeunit "Subc. Item Extension" = X,
         codeunit "Subc. ItemJnlCheckExt" = X,
@@ -38,7 +35,6 @@ permissionset 99001501 "Subcontract. - Objs"
         codeunit "Subc. Purch. Post Ext" = X,
         codeunit "Subc. Purchase Header Ext" = X,
         codeunit "Subc. Purchase Line Ext" = X,
-        tabledata "Subc. Management Setup" = RIMD,
         tabledata "Subcontractor Price" = RIMD,
         report "Subc. Calculate Subcontracts" = X,
         report "Subc. Create Prod. Routing" = X,
@@ -68,7 +64,6 @@ permissionset 99001501 "Subcontract. - Objs"
         codeunit "Subcontracting Install" = X,
         codeunit "Subcontracting Management" = X,
         codeunit "Subcontracting Management Ext." = X,
-        page "Subc. Management Setup" = X,
         page "Subc. Prod. Order Components" = X,
         page "Subc. Purchase Line Factbox" = X,
         page "Subc. Routing Info Factbox" = X,

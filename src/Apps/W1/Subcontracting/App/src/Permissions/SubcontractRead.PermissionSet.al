@@ -5,7 +5,6 @@
 namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Manufacturing.Planning;
-using MS.Subcontracting;
 
 permissionset 99001502 "Subcontract. - Read"
 {
@@ -13,9 +12,7 @@ permissionset 99001502 "Subcontract. - Read"
     Access = Public;
     Assignable = true;
     IncludedPermissionSets = "Subcontract. - Objs";
-    Permissions = tabledata "Subc. Management Setup" = R,
-        tabledata "Subcontractor Price" = R,
-        table "Subc. Management Setup" = X,
+    Permissions = tabledata "Subcontractor Price" = R,
         table "Subcontractor Price" = X,
         report "Subc. Calculate Subcontracts" = X,
         report "Subc. Create Prod. Routing" = X,
@@ -30,7 +27,6 @@ permissionset 99001502 "Subcontract. - Read"
         codeunit "Subc. Calc. Prod. Order Ext." = X,
         codeunit "Subc. Calc.StandardCost Ext." = X,
         codeunit "Subc. Carry Out Action Ext." = X,
-        codeunit "Subc. Create Prod. Rtng. Ext." = X,
         codeunit "Subc. DirectTransferLine Ext." = X,
         codeunit "Subc. Factbox Mgmt." = X,
         codeunit "Subc. Item Extension" = X,
@@ -72,7 +68,6 @@ permissionset 99001502 "Subcontract. - Read"
         codeunit "Subcontracting Install" = X,
         codeunit "Subcontracting Management" = X,
         codeunit "Subcontracting Management Ext." = X,
-        page "Subc. Management Setup" = X,
         page "Subc. Prod. Order Components" = X,
         page "Subc. Purchase Line Factbox" = X,
         page "Subc. Routing Info Factbox" = X,

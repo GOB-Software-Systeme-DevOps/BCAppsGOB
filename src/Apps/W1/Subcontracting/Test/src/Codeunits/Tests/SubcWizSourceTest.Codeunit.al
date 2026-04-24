@@ -42,7 +42,6 @@ codeunit 139997 "Subc. Wiz. Source Test"
     var
         PurchLine: Record "Purchase Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         BOMNo: Code[20];
         ItemBOMNo: Code[20];
@@ -85,7 +84,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should show Stockkeeping Unit as source
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -98,7 +97,6 @@ codeunit 139997 "Subc. Wiz. Source Test"
     var
         PurchLine: Record "Purchase Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         BOMNo: Code[20];
         ItemNo: Code[20];
@@ -133,7 +131,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should show Item as source
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -145,7 +143,6 @@ codeunit 139997 "Subc. Wiz. Source Test"
     procedure TestG3_NothingFilled_NoData_SetupApplies()
     var
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO G3] Nothing filled → no data → Setup applies
@@ -168,7 +165,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should show Empty as source (setup is used)
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -180,7 +177,6 @@ codeunit 139997 "Subc. Wiz. Source Test"
     procedure TestG4_NothingFilled_NoSetup_FieldsEmpty()
     var
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO G4] Nothing filled → no setup → Fields empty
@@ -203,7 +199,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should show Empty as source
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -216,7 +212,6 @@ codeunit 139997 "Subc. Wiz. Source Test"
     var
         PurchLine: Record "Purchase Line";
         ManufacturingSetup: Record "Manufacturing Setup";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO G5] Setup changed → new setup → new setup applies
@@ -244,7 +239,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should use the new setup
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');

@@ -50,7 +50,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -77,7 +76,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and component changes should be applied
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -100,7 +99,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -130,7 +128,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and new component should be added
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -153,7 +151,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -183,7 +180,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and component should be deleted
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -213,7 +210,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -240,7 +236,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and routing changes should be applied
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -263,7 +259,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -297,7 +292,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and new operation should be added
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -325,7 +320,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -355,7 +349,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and operation should be deleted
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -386,7 +380,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -414,7 +407,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and all changes should be applied
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -442,7 +435,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -466,7 +458,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and original data should be used
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');

@@ -1,10 +1,10 @@
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) GOB Software Systeme GmbH. All rights reserved.
 // ------------------------------------------------------------------------------------------------
-namespace MS.Subcontracting;
+namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Wizard;
 
 pageextension 99001564 TempProdOrderCompSubcExt extends "Temp Prod. Order Comp. List"
@@ -25,8 +25,8 @@ pageextension 99001564 TempProdOrderCompSubcExt extends "Temp Prod. Order Comp. 
                         Rec.FieldError("Subcontracting Type");
 
                     if (Rec."Routing Link Code" = '') and (Rec."Subcontracting Type" <> Rec."Subcontracting Type"::Empty) then begin
-                        GetSubManagementSetup();
-                        Rec."Routing Link Code" := SubManagementSetup."Rtng. Link Code Purch. Prov.";
+                        GetManufacturingSetup();
+                        Rec."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
                     end;
 
                     if Rec."Subcontracting Type" = Rec."Subcontracting Type"::Transfer then
@@ -42,20 +42,20 @@ pageextension 99001564 TempProdOrderCompSubcExt extends "Temp Prod. Order Comp. 
     begin
         Rec."Subcontracting Type" := xRec."Subcontracting Type";
         Rec."Orig. Location Code" := xRec."Orig. Location Code";
-        GetSubManagementSetup();
-        Rec."Routing Link Code" := SubManagementSetup."Rtng. Link Code Purch. Prov.";
+        GetManufacturingSetup();
+        Rec."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
     end;
 
     var
-        SubManagementSetup: Record "Subc. Management Setup";
-        SubManagementSetupRead: Boolean;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        ManufacturingSetupRead: Boolean;
 
-    local procedure GetSubManagementSetup()
+    local procedure GetManufacturingSetup()
     begin
-        if not SubManagementSetupRead then begin
-            SubManagementSetup.SetLoadFields("Rtng. Link Code Purch. Prov.");
-            SubManagementSetup.Get();
-            SubManagementSetupRead := true;
+        if not ManufacturingSetupRead then begin
+            ManufacturingSetup.SetLoadFields("Rtng. Link Code Purch. Prov.");
+            ManufacturingSetup.Get();
+            ManufacturingSetupRead := true;
         end;
     end;
 

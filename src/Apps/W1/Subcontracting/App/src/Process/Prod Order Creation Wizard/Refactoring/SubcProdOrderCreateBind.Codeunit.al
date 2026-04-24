@@ -1,11 +1,11 @@
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) GOB Software Systeme GmbH. All rights reserved.
 // ------------------------------------------------------------------------------------------------
-namespace MS.Subcontracting;
+namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.ProductionBOM;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 
@@ -53,13 +53,13 @@ codeunit 99001560 "Subc. Prod. Order Create Bind"
 
     local procedure TransferSubcontractingFieldsBOMComponentForPurchaseProvision(var ProdOrderComponent: Record "Prod. Order Component")
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         SubcontractingManagement: Codeunit "Subcontracting Management";
         ComponentsLocationCode: Code[10];
     begin
-        SubManagementSetup.SetLoadFields("Rtng. Link Code Purch. Prov.");
-        SubManagementSetup.Get();
-        if (ProdOrderComponent."Routing Link Code" <> SubManagementSetup."Rtng. Link Code Purch. Prov.") or
+        ManufacturingSetup.SetLoadFields("Rtng. Link Code Purch. Prov.");
+        ManufacturingSetup.Get();
+        if (ProdOrderComponent."Routing Link Code" <> ManufacturingSetup."Rtng. Link Code Purch. Prov.") or
            (ProdOrderComponent."Subcontracting Type" <> "Subcontracting Type"::Transfer)
         then
             exit;

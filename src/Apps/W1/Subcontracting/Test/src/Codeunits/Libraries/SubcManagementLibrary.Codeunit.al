@@ -5,6 +5,7 @@
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
 using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Subcontracting;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Vendor;
@@ -18,13 +19,9 @@ codeunit 139983 "Subc. Management Library"
 
     procedure CreateSubcontractingManagementSetup()
     var
-        SubcontractingManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        SubcontractingManagementSetup.Reset();
-        if not SubcontractingManagementSetup.Get() then begin
-            SubcontractingManagementSetup.Init();
-            SubcontractingManagementSetup.Insert(true);
-        end;
+        ManufacturingSetup.Get();
     end;
 
     procedure CreateSubContractingPrice(var SubcontractorPrices: Record "Subcontractor Price"; WorkCenterNo: Code[20]; VendorNo: Code[20]; ItemNo: Code[20]; StandardTaskCode: Code[10]; VariantCode: Code[10]; StartDate: Date; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal; CurrencyCode: Code[10])

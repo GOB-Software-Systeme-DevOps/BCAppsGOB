@@ -5,15 +5,12 @@
 namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Manufacturing.Planning;
-using MS.Subcontracting;
 
 permissionset 99001500 "Subc. Permissionset"
 {
     Assignable = true;
     Caption = 'Subcontracting Permissionset', Locked = true;
-    Permissions = table "Subc. Management Setup" = X,
-        tabledata "Subc. Management Setup" = RIMD,
-        table "Subcontractor Price" = X,
+    Permissions = table "Subcontractor Price" = X,
         tabledata "Subcontractor Price" = RIMD,
         codeunit "Single Instance Dictionary" = X,
         codeunit "Subc. Business Setup Ext." = X,
@@ -22,7 +19,6 @@ permissionset 99001500 "Subc. Permissionset"
         codeunit "Subc. Calc BOM Tree Ext." = X,
         codeunit "Subc. Calc Subcontracts Ext." = X,
         codeunit "Subc. Carry Out Action Ext." = X,
-        codeunit "Subc. Create Prod. Rtng. Ext." = X,
         codeunit "Subc. DirectTransferLine Ext." = X,
         codeunit "Subc. Factbox Mgmt." = X,
         codeunit "Subc. ItemChargeAssPurchExt" = X,
@@ -59,7 +55,6 @@ permissionset 99001500 "Subc. Permissionset"
         codeunit "Subc. WhsePurchRelease Ext" = X,
         codeunit "Subc. Work Center Extension" = X,
         codeunit "Subcontracting Install" = X,
-        page "Subc. Management Setup" = X,
         page "Subc. Prod. Order Components" = X,
         page "Subc. Purchase Line Factbox" = X,
         page "Subc. Routing Info Factbox" = X,

@@ -1,7 +1,7 @@
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) GOB Software Systeme GmbH. All rights reserved.
 // ------------------------------------------------------------------------------------------------
-namespace MS.Subcontracting;
+namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Wizard;

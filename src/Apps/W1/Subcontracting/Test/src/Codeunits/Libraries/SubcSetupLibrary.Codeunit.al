@@ -7,7 +7,6 @@ namespace Microsoft.Manufacturing.Subcontracting.Test;
 using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Subcontracting;
 using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 
@@ -22,7 +21,6 @@ codeunit 139988 "Subc. Setup Library"
     var
         Item: Record Item;
         RoutingLink: Record "Routing Link";
-        SubManagementSetup: Record "Subc. Management Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
     begin
@@ -32,23 +30,17 @@ codeunit 139988 "Subc. Setup Library"
         // Create routing link for purchase provisioning
         LibraryManufacturing.CreateRoutingLink(RoutingLink);
 
-        if not SubManagementSetup.Get() then begin
-            SubManagementSetup.Init();
-            SubManagementSetup.Insert();
-        end;
-
         LibraryInventory.CreateItem(Item);
 
-        // Set required fields for production order creation
-        SubManagementSetup."Common Work Center No." := WorkCenter."No.";
-        SubManagementSetup."Rtng. Link Code Purch. Prov." := RoutingLink."Code";
-        SubManagementSetup."Def. provision flushing method" := "Flushing Method Routing"::Backward;
-        SubManagementSetup."Component at Location" := SubManagementSetup."Component at Location"::Purchase;
+        ManufacturingSetup.Get();
 
-        SubManagementSetup.Modify();
+        // Set required fields for production order creation
+        ManufacturingSetup."Default Work Center No." := WorkCenter."No.";
+        ManufacturingSetup."Rtng. Link Code Purch. Prov." := RoutingLink."Code";
+        ManufacturingSetup."Def. provision flushing method" := "Flushing Method Routing"::Backward;
+        ManufacturingSetup."Component at Location" := ManufacturingSetup."Component at Location"::Purchase;
 
         // Set wizard fields on Manufacturing Setup
-        ManufacturingSetup.Get();
         ManufacturingSetup."Default Component Item No." := Item."No.";
 
         // Set all Select fields to Edit as default

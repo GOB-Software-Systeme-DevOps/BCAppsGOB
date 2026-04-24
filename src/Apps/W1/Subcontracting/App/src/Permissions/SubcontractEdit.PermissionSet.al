@@ -13,6 +13,5 @@ permissionset 99001503 "Subcontract. - Edit"
     IncludedPermissionSets = "Subcontract. - Read";
 
     Permissions =
-        tabledata "Subc. Management Setup" = IMD,
         tabledata "Subcontractor Price" = IMD;
 }

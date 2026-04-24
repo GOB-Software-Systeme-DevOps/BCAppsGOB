@@ -51,7 +51,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO H1] SaveBOMRouting = false - BOM should not be saved to source
@@ -76,7 +75,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully but BOM should not be saved to item
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -113,7 +112,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO H2] SaveBomRtngToSource = Item - BOM should be saved to item
@@ -138,7 +136,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and BOM should be saved to item
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -178,7 +176,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         ItemNo: Code[20];
     begin
@@ -205,7 +202,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and BOM should be saved to SKU
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -249,7 +246,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
         RoutingVersion: Record "Routing Version";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -278,7 +274,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and version should be saved
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -318,7 +314,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
         RoutingVersion: Record "Routing Version";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -347,7 +342,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully but version should not be saved
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -374,7 +369,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
         RoutingVersion: Record "Routing Version";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -403,7 +397,7 @@ codeunit 139998 "Subc. Wiz. Save Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and version should be saved
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');

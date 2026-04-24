@@ -51,7 +51,7 @@ codeunit 139989 "Subc. Subcontracting Test"
     [Test]
     procedure InsertRecordOnOpenPageSubcontractingManagementSetup()
     var
-        SubcontractingMgmtSetupPage: TestPage "Subc. Management Setup";
+        SubcontractingMgmtSetupPage: TestPage "Manufacturing Setup";
     begin
         // [SCENARIO] OnOpenPage should create a record in Subcontracting Setup
 
@@ -780,7 +780,7 @@ codeunit 139989 "Subc. Subcontracting Test"
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionLine: Record "Requisition Line";
         RequisitionWkshName: Record "Requisition Wksh. Name";
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         Vendor: Record Vendor;
         WorkCenter: array[2] of Record "Work Center";
         SubcCalculateSubContract: Report "Subc. Calculate Subcontracts";
@@ -873,10 +873,10 @@ codeunit 139989 "Subc. Subcontracting Test"
         PurchaseHeader.Delete(true);
         Commit();
 
-        SubManagementSetup.Get();
-        SubManagementSetup."Subcontracting Template Name" := RequisitionLine."Worksheet Template Name";
-        SubManagementSetup."Subcontracting Batch Name" := RequisitionLine."Journal Batch Name";
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Subcontracting Template Name" := RequisitionLine."Worksheet Template Name";
+        ManufacturingSetup."Subcontracting Batch Name" := RequisitionLine."Journal Batch Name";
+        ManufacturingSetup.Modify();
 
         // [GIVEN] Create Subcontracting Purchase Order from Prod. Order Routing
         WorkCenter2 := WorkCenter[2];
@@ -1217,7 +1217,7 @@ codeunit 139989 "Subc. Subcontracting Test"
         ProductionOrder: Record "Production Order";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        SubcontractingManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         TransferLine: Record "Transfer Line";
         WorkCenter: array[2] of Record "Work Center";
         ExpectedDate: Date;
@@ -1287,9 +1287,9 @@ codeunit 139989 "Subc. Subcontracting Test"
         TransferLine.SetRange("Item No.", ProdOrderComp."Item No.");
         TransferLine.FindFirst();
 
-        SubcontractingManagementSetup.Get();
+        ManufacturingSetup.Get();
 
-        ExpectedDate := CalcDate(SubcontractingManagementSetup."Subc. Inb. Whse. Handling Time", TransferLine."Receipt Date");
+        ExpectedDate := CalcDate(ManufacturingSetup."Subc. Inb. Whse. Handling Time", TransferLine."Receipt Date");
 
         Assert.AreEqual(ExpectedDate, ProdOrderComp."Due Date", '');
 
@@ -1668,7 +1668,7 @@ Comment = '|%1 = Transfer Order No.';
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         ValueEntry: Record "Value Entry";
     begin
         // [SCENARIO] When a Purchase Order is created and the item charge is assigned to a subcontracting line, the value entry should be created with the capacity relation, not with item ledger entry relation.
@@ -1680,9 +1680,9 @@ Comment = '|%1 = Transfer Order No.';
         SetupInventorySetup();
 
         //[GIVEN] Setup Item Charge Assignment Subcontracting
-        SubManagementSetup.Get();
-        SubManagementSetup.RefItemChargeToRcptSubLines := true;
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup.RefItemChargeToRcptSubLines := true;
+        ManufacturingSetup.Modify();
 
         // [GIVEN] Some Parameters for Creation
         Subcontracting := true;
@@ -1760,19 +1760,29 @@ Comment = '|%1 = Transfer Order No.';
 
     local procedure RemoveSubcontractingManagementSetupRecord()
     var
-        SubcontractingManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        SubcontractingManagementSetup.DeleteAll();
+        if ManufacturingSetup.Get() then begin
+            Clear(ManufacturingSetup."Subcontracting Template Name");
+            Clear(ManufacturingSetup."Subcontracting Batch Name");
+            ManufacturingSetup.Modify();
+        end;
     end;
 
     local procedure CheckNoSubcontractingManagementSetupRecordExist()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        Assert.TableIsEmpty(Database::"Subc. Management Setup");
+        ManufacturingSetup.Get();
+        Assert.AreEqual('', ManufacturingSetup."Subcontracting Template Name", 'Subcontracting Template Name should be empty');
     end;
 
     local procedure CheckSubcontractingManagementSetupRecordExist()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        Assert.TableIsNotEmpty(Database::"Subc. Management Setup");
+        ManufacturingSetup.Get();
+        Assert.AreNotEqual('', ManufacturingSetup."Subcontracting Template Name", 'Subcontracting Template Name should not be empty');
     end;
 
     local procedure CreateAndCalculateNeededWorkAndMachineCenter(var WorkCenter: array[2] of Record "Work Center"; var MachineCenter: array[2] of Record "Machine Center")
@@ -2094,29 +2104,29 @@ Comment = '|%1 = Transfer Order No.';
 
     local procedure UpdateSubMgmtSetupTransferInfoLine(Update: Boolean)
     var
-        EsMgmtSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        EsMgmtSetup.Get();
-        EsMgmtSetup."Create Prod. Order Info Line" := Update;
-        EsMgmtSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Create Prod. Order Info Line" := Update;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure UpdateSubMgmtSetupDirectTransfer(Update: Boolean)
     var
-        EsMgmtSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        EsMgmtSetup.Get();
-        EsMgmtSetup."Direct Transfer" := Update;
-        EsMgmtSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Direct Transfer" := Update;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure UpdateSubMgmtSetup_ComponentAtLocation(CompAtLocation: Enum "Components at Location")
     var
-        EsMgmtSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        EsMgmtSetup.Get();
-        EsMgmtSetup."Component at Location" := CompAtLocation;
-        EsMgmtSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Component at Location" := CompAtLocation;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure CreateSubcontractingOrderFromProdOrderRtngPage(RoutingNo: Code[20]; WorkCenterNo: Code[20])
@@ -2135,13 +2145,11 @@ Comment = '|%1 = Transfer Order No.';
 
     local procedure UpdateSubWhseHandlingTimeInSubManagementSetup()
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        if not SubManagementSetup.Get() then
-            exit;
-
-        Evaluate(SubManagementSetup."Subc. Inb. Whse. Handling Time", '<1D>');
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Get();
+        Evaluate(ManufacturingSetup."Subc. Inb. Whse. Handling Time", '<1D>');
+        ManufacturingSetup.Modify();
     end;
 
     local procedure SetupInventorySetup()
@@ -2215,20 +2223,20 @@ Comment = '|%1 = Transfer Order No.';
 
     local procedure UpdateSubMgmtRoutingLink(RtngLink: Code[10])
     var
-        EsMgmtSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        EsMgmtSetup.Get();
-        EsMgmtSetup."Rtng. Link Code Purch. Prov." := RtngLink;
-        EsMgmtSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Rtng. Link Code Purch. Prov." := RtngLink;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure UpdateSubMgmtCommonWorkCenter(WorkCenterNo: Code[20])
     var
-        EsMgmtSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        EsMgmtSetup.Get();
-        EsMgmtSetup."Common Work Center No." := WorkCenterNo;
-        EsMgmtSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Default Work Center No." := WorkCenterNo;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure CreateItemChargeOrderLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var ItemCharge: Record "Item Charge")

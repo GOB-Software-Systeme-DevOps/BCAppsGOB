@@ -25,17 +25,17 @@ using System.Utilities;
 codeunit 99001505 "Subcontracting Management"
 {
     var
-        SubcManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         TempGlobalReservationEntry: Record "Reservation Entry" temporary;
-        HasSubManagementSetup: Boolean;
+        HasManufacturingManagementSetup: Boolean;
 
     procedure CalcReceiptDateFromProdCompDueDateWithInbWhseHandlingTime(ProdOrderComponent: Record "Prod. Order Component") ReceiptDate: Date
     begin
-        GetSubmanagementSetup();
-        if not HasSubManagementSetup or (Format(SubcManagementSetup."Subc. Inb. Whse. Handling Time") = '') then
+        GetManufacturingSetup();
+        if not HasManufacturingManagementSetup or (Format(ManufacturingSetup."Subc. Inb. Whse. Handling Time") = '') then
             exit(ProdOrderComponent."Due Date");
 
-        ReceiptDate := CalcDate('-' + Format(SubcManagementSetup."Subc. Inb. Whse. Handling Time"), ProdOrderComponent."Due Date");
+        ReceiptDate := CalcDate('-' + Format(ManufacturingSetup."Subc. Inb. Whse. Handling Time"), ProdOrderComponent."Due Date");
 
         exit(ReceiptDate);
     end;
@@ -89,40 +89,6 @@ codeunit 99001505 "Subcontracting Management"
     procedure CheckDirectTransferIsAllowedForTransferHeader(TransferHeader: Record "Transfer Header")
     begin
         TransferHeader.CheckDirectTransferPosting();
-    end;
-
-    procedure CreatePurchProvisionRoutingLine(RoutingHeader: Record "Routing Header")
-    var
-        RoutingLine: Record "Routing Line";
-        Vendor: Record Vendor;
-        SingleInstanceDictionary: Codeunit "Single Instance Dictionary";
-        SubcontractingManagement: Codeunit "Subcontracting Management";
-        RoutingLinkCode: Code[10];
-        WorkCenterNo: Code[20];
-    begin
-        GetSubmanagementSetup();
-        if HasSubManagementSetup then
-            RoutingLinkCode := SubcManagementSetup."Rtng. Link Code Purch. Prov.";
-
-        Vendor.SetLoadFields("Work Center No.");
-        if Vendor.Get(SingleInstanceDictionary.GetCode(SubcontractingManagement.GetDictionaryKey_Sub_CreateProdOrderProcess())) then
-            WorkCenterNo := Vendor."Work Center No.";
-
-        if WorkCenterNo = '' then
-            WorkCenterNo := SubcManagementSetup."Common Work Center No.";
-
-        if WorkCenterNo = '' then
-            exit;
-
-        RoutingLine.Init();
-        RoutingLine."Routing No." := RoutingHeader."No.";
-        RoutingLine."Operation No." := '01';
-        RoutingLine.Type := "Capacity Type Routing"::"Work Center";
-        RoutingLine.Validate("No.", WorkCenterNo);
-        if RoutingLinkCode <> '' then
-            RoutingLine."Routing Link Code" := RoutingLinkCode;
-
-        RoutingLine.Insert();
     end;
 
     procedure DelLocationLinkedComponents(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ShowMsg: Boolean)
@@ -197,8 +163,8 @@ codeunit 99001505 "Subcontracting Management"
     begin
         if ItemJournalLine."Work Center No." = '' then
             exit(false);
-        GetSubmanagementSetup();
-        if SubcManagementSetup."Common Work Center No." = ItemJournalLine."Work Center No." then
+        GetManufacturingSetup();
+        if ManufacturingSetup."Default Work Center No." = ItemJournalLine."Work Center No." then
             exit(true);
 
         exit(false);
@@ -530,13 +496,12 @@ codeunit 99001505 "Subcontracting Management"
     procedure GetComponentsLocationCode(PurchaseLine: Record "Purchase Line"): Code[10]
     var
         CompanyInformation: Record "Company Information";
-        ManufacturingSetup: Record "Manufacturing Setup";
         ComponentsLocationCode: Code[10];
     begin
-        GetSubmanagementSetup();
-        SubcManagementSetup.TestField("Component at Location");
+        GetManufacturingSetup();
+        ManufacturingSetup.TestField("Component at Location");
 
-        case SubcManagementSetup."Component at Location" of
+        case ManufacturingSetup."Component at Location" of
             "Components at Location"::Purchase:
                 begin
                     PurchaseLine.TestField("Location Code");
@@ -561,12 +526,12 @@ codeunit 99001505 "Subcontracting Management"
         exit(ComponentsLocationCode);
     end;
 
-    local procedure GetSubmanagementSetup()
+    local procedure GetManufacturingSetup()
     begin
-        if HasSubManagementSetup then
+        if HasManufacturingManagementSetup then
             exit;
-        if SubcManagementSetup.Get() then
-            HasSubManagementSetup := true;
+        if ManufacturingSetup.Get() then
+            HasManufacturingManagementSetup := true;
     end;
 
     local procedure IsSubcontracting(WorkCenterNo: Code[20]): Boolean

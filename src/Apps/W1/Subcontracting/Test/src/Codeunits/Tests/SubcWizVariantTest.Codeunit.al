@@ -45,7 +45,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     procedure TestC1_NewBOMVariant_LinesEditable()
     var
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -69,7 +68,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and new BOM variant should be creatable with editable lines
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -83,7 +82,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -107,7 +105,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and changes should be applied to production order components
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -139,7 +137,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
     procedure TestC3_NewRoutingVariant_LinesEditable()
     var
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -163,7 +160,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and new Routing variant should be creatable with editable lines
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -177,7 +174,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -201,7 +197,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and changes should be applied to production order routing lines
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -236,7 +232,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         LocationCode: Code[10];
         BOMNo: Code[20];
         ItemNo: Code[20];
@@ -267,7 +262,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and new BOM variant should be saved to stockkeeping unit
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -290,7 +285,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         Item: Record Item;
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         OriginalBOMNo: Code[20];
@@ -319,7 +313,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and new BOM variant should be saved to item
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -343,7 +337,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         Item: Record Item;
         ProductionBOMVersion: Record "Production BOM Version";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         OriginalBOMNo: Code[20];
@@ -372,7 +365,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully but no new variant should be created
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -396,7 +389,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -424,7 +416,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should use the new BOM version
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -448,7 +440,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -476,7 +467,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should use the new Routing version
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -501,7 +492,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         TempProdOrderComponent: Record "Prod. Order Component" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -529,7 +519,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and used alternate BOM version
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -556,7 +546,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -584,7 +573,7 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have finished successfully and used alternate Routing version
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');

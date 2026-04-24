@@ -38,7 +38,6 @@ codeunit 139993 "Subc. Wiz. General Test"
     procedure TestOpenAndFinishingWizard()
     var
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO] Test Open wizard functionality
@@ -54,7 +53,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -68,7 +67,6 @@ codeunit 139993 "Subc. Wiz. General Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
     begin
         // [SCENARIO] Test Production Order Creation Wizard for NothingPresent scenario
@@ -84,7 +82,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -106,7 +104,6 @@ codeunit 139993 "Subc. Wiz. General Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -130,7 +127,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -153,7 +150,6 @@ codeunit 139993 "Subc. Wiz. General Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         ItemNo: Code[20];
         RoutingNo: Code[20];
     begin
@@ -173,7 +169,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -196,7 +192,6 @@ codeunit 139993 "Subc. Wiz. General Test"
         TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        ProductionDefinitionManager: Codeunit "Production Definition Manager";
         BOMNo: Code[20];
         ItemNo: Code[20];
     begin
@@ -216,7 +211,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        ProductionDefinitionManager.RunForSource(PurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
