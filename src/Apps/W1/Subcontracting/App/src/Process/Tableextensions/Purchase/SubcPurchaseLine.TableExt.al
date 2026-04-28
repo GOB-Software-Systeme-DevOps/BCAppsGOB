@@ -122,18 +122,15 @@ tableextension 99001512 "Subc. Purchase Line" extends "Purchase Line"
     var
         CurrPurchLine: Record "Purchase Line";
         SubcSubscriber: Codeunit "Subc. Prod. Def. Subscriber";
-        SubcTempBind: Codeunit "Subc. Temp Prod. Ord. Bind";
         SubcCreateBind: Codeunit "Subc. Prod. Order Create Bind";
         ProdDefMgr: Codeunit "Production Definition Manager";
     begin
         CurrPurchLine := Rec;
         SubcCreateBind.SetSubcontractingPurchaseLine(CurrPurchLine);
         BindSubscription(SubcSubscriber);
-        BindSubscription(SubcTempBind);
         BindSubscription(SubcCreateBind);
         ProdDefMgr.RunForSource(CurrPurchLine, "Prod. Definition Mode"::CreateProductionOrder);
         UnbindSubscription(SubcSubscriber);
-        UnbindSubscription(SubcTempBind);
         UnbindSubscription(SubcCreateBind);
     end;
 

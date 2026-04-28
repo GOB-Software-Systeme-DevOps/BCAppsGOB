@@ -94,12 +94,6 @@ tableextension 99001566 "Subc. Setup Subc. Wizard Ext" extends "Manufacturing Se
             DataClassification = CustomerContent;
             ToolTip = 'Specifies whether to enable the item charge assignment to purchase receipt lines with subcontracting.';
         }
-        field(99001577; "Def. provision flushing method"; Enum "Flushing Method Routing")
-        {
-            Caption = 'Default Provision Flushing Method';
-            DataClassification = CustomerContent;
-            ToolTip = 'Specifies the default flushing method for purchase provision components.';
-        }
     }
 
     procedure ItemChargeToRcptSubReferenceEnabled(): Boolean

@@ -71,11 +71,6 @@ pageextension 99001567 "Subc. Setup Subc. Wizard Ext" extends "Manufacturing Set
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies which location code is to be used as the transfer-from location when creating a transfer order of external production components.';
                 }
-                field("Def. provision flushing method"; Rec."Def. provision flushing method")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the default flushing method for purchase provision components.';
-                }
             }
         }
     }

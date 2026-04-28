@@ -137,7 +137,7 @@ codeunit 99001559 "Subc. Prod. Def. Subscriber"
         TempProdOrderComponent."Orig. Location Code" := TempProdOrderComponent."Location Code";
         TempProdOrderComponent."Orig. Bin Code" := TempProdOrderComponent."Bin Code";
 
-        ManufacturingSetup.SetLoadFields("Rtng. Link Code Purch. Prov.");
+        ManufacturingSetup.SetLoadFields("Rtng. Link Code Purch. Prov.", "Def. Wiz. Flushing Method");
         ManufacturingSetup.Get();
         if TempProdOrderComponent."Routing Link Code" = ManufacturingSetup."Rtng. Link Code Purch. Prov." then
             case TempProdOrderComponent."Subcontracting Type" of
@@ -149,6 +149,7 @@ codeunit 99001559 "Subc. Prod. Def. Subscriber"
                                 TempProdOrderComponent.Validate("Location Code", Vendor."Subcontr. Location Code");
                     end;
             end;
+        TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. Wiz. Flushing Method";
 
         TempProdOrderComponent.Modify();
     end;
@@ -168,8 +169,8 @@ codeunit 99001559 "Subc. Prod. Def. Subscriber"
         ProdOrderComponent."Orig. Bin Code" := TempProdOrderComponent."Orig. Bin Code";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Direct Creator", 'OnBeforeInsertProdOrderRoutingLineFromTemp', '', false, false)]
-    local procedure OnBeforeInsertProdOrderRoutingLineFromTemp(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Direct Creator", 'OnBeforeModifyProdOrderRoutingLineFromTemp', '', false, false)]
+    local procedure OnBeforeModifyProdOrderRoutingLineFromTemp(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary)
     begin
         ProdOrderRoutingLine."Vendor No. Subc. Price" := TempProdOrderRoutingLine."Vendor No. Subc. Price";
     end;

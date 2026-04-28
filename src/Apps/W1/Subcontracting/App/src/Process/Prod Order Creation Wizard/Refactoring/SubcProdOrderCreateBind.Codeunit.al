@@ -24,12 +24,6 @@ codeunit 99001560 "Subc. Prod. Order Create Bind"
         SubcontractingPurchaseLine := PurchLine;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", 'OnBeforeCheckRoutingNoNotBlank', '', false, false)]
-    local procedure ProdOrderRoutingLine_OnBeforeCheckRoutingNoNotBlank(var IsHandled: Boolean)
-    begin
-        IsHandled := true;
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Subcontracting Management", 'OnBeforeGetSubcontractor', '', false, false)]
     local procedure OnBeforeGetSubcontractor(WorkCenterNo: Code[20]; var Vendor: Record Vendor; var HasSubcontractor: Boolean; var IsHandled: Boolean)
     begin

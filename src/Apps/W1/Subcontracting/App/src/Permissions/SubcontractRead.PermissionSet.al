@@ -50,7 +50,6 @@ permissionset 99001502 "Subcontract. - Read"
         codeunit "Subc. Req. Wksh. Make Ord." = X,
         codeunit "Subc. Req.Line Extension" = X,
         codeunit "Subc. Synchronize Management" = X,
-        codeunit "Subc. Temp Prod. Ord. Bind" = X,
         codeunit "Subc. Trans Rcpt Header Ext" = X,
         codeunit "Subc. Trans Shpt Header Ext" = X,
         codeunit "Subc. Transfer Line Ext." = X,

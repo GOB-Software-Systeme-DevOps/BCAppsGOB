@@ -190,6 +190,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
         Clear(TempProdOrderComponent);
         ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
+
         RemoveTempComponent(TempProdOrderComponent);
         FinalComponentCount := TempProdOrderComponent.Count();
 
@@ -593,7 +594,8 @@ codeunit 139980 "Subc. Wiz. Change Test"
         while ProductionDefinitionWizard.ActionNext.Enabled() do
             ProductionDefinitionWizard.ActionNext.Invoke();
 
-        ProductionDefinitionWizard.ActionFinish.Invoke();
+        if ProductionDefinitionWizard.ActionFinish.Enabled() then
+            ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
@@ -732,6 +734,7 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
     local procedure AddTempComponent(var TempProdOrderComponent: Record "Prod. Order Component" temporary; ItemNo: Code[20]; Quantity: Decimal; PurchLine: Record "Purchase Line")
     var
+        ManufacturingSetup: Record "Manufacturing Setup";
         LineNo: Integer;
     begin
         // Add a new component to temporary records
@@ -746,9 +749,11 @@ codeunit 139980 "Subc. Wiz. Change Test"
         TempProdOrderComponent."Item No." := ItemNo;
         TempProdOrderComponent."Quantity per" := Quantity;
         TempProdOrderComponent."Location Code" := PurchLine."Location Code";
-#pragma warning disable AL0432
-        TempProdOrderComponent."Flushing Method" := "Flushing Method"::Manual;
-#pragma warning restore AL0432
+        TempProdOrderComponent."Flushing Method" := "Flushing Method"::"Pick + Manual";
+
+        ManufacturingSetup.SetLoadFields();
+        ManufacturingSetup.Get();
+        TempProdOrderComponent."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
         TempProdOrderComponent.Insert();
     end;
 

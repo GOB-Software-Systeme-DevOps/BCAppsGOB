@@ -34,6 +34,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardFinishedSuccessfully: Boolean;
         WizardWasOpened: Boolean;
         ExpectedSourceType: Enum "Prod. Definition Source";
+        ManSetupLbl: Label 'Manufacturing Setup', Locked = true;
 
 
     [Test]
@@ -284,14 +285,12 @@ codeunit 139997 "Subc. Wiz. Source Test"
 
     [ModalPageHandler]
     procedure HandleProductionDefinitionWizardVerifySetupSource(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
-    var
-        SubManSetupLbl: Label 'Subcontracting Management Setup', Locked = true;
     begin
         // [SCENARIO G5] Verify that BomRtngFromSource reflects new setup
         WizardWasOpened := true;
 
         // Verify that the source field shows Empty (new setup is used)
-        Assert.AreEqual(SubManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
+        Assert.AreEqual(ManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
             'BomRtngFromSource should reflect new setup configuration');
 
         // Navigate through wizard steps
@@ -304,14 +303,12 @@ codeunit 139997 "Subc. Wiz. Source Test"
 
     [ModalPageHandler]
     procedure HandleProductionDefinitionWizardVerifyEmptySource(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
-    var
-        SubManSetupLbl: Label 'Subcontracting Management Setup', Locked = true;
     begin
         // [SCENARIO G4] Verify that BomRtngFromSource shows Empty when no setup exists
         WizardWasOpened := true;
 
         // Verify that the source field shows Empty
-        Assert.AreEqual(SubManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
+        Assert.AreEqual(ManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
             'BomRtngFromSource should show Empty when no data and no setup exists');
 
         // Navigate through wizard steps
@@ -324,14 +321,12 @@ codeunit 139997 "Subc. Wiz. Source Test"
 
     [ModalPageHandler]
     procedure HandleProductionDefinitionWizardVerifyNewSetupSource(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
-    var
-        SubManSetupLbl: Label 'Subcontracting Management Setup', Locked = true;
     begin
         // [SCENARIO G5] Verify that BomRtngFromSource reflects new setup
         WizardWasOpened := true;
 
         // Verify that the source field shows Empty (new setup is used)
-        Assert.AreEqual(SubManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
+        Assert.AreEqual(ManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
             'BomRtngFromSource should reflect new setup configuration');
 
         // Navigate through wizard steps

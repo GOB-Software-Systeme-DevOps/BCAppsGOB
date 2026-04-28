@@ -37,7 +37,7 @@ codeunit 139988 "Subc. Setup Library"
         // Set required fields for production order creation
         ManufacturingSetup."Default Work Center No." := WorkCenter."No.";
         ManufacturingSetup."Rtng. Link Code Purch. Prov." := RoutingLink."Code";
-        ManufacturingSetup."Def. provision flushing method" := "Flushing Method Routing"::Backward;
+        ManufacturingSetup."Def. Wiz. Flushing Method" := "Flushing Method Routing"::Backward;
         ManufacturingSetup."Component at Location" := ManufacturingSetup."Component at Location"::Purchase;
 
         // Set wizard fields on Manufacturing Setup
