@@ -11,7 +11,7 @@ pageextension 99001564 TempProdOrderCompSubcExt extends "Temp Prod. Order Comp. 
 {
     layout
     {
-        addafter("Item No.")
+        addafter("Location Code")
         {
             field(SubcontractingType; Rec."Subcontracting Type")
             {

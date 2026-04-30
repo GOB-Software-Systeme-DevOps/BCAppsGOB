@@ -41,8 +41,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ModifiedQuantity: Decimal;
         ModifiedRunTime: Decimal;
 
-    // ==================== SCENARIO N: Component Change Tests ====================
-
     [Test]
     [HandlerFunctions('HandleProductionDefinitionWizardModifyComponents')]
     procedure TestN1_ComponentQuantityChanged_ChangesAppliedToProdOrder()
@@ -201,8 +199,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
         ProdOrderCheckLib.VerifyProdOrderComponentsMatchTempRecords(ProdOrder, TempProdOrderComponent);
     end;
-
-    // ==================== SCENARIO O: Routing Change Tests ====================
 
     [Test]
     [HandlerFunctions('HandleProductionDefinitionWizardModifyRouting')]
@@ -371,8 +367,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ProdOrderCheckLib.VerifyProdOrderRoutingLinesMatchTempRecords(ProdOrder, TempProdOrderRoutingLine);
     end;
 
-    // ==================== SCENARIO P: Combined Change Tests ====================
-
     [Test]
     [HandlerFunctions('HandleProductionDefinitionWizardModifyBoth')]
     procedure TestP1_BothComponentsAndRoutingChanged_AllChangesApplied()
@@ -475,8 +469,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ProdOrderCheckLib.VerifyProdOrderComponentsMatchTempRecords(ProdOrder, TempProdOrderComponent);
         ProdOrderCheckLib.VerifyProdOrderRoutingLinesMatchTempRecords(ProdOrder, TempProdOrderRoutingLine);
     end;
-
-    // ==================== MODAL PAGE HANDLERS ====================
 
     [ModalPageHandler]
     procedure HandleProductionDefinitionWizardModifyComponents(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
@@ -590,12 +582,8 @@ codeunit 139980 "Subc. Wiz. Change Test"
             end;
         end;
 
-        // Continue to finish
-        while ProductionDefinitionWizard.ActionNext.Enabled() do
-            ProductionDefinitionWizard.ActionNext.Invoke();
-
-        if ProductionDefinitionWizard.ActionFinish.Enabled() then
-            ProductionDefinitionWizard.ActionFinish.Invoke();
+        // ProdRouting is the last step - ActionFinish commits the pending subpart insert
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
@@ -698,8 +686,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
-
-    // ==================== HELPER METHODS ====================
 
     local procedure Initialize()
     begin

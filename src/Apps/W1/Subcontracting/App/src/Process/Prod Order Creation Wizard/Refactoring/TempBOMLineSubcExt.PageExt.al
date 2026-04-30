@@ -10,7 +10,7 @@ pageextension 99001563 TempBOMLineSubcExt extends "Temp BOM Lines"
 {
     layout
     {
-        addafter("No.")
+        addlast(Lines)
         {
             field(SubcontractingType; Rec."Subcontracting Type")
             {

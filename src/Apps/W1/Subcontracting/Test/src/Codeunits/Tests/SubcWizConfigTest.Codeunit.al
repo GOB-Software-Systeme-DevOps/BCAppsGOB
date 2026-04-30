@@ -648,8 +648,6 @@ codeunit 139994 "Subc. Wiz. Config Test"
         VerifyExpectedStepsVisited();
     end;
 
-    // ==================== HELPER PROCEDURES====================
-
     local procedure SetExpectedSteps(StepsList: Text)
     var
         StepArray: List of [Text];
@@ -679,8 +677,6 @@ codeunit 139994 "Subc. Wiz. Config Test"
         if not StepsVisited.Contains(StepName) then
             StepsVisited.Add(StepName);
     end;
-
-    // ==================== MODAL PAGE HANDLERS ====================
 
     [ModalPageHandler]
     procedure HandleProductionDefinitionWizardNotExpected(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")

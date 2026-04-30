@@ -43,10 +43,6 @@ codeunit 149908 "Subc. Warehouse Library"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         SubcLibraryMfgManagement: Codeunit "Subc. Library Mfg. Management";
 
-    // ========================================
-    // MANUFACTURING SETUP FUNCTIONS
-    // ========================================
-
     /// <summary>
     /// Creates and calculates needed work and machine centers.
     /// </summary>
@@ -312,10 +308,6 @@ codeunit 149908 "Subc. Warehouse Library"
         ProductionBOMHeader.Modify(true);
     end;
 
-    // ========================================
-    // LOCATION & WAREHOUSE SETUP FUNCTIONS
-    // ========================================
-
     /// <summary>
     /// Creates a location with warehouse handling enabled.
     /// </summary>
@@ -398,10 +390,6 @@ codeunit 149908 "Subc. Warehouse Library"
         Location.Modify(true);
     end;
 
-    // ========================================
-    // PRODUCTION ORDER FUNCTIONS
-    // ========================================
-
     /// <summary>
     /// Creates and refreshes a production order with the specified parameters. This function is used to set up production orders for testing scenarios that involve production orders and their impact on warehouse receipts.
     /// </summary>
@@ -427,10 +415,6 @@ codeunit 149908 "Subc. Warehouse Library"
     begin
         SubcLibraryMfgManagement.CreateLaborReqWkshTemplateAndNameAndUpdateSetup();
     end;
-
-    // ========================================
-    // PURCHASE ORDER FUNCTIONS
-    // ========================================
 
     /// <summary>
     /// Creates a subcontracting purchase order from a production order routing line with the specified routing number and work center number, and finds the created purchase line.
@@ -506,10 +490,6 @@ codeunit 149908 "Subc. Warehouse Library"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
     end;
 
-    // ========================================
-    // WAREHOUSE DOCUMENT FUNCTIONS
-    // ========================================
-
     /// <summary>
     /// Creates a warehouse receipt from a released purchase order.
     /// </summary>
@@ -576,10 +556,6 @@ codeunit 149908 "Subc. Warehouse Library"
         PostedWhseReceiptHeader.FindLast();
     end;
 
-    // ========================================
-    // PUT-AWAY FUNCTIONS
-    // ========================================
-
     /// <summary>
     /// Creates a put-away document from a posted warehouse receipt if none exists and returns the latest put-away header.
     /// </summary>
@@ -626,10 +602,6 @@ codeunit 149908 "Subc. Warehouse Library"
 
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
-
-    // ========================================
-    // PUT-AWAY WORKSHEET FUNCTIONS
-    // ========================================
 
     /// <summary>
     /// Creates a put-away worksheet name for the specified location, ensuring a put-away worksheet template exists.
@@ -707,10 +679,6 @@ codeunit 149908 "Subc. Warehouse Library"
         WarehouseActivityHeader.FindLast();
     end;
 
-    // ========================================
-    // VERIFICATION FUNCTIONS
-    // ========================================
-
     /// <summary>
     /// Verifies that output item ledger entries exist for the item and location and match the expected quantity.
     /// </summary>
@@ -774,9 +742,6 @@ codeunit 149908 "Subc. Warehouse Library"
             'Bin contents should show correct quantity after put-away posting');
     end;
 
-    // ========================================
-    // COMPLETE SCENARIO SETUP FUNCTIONS
-    // ========================================
 
     /// <summary>
     /// Sets up a complete subcontracting warehouse scenario including item, location, production order, and purchase order.

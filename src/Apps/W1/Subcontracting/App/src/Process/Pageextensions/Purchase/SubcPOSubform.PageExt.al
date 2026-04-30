@@ -5,7 +5,6 @@
 namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Wizard;
 using Microsoft.Purchases.Document;
 using Microsoft.Utilities;
 
@@ -22,11 +21,9 @@ pageextension 99001524 "Subc. PO Subform" extends "Purchase Order Subform"
                 Image = CreateSerialNo;
                 ToolTip = 'Creates the production order belonging to the order for provision.';
                 trigger OnAction()
-                var
-                    ProductionDefinitionManager: Codeunit "Production Definition Manager";
                 begin
                     Rec.TestStatusOpen();
-                    ProductionDefinitionManager.RunForSource(Rec, "Prod. Definition Mode"::CreateProductionOrder);
+                    Rec.CreateSubcontractingProductionOrder();
                     ShowCreatedProdOrderConfirmationMessage();
                 end;
             }

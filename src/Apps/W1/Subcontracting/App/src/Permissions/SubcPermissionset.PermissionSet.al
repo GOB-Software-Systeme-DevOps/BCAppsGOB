@@ -67,7 +67,6 @@ permissionset 99001500 "Subc. Permissionset"
         report "Subc. Dispatching List" = X,
         report "Subc. Calculate Subcontracts" = X,
         codeunit "Subc. Prod. Def. Subscriber" = X,
-        codeunit "Subc. Prod. Order Create Bind" = X,
         codeunit "Subc. Purchase Order Creator" = X,
         codeunit "Subc. Worksheet Handler" = X,
         page "Subc. Subcontracting Worksheet" = X;

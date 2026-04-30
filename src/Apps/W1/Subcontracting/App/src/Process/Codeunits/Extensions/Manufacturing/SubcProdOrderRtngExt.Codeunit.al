@@ -57,6 +57,8 @@ codeunit 99001520 "Subc. Prod. Order Rtng. Ext."
     var
         SubcPriceManagement: Codeunit "Subc. Price Management";
     begin
+        if ProdOrderRoutingLine.IsTemporary then
+            exit;
         SubcPriceManagement.GetSubcPriceList(ProdOrderRoutingLine);
     end;
 

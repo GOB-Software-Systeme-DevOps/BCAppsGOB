@@ -31,7 +31,6 @@ codeunit 99001507 "Subc. Factbox Mgmt."
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("No.", ProdOrderNo);
         ReleasedProductionOrder.SetTableView(ProductionOrder);
-        ReleasedProductionOrder.Editable := false;
         ReleasedProductionOrder.Run();
     end;
 

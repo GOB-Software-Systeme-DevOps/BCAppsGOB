@@ -37,8 +37,6 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         SubSetupLibrary: Codeunit "Subc. Setup Library";
         IsInitialized: Boolean;
 
-    // ==================== SCENARIO L: Put-Away Operations ====================
-
     [Test]
     procedure TestL1_LocationWithWarehouseHandling_PutAwaySetup_TwoOperations()
     var
@@ -295,8 +293,6 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         // Verify operation description
         Assert.IsTrue(StrPos(ProdOrderRtngLine.Description, 'Put-Away') > 0, 'Put-away operation should have descriptive name');
     end;
-
-    // ==================== HELPER METHODS ====================
 
     local procedure CreateLocationWithWarehouseHandling(): Code[10]
     var

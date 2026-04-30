@@ -399,6 +399,9 @@ codeunit 99001505 "Subcontracting Management"
         PurchOrderNo: Code[20];
         PurchOrderExistErr: Label 'The currently selected component %1 is already used in Purchase Order %2. Therefore, it is not permitted to change the %3 field.', Comment = '%1=Item No, %2=Purchase Order No, %3=Field Caption';
     begin
+        if ProdOrderComponent.IsTemporary() then
+            exit;
+
         if ProdOrderComponent."Routing Link Code" = '' then
             exit;
 

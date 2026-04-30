@@ -258,8 +258,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ProdOrderCheckLib.VerifyProdOrderComponentsMatchTempRecords(ProdOrder, TempProdOrderComponent);
     end;
 
-    // ==================== MODAL PAGE HANDLERS ====================
-
     [ModalPageHandler]
     procedure HandleProductionDefinitionWizardSelectDifferentBOM(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
