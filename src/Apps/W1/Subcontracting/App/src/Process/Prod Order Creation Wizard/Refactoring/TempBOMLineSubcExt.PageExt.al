@@ -1,5 +1,6 @@
 // ------------------------------------------------------------------------------------------------
-// Copyright (c) GOB Software Systeme GmbH. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting;
 
@@ -35,8 +36,6 @@ pageextension 99001563 TempBOMLineSubcExt extends "Temp BOM Lines"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec."Subcontracting Type" := xRec."Subcontracting Type";
-        GetManufacturingSetup();
-        Rec."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
     end;
 
     var
