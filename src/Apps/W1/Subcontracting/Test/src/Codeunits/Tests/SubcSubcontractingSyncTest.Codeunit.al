@@ -111,7 +111,6 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
     end;
 
     [Test]
-    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess')]
     procedure TestQuantitySynchronizationAfterCreateProductionOrderFromPurchaseOrder()
     var
         ItemUOM: Record "Item Unit of Measure";
@@ -455,17 +454,6 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
         ReleasedProdOrderRtng.OpenView();
         ReleasedProdOrderRtng.GoToRecord(ProdOrderRtngLine);
         ReleasedProdOrderRtng.CreateSubcontracting.Invoke();
-    end;
-
-    [ConfirmHandler]
-    procedure DoConfirmCreateProdOrderForSubcontractingProcess(Question: Text[1024]; var Reply: Boolean)
-    begin
-        case true of
-            Question.Contains('Do you want to create a production order from'):
-                Reply := true;
-            else
-                Reply := false;
-        end;
     end;
 
     var

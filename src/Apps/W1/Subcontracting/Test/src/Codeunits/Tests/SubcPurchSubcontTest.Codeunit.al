@@ -18,7 +18,6 @@ using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
-using System.Utilities;
 
 codeunit 139991 "Subc. Purch. Subcont. Test"
 {
@@ -47,13 +46,10 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
         SubcontractingMgmtLibrary: Codeunit "Subc. Management Library";
         SubSetupLibrary: Codeunit "Subc. Setup Library";
         IsInitialized: Boolean;
-        ErrorCounter: Integer;
-        ErrorMessageDescriptionList: List of [Text];
         ItemTrackingWasOpened: Boolean;
         UnitCostCalculation: Option Time,Units;
 
     [Test]
-    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess')]
     procedure CreateProductionOrderFromPurchaseOrder_PurchPrice()
     var
         Location, Location2 : Record Location;
@@ -131,7 +127,6 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
     end;
 
     [Test]
-    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess')]
     procedure CreateProductionOrderFromPurchaseOrder_PurchPrice_Variant()
     var
         ItemVariant: Record "Item Variant";
@@ -217,7 +212,6 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
     end;
 
     [Test]
-    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess,ErrorPageHandler')]
     procedure CreateProductionOrderFromPurchaseOrderWithDropShipment()
     var
         Location, Location2 : Record Location;
@@ -253,11 +247,10 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
         Commit();
         PurchOrder.OpenEdit();
         PurchOrder.GoToRecord(PurchaseHeader);
-        PurchOrder.PurchLines.CreateProdOrder.Invoke();
+        asserterror PurchOrder.PurchLines.CreateProdOrder.Invoke();
 
         // [THEN] Error occurs as drop shipment is not supported
-        Assert.AreEqual(1, ErrorCounter, 'Error message should be added for each related record');
-        Assert.IsSubstring(ErrorMessageDescriptionList.Get(1), NotSupportedErr);
+        Assert.ExpectedError(NotSupportedErr);
 
         // [TEARDOWN]
         UpdateSubMgmtCommonWorkCenter('');
@@ -314,28 +307,6 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
     begin
         ItemTrackingWasOpened := true;
         ItemTrackingLines.OK().Invoke();
-    end;
-
-    [PageHandler]
-    procedure ErrorPageHandler(var ErrorMessageTestPage: TestPage "Error Messages")
-    begin
-        ErrorMessageTestPage.First();
-        repeat
-            ErrorMessageDescriptionList.Add(ErrorMessageTestPage.Description.Value());
-            ErrorCounter += 1;
-        until not ErrorMessageTestPage.Next();
-        ErrorMessageTestPage.Close();
-    end;
-
-    [ConfirmHandler]
-    procedure DoConfirmCreateProdOrderForSubcontractingProcess(Question: Text[1024]; var Reply: Boolean)
-    begin
-        case true of
-            Question.Contains('Do you want to create a production order from'):
-                Reply := true;
-            else
-                Reply := false;
-        end;
     end;
 
     [MessageHandler]

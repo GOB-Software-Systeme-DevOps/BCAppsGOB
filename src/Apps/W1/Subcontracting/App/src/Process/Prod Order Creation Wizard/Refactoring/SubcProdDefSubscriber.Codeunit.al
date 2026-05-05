@@ -82,7 +82,7 @@ codeunit 99001560 "Subc. Prod. Def. Subscriber"
         TempProdOrder.Validate("Due Date", PurchLine."Expected Receipt Date");
         TempProdOrder.Validate("Quantity", PurchLine."Quantity (Base)");
         TempProdOrder.Validate("Location Code", PurchLine."Location Code");
-        TempProdOrder."Created from Purchase Order" := true;
+        TempProdOrder."Created from Purch. Order" := true;
         TempProdOrder.Insert();
         TempData.SetNewProdOrder(TempProdOrder);
 
@@ -94,9 +94,12 @@ codeunit 99001560 "Subc. Prod. Def. Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Production Definition Manager", 'OnAfterPostWizardProcessing', '', false, false)]
     local procedure OnAfterPostWizardProcessing(var ProdOrder: Record "Production Order")
+    var
+        PurchaseLine: Record "Purchase Line";
     begin
-        UpdatePurchaseLineWithProdOrder(SubcontractingPurchaseLine, ProdOrder);
-        HandleSubcontractingAfterUpdate(SubcontractingPurchaseLine);
+        PurchaseLine.Get(SubcontractingPurchaseLine.RecordId());
+        UpdatePurchaseLineWithProdOrder(PurchaseLine, ProdOrder);
+        HandleSubcontractingAfterUpdate(PurchaseLine);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Definition Temp Data", 'OnBeforeInsertDefaultTemporaryBOMLine', '', false, false)]
@@ -217,6 +220,13 @@ codeunit 99001560 "Subc. Prod. Def. Subscriber"
     begin
         TransferSubcontractingFieldsBOMComponentForPurchaseProvision(ProdOrderComponent);
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Direct Creator", OnConfigureProductionOrderFromTempOnBeforeModify, '', false, false)]
+    local procedure SetCreatedFromPurchOrderOnConfigureProductionOrderFromTempOnBeforeModify(var ProdOrder: Record "Production Order"; TempProdOrder: Record "Production Order" temporary)
+    begin
+        ProdOrder."Created from Purch. Order" := true;
+    end;
+
 
     [EventSubscriber(ObjectType::Page, Page::"Temp Prod. Ord. Rtng List", OnNewRecordEvent, '', false, false)]
     local procedure InitializeSubcSetupFieldsOnNewRecord(var Rec: Record "Prod. Order Routing Line")

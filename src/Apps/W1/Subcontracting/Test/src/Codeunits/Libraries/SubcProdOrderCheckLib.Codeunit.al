@@ -317,16 +317,23 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
                     TempProdOrderComponent."Location Code" := GetVendorSubcontractingLocation(PurchLine."Buy-from Vendor No.")
                 else
                     TempProdOrderComponent."Location Code" := PurchLine."Location Code";
-                TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. Wiz. Flushing Method";
+                if ProductionBOMLine."Routing Link Code" <> '' then
+                    TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. Wiz. Flushing Method"
+                else
+                    TempProdOrderComponent."Flushing Method" := "Flushing Method"::"Pick + Manual";
                 TempProdOrderComponent.Insert();
             until ProductionBOMLine.Next() = 0;
     end;
 
     procedure CreateTempProdOrderComponentFromBOMVersion(var TempProdOrderComponent: Record "Prod. Order Component" temporary; BOMNo: Code[20]; BOMVersionNo: Code[20]; PurchLine: Record "Purchase Line")
     var
+        ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMLine: Record "Production BOM Line";
         LineNo: Integer;
     begin
+        ManufacturingSetup.SetLoadFields("Def. Wiz. Flushing Method");
+        ManufacturingSetup.Get();
+
         // Create temporary Production Order Components based on BOM Version lines
         TempProdOrderComponent.Reset();
         if TempProdOrderComponent.FindLast() then
@@ -347,7 +354,10 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
                 TempProdOrderComponent."Routing Link Code" := ProductionBOMLine."Routing Link Code";
                 // Set default flushing method and location code from setup or defaults
                 TempProdOrderComponent."Location Code" := PurchLine."Location Code";
-                TempProdOrderComponent."Flushing Method" := "Flushing Method"::Backward;
+                if ProductionBOMLine."Routing Link Code" <> '' then
+                    TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. Wiz. Flushing Method"
+                else
+                    TempProdOrderComponent."Flushing Method" := "Flushing Method"::"Pick + Manual";
                 TempProdOrderComponent.Insert();
             until ProductionBOMLine.Next() = 0;
     end;

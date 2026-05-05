@@ -762,15 +762,21 @@ codeunit 139980 "Subc. Wiz. Change Test"
     end;
 
     local procedure AddTempRoutingOperation(var TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary; OperationNo: Code[10]; RunTime: Decimal)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         // Add a new routing operation to temporary records
         TempProdOrderRoutingLine.Reset();
+
+        ManufacturingSetup.SetLoadFields("Rtng. Link Code Purch. Prov.");
+        ManufacturingSetup.Get();
 
         TempProdOrderRoutingLine.Init();
         TempProdOrderRoutingLine."Operation No." := OperationNo;
         TempProdOrderRoutingLine.Type := TempProdOrderRoutingLine.Type::"Work Center";
         TempProdOrderRoutingLine."No." := NewWorkCenterNo;
         TempProdOrderRoutingLine."Work Center No." := NewWorkCenterNo;
+        TempProdOrderRoutingLine."Routing Link Code" := ManufacturingSetup."Rtng. Link Code Purch. Prov.";
         TempProdOrderRoutingLine."Run Time" := RunTime;
         TempProdOrderRoutingLine.Insert();
     end;
