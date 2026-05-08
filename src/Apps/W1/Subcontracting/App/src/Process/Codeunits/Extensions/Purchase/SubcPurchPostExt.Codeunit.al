@@ -12,6 +12,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Posting;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Posting;
@@ -80,19 +81,43 @@ codeunit 99001535 "Subc. Purch. Post Ext"
     local procedure CopySubcontractingProdOrderFieldsToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
     var
         Item: Record Item;
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        ItemJournalLine.Subcontracting := true;
-        ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::Output;
-        ItemJournalLine.Type := "Capacity Type Journal"::"Work Center";
-        ItemJournalLine."No." := PurchRcptLine."Subc. Work Center No.";
-        ItemJournalLine."Routing No." := PurchRcptLine."Routing No.";
-        ItemJournalLine."Routing Reference No." := PurchRcptLine."Routing Reference No.";
-        ItemJournalLine."Operation No." := PurchRcptLine."Operation No.";
-        ItemJournalLine."Work Center No." := PurchRcptLine."Work Center No.";
-        ItemJournalLine."Unit Cost Calculation" := ItemJournalLine."Unit Cost Calculation"::Units;
-        ItemJournalLine."Order Type" := "Inventory Order Type"::Production;
-        ItemJournalLine."Order No." := PurchRcptLine."Prod. Order No.";
-        ItemJournalLine."Order Line No." := PurchRcptLine."Prod. Order Line No.";
+        if PurchRcptLine."Prod. Order No." = '' then
+            exit;
+        if PurchRcptLine."Routing Reference No." = 0 then
+            exit;
+        if PurchRcptLine."Routing No." = '' then
+            exit;
+        if PurchRcptLine."Operation No." = '' then
+            exit;
+
+        ProdOrderRoutingLine.SetLoadFields("Next Operation No.");
+        ProdOrderRoutingLine.SetFilter(Status, '%1|%2',
+            ProdOrderRoutingLine.Status::Released,
+            ProdOrderRoutingLine.Status::Finished);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", PurchRcptLine."Prod. Order No.");
+        ProdOrderRoutingLine.SetRange("Routing Reference No.", PurchRcptLine."Routing Reference No.");
+        ProdOrderRoutingLine.SetRange("Routing No.", PurchRcptLine."Routing No.");
+        ProdOrderRoutingLine.SetRange("Operation No.", PurchRcptLine."Operation No.");
+        if not ProdOrderRoutingLine.FindFirst() then
+            exit;
+
+        if ProdOrderRoutingLine.NextOperationExist() then begin
+            ItemJournalLine.Subcontracting := true;
+            ItemJournalLine."Entry Type" := "Item Ledger Entry Type"::Output;
+            ItemJournalLine.Type := "Capacity Type Journal"::"Work Center";
+            ItemJournalLine."No." := PurchRcptLine."Subc. Work Center No.";
+            ItemJournalLine."Routing No." := PurchRcptLine."Routing No.";
+            ItemJournalLine."Routing Reference No." := PurchRcptLine."Routing Reference No.";
+            ItemJournalLine."Operation No." := PurchRcptLine."Operation No.";
+            ItemJournalLine."Work Center No." := PurchRcptLine."Work Center No.";
+            ItemJournalLine."Unit Cost Calculation" := ItemJournalLine."Unit Cost Calculation"::Units;
+            ItemJournalLine."Order Type" := "Inventory Order Type"::Production;
+            ItemJournalLine."Order No." := PurchRcptLine."Prod. Order No.";
+            ItemJournalLine."Order Line No." := PurchRcptLine."Prod. Order Line No.";
+        end;
+
         Item.SetLoadFields("Inventory Posting Group");
         Item.Get(ItemJournalLine."Item No.");
         ItemJournalLine."Inventory Posting Group" := Item."Inventory Posting Group";

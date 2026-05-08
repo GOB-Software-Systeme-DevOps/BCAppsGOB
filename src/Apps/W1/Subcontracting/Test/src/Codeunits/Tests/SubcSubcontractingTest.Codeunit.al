@@ -1748,6 +1748,122 @@ Comment = '|%1 = Transfer Order No.';
     end;
 
     [Test]
+    procedure TestPostItemChargeAssignedToSubcLastOpWithTracking_ValueEntryWithItemLedgerRelation()
+    var
+        ComponentItem: Record Item;
+        ComponentItem2: Record Item;
+        Item: Record Item;
+        ItemCharge: Record "Item Charge";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ItemTrackingCode: Record "Item Tracking Code";
+        Location: Record Location;
+        MachineCenter: array[2] of Record "Machine Center";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProdOrderLine: Record "Prod. Order Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderCharge: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineCharge: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        RoutingHeader: Record "Routing Header";
+        SubManagementSetup: Record "Subc. Management Setup";
+        ValueEntry: Record "Value Entry";
+        Vendor: Record Vendor;
+        WorkCenter: array[2] of Record "Work Center";
+        Quantity: Integer;
+    begin
+        // [SCENARIO] When an item charge is assigned to a subcontracting receipt line for the last operation
+        // with serial number tracking, the value entries should be created with item ledger entry relation
+        // (not capacity ledger entry relation).
+
+        // [GIVEN] Complete Setup of Manufacturing, include Work- and Machine Centers, Item
+        Initialize();
+        SubcontractingMgmtLibrary.SetupInventorySetup();
+
+        // [GIVEN] Setup Item Charge Assignment Subcontracting
+        SubManagementSetup.Get();
+        SubManagementSetup.RefItemChargeToRcptSubLines := true;
+        SubManagementSetup.Modify();
+
+        // [GIVEN] Some Parameters for Creation
+        Subcontracting := true;
+        UnitCostCalculation := UnitCostCalculation::Units;
+        Quantity := 2;
+
+        // [GIVEN] Work Centers where WC[2] is subcontracting
+        CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter);
+
+        // [GIVEN] Routing where subcontracting WC is the LAST operation (no next operation)
+        CreateRoutingWithSubcontractingAsLastOp(RoutingHeader, WorkCenter);
+
+        // [GIVEN] Item with serial number tracking and production BOM
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTrackingCode.Validate("SN Purchase Inbound Tracking", true);
+        ItemTrackingCode.Validate("SN Specific Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        CreateItem(ComponentItem, "Costing Method"::FIFO, "Reordering Policy"::"Lot-for-Lot", "Flushing Method"::"Pick + Manual", '', '');
+        CreateItem(ComponentItem2, "Costing Method"::FIFO, "Reordering Policy"::"Lot-for-Lot", "Flushing Method"::"Pick + Manual", '', '');
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ComponentItem."No.", ComponentItem2."No.", 1);
+        CreateItem(Item, "Costing Method"::FIFO, "Reordering Policy"::"Lot-for-Lot", "Flushing Method"::"Pick + Manual", RoutingHeader."No.", ProductionBOMHeader."No.");
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Routing link between BOM and subcontracting WC
+        UpdateProdBomAndRoutingWithRoutingLink(Item, WorkCenter[2]."No.");
+
+        // [GIVEN] Vendor/Location setup for subcontracting
+        SubcontractingMgmtLibrary.UpdateVendorWithSubcontractingLocationCode(WorkCenter[2]);
+        Vendor.Get(WorkCenter[2]."Subcontractor No.");
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Vendor."Location Code" := Location.Code;
+        Vendor.Modify();
+        WorkCenter2 := WorkCenter[2];
+
+        // [GIVEN] Purchase Order for the produced item
+        LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, Vendor."No.", Location.Code);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Quantity);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Production Order created from Purchase Line
+        Codeunit.Run(Codeunit::"Subc. Create Prod. Ord. Opt.", PurchaseLine);
+        EnsureGeneralPostingSetupIsValid(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+
+        // [GIVEN] Serial number tracking on the Prod. Order Line
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
+        ProdOrderLine.SetRange("Item No.", Item."No.");
+        ProdOrderLine.FindFirst();
+        CreateSerialTrackingOnProdOrderLine(ProdOrderLine, Quantity);
+
+        // [GIVEN] Purchase Receipt posted with serial numbers
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
+        PurchRcptLine.FindFirst();
+
+        // [GIVEN] Item Charge Purchase Line and Assignment to Receipt
+        CreateItemChargeOrderLine(PurchaseHeaderCharge, PurchaseLineCharge, ItemCharge);
+        LibraryPurchase.CreateItemChargeAssignment(
+            ItemChargeAssignmentPurch, PurchaseLineCharge, ItemCharge,
+            "Purchase Applies-to Document Type"::Receipt,
+            PurchRcptLine."Document No.", PurchRcptLine."Line No.",
+            PurchRcptLine."No.", PurchaseLineCharge.Quantity, PurchaseLineCharge."Direct Unit Cost");
+        ItemChargeAssignmentPurch.Insert(true);
+
+        // [WHEN] Post Purchase Order with Item Charge
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCharge, true, true);
+
+        // [THEN] Value Entry has Item Ledger Entry relation (not Capacity Ledger Entry relation)
+        ValueEntry.SetRange("Item Charge No.", ItemCharge."No.");
+        ValueEntry.FindLast();
+        Assert.AreNotEqual(0, ValueEntry."Item Ledger Entry No.", 'Item Ledger Entry No. must be filled on value entry for last operation.');
+        Assert.AreEqual(0, ValueEntry."Capacity Ledger Entry No.", 'Capacity Ledger Entry No. must be zero on value entry for last operation.');
+    end;
+
+    [Test]
     [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting')]
     procedure SubcontractingFieldsPopulatedOnIleAfterSubcontractingPurchaseReceipt()
     var
@@ -3037,6 +3153,69 @@ Comment = '|%1 = Transfer Order No.';
             ReqWkshTemplate.Modify(true);
         end;
         exit(ReqWkshTemplate.Name);
+    end;
+
+    local procedure CreateRoutingWithSubcontractingAsLastOp(var RoutingHeader: Record "Routing Header"; WorkCenter: array[2] of Record "Work Center")
+    var
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+#pragma warning disable AA0210
+        CapacityUnitOfMeasure.SetRange(Type, CapacityUnitOfMeasure.Type::Minutes);
+#pragma warning restore AA0210
+        CapacityUnitOfMeasure.FindFirst();
+
+        // Op 10: Normal Work Center (first operation)
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenter[1]."No.", '10', LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
+        RoutingLine.Validate("Run Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
+        RoutingLine.Validate("Setup Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
+        RoutingLine.Modify(true);
+
+        // Op 20: Subcontracting Work Center (LAST operation - no next operation)
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenter[2]."No.", '20', LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
+        RoutingLine.Validate("Run Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
+        RoutingLine.Validate("Setup Time Unit of Meas. Code", CapacityUnitOfMeasure.Code);
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateSerialTrackingOnProdOrderLine(ProdOrderLine: Record "Prod. Order Line"; Quantity: Integer)
+    var
+        ReservationEntry: Record "Reservation Entry";
+        LastEntryNo: Integer;
+        i: Integer;
+        SerialNoLbl: Label 'SN-%1', Locked = true;
+    begin
+        if ReservationEntry.FindLast() then
+            LastEntryNo := ReservationEntry."Entry No."
+        else
+            LastEntryNo := 0;
+
+        for i := 1 to Quantity do begin
+            LastEntryNo += 1;
+            ReservationEntry.Init();
+            ReservationEntry."Entry No." := LastEntryNo;
+            ReservationEntry.Positive := true;
+            ReservationEntry."Item No." := ProdOrderLine."Item No.";
+            ReservationEntry."Location Code" := ProdOrderLine."Location Code";
+            ReservationEntry."Source Type" := Database::"Prod. Order Line";
+            ReservationEntry."Source Subtype" := ProdOrderLine.Status.AsInteger();
+            ReservationEntry."Source ID" := ProdOrderLine."Prod. Order No.";
+            ReservationEntry."Source Prod. Order Line" := ProdOrderLine."Line No.";
+            ReservationEntry."Serial No." := StrSubstNo(SerialNoLbl, Format(i));
+            ReservationEntry.Quantity := 1;
+            ReservationEntry."Quantity (Base)" := 1;
+            ReservationEntry."Qty. to Handle (Base)" := 1;
+            ReservationEntry."Qty. to Invoice (Base)" := 1;
+            ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Surplus;
+            ReservationEntry."Creation Date" := WorkDate();
+            ReservationEntry."Expected Receipt Date" := ProdOrderLine."Due Date";
+            ReservationEntry."Item Tracking" := ReservationEntry."Item Tracking"::"Serial No.";
+            ReservationEntry.Insert();
+        end;
     end;
 
     var
