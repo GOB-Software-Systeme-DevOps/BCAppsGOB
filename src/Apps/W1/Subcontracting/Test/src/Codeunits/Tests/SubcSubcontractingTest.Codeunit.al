@@ -1766,7 +1766,7 @@ Comment = '|%1 = Transfer Order No.';
         PurchaseLineCharge: Record "Purchase Line";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         RoutingHeader: Record "Routing Header";
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         ValueEntry: Record "Value Entry";
         Vendor: Record Vendor;
         WorkCenter: array[2] of Record "Work Center";
@@ -1778,12 +1778,12 @@ Comment = '|%1 = Transfer Order No.';
 
         // [GIVEN] Complete Setup of Manufacturing, include Work- and Machine Centers, Item
         Initialize();
-        SubcontractingMgmtLibrary.SetupInventorySetup();
+        SetupInventorySetup();
 
         // [GIVEN] Setup Item Charge Assignment Subcontracting
-        SubManagementSetup.Get();
-        SubManagementSetup.RefItemChargeToRcptSubLines := true;
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup.RefItemChargeToRcptSubLines := true;
+        ManufacturingSetup.Modify();
 
         // [GIVEN] Some Parameters for Creation
         Subcontracting := true;
@@ -1813,7 +1813,7 @@ Comment = '|%1 = Transfer Order No.';
         UpdateProdBomAndRoutingWithRoutingLink(Item, WorkCenter[2]."No.");
 
         // [GIVEN] Vendor/Location setup for subcontracting
-        SubcontractingMgmtLibrary.UpdateVendorWithSubcontractingLocationCode(WorkCenter[2]);
+        UpdateVendorWithSubcontractingLocationCode(WorkCenter[2]);
         Vendor.Get(WorkCenter[2]."Subcontractor No.");
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Vendor."Location Code" := Location.Code;
