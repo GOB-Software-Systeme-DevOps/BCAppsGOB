@@ -84,7 +84,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Create expected temporary components from the selected BOM
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo2, PurchLine);
 
         // Verify that the components match the selected BOM
@@ -138,7 +137,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Create expected temporary routing lines from the selected Routing
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo2);
 
         // Verify that the routing lines match the selected Routing
@@ -195,7 +193,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Create expected temporary components from the selected BOM
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo2, PurchLine);
         // Create expected temporary routing lines from the selected Routing
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo2);
@@ -251,7 +248,6 @@ codeunit 139995 "Subc. Wiz. BOM/Rtng Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Create expected temporary components from the original BOM
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
 
         // Verify that the components match the original BOM

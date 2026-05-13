@@ -499,9 +499,9 @@ codeunit 99001505 "Subcontracting Management"
         ComponentsLocationCode: Code[10];
     begin
         GetManufacturingSetup();
-        ManufacturingSetup.TestField("Component at Location");
+        ManufacturingSetup.TestField("Subc. Comp. at Location");
 
-        case ManufacturingSetup."Component at Location" of
+        case ManufacturingSetup."Subc. Comp. at Location" of
             "Components at Location"::Purchase:
                 begin
                     PurchaseLine.TestField("Location Code");

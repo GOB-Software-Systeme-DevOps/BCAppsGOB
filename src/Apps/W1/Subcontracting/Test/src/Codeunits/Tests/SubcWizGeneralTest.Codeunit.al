@@ -87,7 +87,6 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
-        ProdOrderCheckLib.SetRefreshedProdOrder(false);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromSetup(TempProdOrderComponent, PurchLine);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromSetup(TempProdOrderRoutingLine, '10');
 
@@ -133,7 +132,6 @@ codeunit 139993 "Subc. Wiz. General Test"
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
         // Create expected temporary records based on BOM and Routing
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo);
 
@@ -175,7 +173,6 @@ codeunit 139993 "Subc. Wiz. General Test"
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
         // Create expected temporary records: BOM from setup, Routing from item
-        ProdOrderCheckLib.SetRefreshedProdOrder(false);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromSetup(TempProdOrderComponent, PurchLine);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo);
 
@@ -217,7 +214,6 @@ codeunit 139993 "Subc. Wiz. General Test"
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
         // Create expected temporary records: BOM from item, Routing from setup
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromSetup(TempProdOrderRoutingLine, '10');
 
@@ -227,14 +223,13 @@ codeunit 139993 "Subc. Wiz. General Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizard')]
+    [HandlerFunctions('HandleProductionDefinitionWizard')]
     procedure TestWizardPreservesDescription2ThroughBOMAndRoutingLines()
     var
         ProdOrder: Record "Production Order";
         ProdOrderComponent: Record "Prod. Order Component";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -264,7 +259,7 @@ codeunit 139993 "Subc. Wiz. General Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');

@@ -118,7 +118,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Create expected temporary components with modified values from handler
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
 
         // Update the temporary record with the expected modified values from the handler
@@ -210,7 +209,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Create expected temporary routing lines with modified values from handler
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo);
 
         // Update the temporary record with the expected modified values from the handler
@@ -428,7 +426,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Verify production order was created with new BOM version
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOMVersion(TempProdOrderComponent, BOMNo, 'B', PurchLine);
         ProdOrderCheckLib.VerifyProdOrderComponentsMatchTempRecords(ProdOrder, TempProdOrderComponent);
     end;
@@ -480,7 +477,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Verify production order was created with new Routing version
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRoutingVersion(TempProdOrderRoutingLine, RoutingNo, 'B');
         ProdOrderCheckLib.VerifyProdOrderRoutingLinesMatchTempRecords(ProdOrder, TempProdOrderRoutingLine);
     end;
@@ -532,7 +528,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Create expected temporary components from alternate BOM version
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOMVersion(TempProdOrderComponent, BOMNo, 'A', PurchLine);
 
         // Verify that the components match the alternate BOM version
@@ -586,7 +581,6 @@ codeunit 139996 "Subc. Wiz. Variant Test"
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
 
         // Create expected temporary routing lines from alternate Routing version
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRoutingVersion(TempProdOrderRoutingLine, RoutingNo, 'A');
 
         // Verify that the routing lines match the alternate Routing version

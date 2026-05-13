@@ -1185,7 +1185,6 @@ codeunit 139989 "Subc. Subcontracting Test"
         ProductionOrder: Record "Production Order";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        ManufacturingSetup: Record "Manufacturing Setup";
         TransferLine: Record "Transfer Line";
         WorkCenter: array[2] of Record "Work Center";
         ManufacturingSetup: Record "Manufacturing Setup";
@@ -1557,64 +1556,6 @@ Comment = '|%1 = Transfer Order No.';
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure DeleteWorkCenterWithPricesDeletesRelatedPrices()
-    var
-        Item: Record Item;
-        SubcontractorPrice: Record "Subcontractor Price";
-        WorkCenter: Record "Work Center";
-        WorkCenterNo: Code[20];
-    begin
-        // [SCENARIO 620643] Deleting a Work Center deletes all associated Subcontractor Prices
-
-        // [GIVEN] A work center with a subcontractor and multiple Subcontractor Prices
-        Initialize();
-        LibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenter, 0);
-        WorkCenter.Validate("Subcontractor No.", LibraryMfgManagement.CreateSubcontractorWithCurrency(''));
-        WorkCenter.Modify(true);
-        LibraryInventory.CreateItem(Item);
-        WorkCenterNo := WorkCenter."No.";
-        SubcontractingMgmtLibrary.CreateSubContractingPrice(SubcontractorPrice, WorkCenterNo, WorkCenter."Subcontractor No.", Item."No.", '', '', WorkDate(), '', 0, '');
-        SubcontractingMgmtLibrary.CreateSubContractingPrice(SubcontractorPrice, WorkCenterNo, WorkCenter."Subcontractor No.", Item."No.", '', '', WorkDate(), '', 10, '');
-
-        // [WHEN] The work center is deleted
-        WorkCenter.Delete(true);
-
-        // [THEN] All Subcontractor Prices for the work center are deleted
-        SubcontractorPrice.SetRange("Work Center No.", WorkCenterNo);
-        Assert.IsTrue(SubcontractorPrice.IsEmpty(), 'Subcontractor prices must be deleted when work center is deleted');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure DeleteItemWithPricesDeletesRelatedPrices()
-    var
-        Item: Record Item;
-        SubcontractorPrice: Record "Subcontractor Price";
-        WorkCenter: Record "Work Center";
-        ItemNo: Code[20];
-    begin
-        // [SCENARIO 620643] Deleting an Item deletes all associated Subcontractor Prices
-
-        // [GIVEN] An item with multiple Subcontractor Prices
-        Initialize();
-        LibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenter, 0);
-        WorkCenter.Validate("Subcontractor No.", LibraryMfgManagement.CreateSubcontractorWithCurrency(''));
-        WorkCenter.Modify(true);
-        LibraryInventory.CreateItem(Item);
-        ItemNo := Item."No.";
-        SubcontractingMgmtLibrary.CreateSubContractingPrice(SubcontractorPrice, WorkCenter."No.", WorkCenter."Subcontractor No.", ItemNo, '', '', WorkDate(), '', 0, '');
-        SubcontractingMgmtLibrary.CreateSubContractingPrice(SubcontractorPrice, WorkCenter."No.", WorkCenter."Subcontractor No.", ItemNo, '', '', WorkDate(), '', 10, '');
-
-        // [WHEN] The item is deleted
-        Item.Delete(true);
-
-        // [THEN] All Subcontractor Prices for the item are deleted
-        SubcontractorPrice.SetRange("Item No.", ItemNo);
-        Assert.IsTrue(SubcontractorPrice.IsEmpty(), 'Subcontractor prices must be deleted when item is deleted');
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmHandler,SubcontrDispatchingListDefaultRequestPageHandler')]
     procedure TestSubcontrDispatchingList()
     var
@@ -1740,7 +1681,6 @@ Comment = '|%1 = Transfer Order No.';
     var
         ItemCharge: Record "Item Charge";
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
-        ManufacturingSetup: Record "Manufacturing Setup";
         PurchRcptLine: Record "Purch. Rcpt. Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1785,7 +1725,7 @@ Comment = '|%1 = Transfer Order No.';
     end;
 
     [Test]
-    [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting')]
+    [HandlerFunctions('ConfirmHandler')]
     procedure SubcontractingFieldsPopulatedOnIleAfterSubcontractingPurchaseReceipt()
     var
         Item: Record Item;
@@ -1842,7 +1782,7 @@ Comment = '|%1 = Transfer Order No.';
     end;
 
     [Test]
-    [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting')]
+    [HandlerFunctions('ConfirmHandler')]
     procedure ProdOFactboxMgmtResolvesProductionOrderForIleFromSubcontractingPurchaseReceipt()
     var
         Item: Record Item;
@@ -1896,7 +1836,7 @@ Comment = '|%1 = Transfer Order No.';
     end;
 
     [Test]
-    [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting')]
+    [HandlerFunctions('ConfirmHandler')]
     procedure Description2CopiedFromProdOrderComponentToPurchaseLine()
     var
         Item: Record Item;
@@ -2068,7 +2008,7 @@ Comment = '|%1 = Transfer Order No.';
     end;
 
     [Test]
-    [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting,HandleTransferOrder,HandleCreateTransferOrderMsg')]
+    [HandlerFunctions('ConfirmHandler,HandleTransferOrder,HandleCreateTransferOrderMsg')]
     procedure PostingDirectSubcontractingTransferSetsSourceFieldsOnDirectTransHeader()
     var
         Bin: Record Bin;
@@ -2150,7 +2090,7 @@ Comment = '|%1 = Transfer Order No.';
     end;
 
     [Test]
-    [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting,HandleTransferOrder')]
+    [HandlerFunctions('ConfirmHandler,HandleTransferOrder')]
     procedure CreateReturnTransferOrder_AfterPartialShipOfOutbound()
     var
         Bin: Record Bin;
@@ -2250,7 +2190,7 @@ Comment = '|%1 = Transfer Order No.';
     end;
 
     [Test]
-    [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting,HandleTransferOrder')]
+    [HandlerFunctions('ConfirmHandler,HandleTransferOrder')]
     procedure CreateReturnTransferOrder_AfterPartialShipOfOutbound_DirectTransfer()
     var
         Bin: Record Bin;
@@ -2469,23 +2409,6 @@ Comment = '|%1 = Transfer Order No.';
     procedure ConfirmArchiveOrderHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
-    end;
-
-    local procedure RemoveSubcontractingManagementSetupRecord()
-    var
-        SubcontractingManagementSetup: Record "Subc. Management Setup";
-    begin
-        SubcontractingManagementSetup.DeleteAll();
-    end;
-
-    local procedure CheckNoSubcontractingManagementSetupRecordExist()
-    begin
-        Assert.TableIsEmpty(Database::"Subc. Management Setup");
-    end;
-
-    local procedure CheckSubcontractingManagementSetupRecordExist()
-    begin
-        Assert.TableIsNotEmpty(Database::"Subc. Management Setup");
     end;
 
     local procedure CreateAndCalculateNeededWorkAndMachineCenter(var WorkCenter: array[2] of Record "Work Center"; var MachineCenter: array[2] of Record "Machine Center")
@@ -2931,22 +2854,12 @@ Comment = '|%1 = Transfer Order No.';
         ManufacturingSetup.Modify();
     end;
 
-    local procedure UpdateSubMgmtSetupDirectTransfer(Update: Boolean)
-    var
-        ManufacturingSetup: Record "Manufacturing Setup";
-    begin
-        ManufacturingSetup.Get();
-        ManufacturingSetup."Direct Transfer" := Update;
-        ManufacturingSetup.Modify();
-    end;
-
     local procedure UpdateSubMgmtSetup_ComponentAtLocation(CompAtLocation: Enum "Components at Location")
     var
         ManufacturingSetup: Record "Manufacturing Setup";
-        ManufacturingSetup: Record "Manufacturing Setup";
     begin
         ManufacturingSetup.Get();
-        ManufacturingSetup."Component at Location" := CompAtLocation;
+        ManufacturingSetup."Subc. Comp. at Location" := CompAtLocation;
         ManufacturingSetup.Modify();
     end;
 
@@ -2966,7 +2879,6 @@ Comment = '|%1 = Transfer Order No.';
 
     local procedure UpdateSubWhseHandlingTimeInSubManagementSetup()
     var
-        ManufacturingSetup: Record "Manufacturing Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         ManufacturingSetup.Get();

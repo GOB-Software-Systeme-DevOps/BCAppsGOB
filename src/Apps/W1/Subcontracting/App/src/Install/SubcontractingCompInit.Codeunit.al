@@ -6,7 +6,6 @@ namespace Microsoft.Manufacturing.Subcontracting;
 
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Setup;
 
 codeunit 99001503 "Subcontracting Comp. Init."
 {
@@ -19,22 +18,17 @@ codeunit 99001503 "Subcontracting Comp. Init."
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        if not ManufacturingSetup.Get() then
+        if not ManufacturingSetup.Get() then begin
+            ManufacturingSetup.Init();
+            ManufacturingSetup.Insert(true);
+        end;
+
+        if not CreateSubcontractingReqWkshTemplateAndNameAndUpdateSetup(ManufacturingSetup) then
             exit;
 
-        if ManufacturingSetup."Subcontracting Template Name" = '' then
-            CreateSubcontractingReqWkshTemplateAndNameAndUpdateSetup(ManufacturingSetup);
-
-        if not ManufacturingSetup."Direct Transfer" then
-            ManufacturingSetup."Direct Transfer" := true;
-
-        if not ManufacturingSetup."Create Prod. Order Info Line" then
-            ManufacturingSetup."Create Prod. Order Info Line" := true;
-
-        if Format(ManufacturingSetup."Subc. Inb. Whse. Handling Time") = '' then
-            Evaluate(ManufacturingSetup."Subc. Inb. Whse. Handling Time", GetDefaultInboundWhseHandlingTime());
-
-        ManufacturingSetup.Modify();
+        ManufacturingSetup."Create Prod. Order Info Line" := true;
+        Evaluate(ManufacturingSetup."Subc. Inb. Whse. Handling Time", GetDefaultInboundWhseHandlingTime());
+        ManufacturingSetup.Modify(true);
     end;
 
     procedure CreateSubcontractingReqWkshTemplateAndNameAndUpdateSetup(var ManufacturingSetup: Record "Manufacturing Setup"): Boolean

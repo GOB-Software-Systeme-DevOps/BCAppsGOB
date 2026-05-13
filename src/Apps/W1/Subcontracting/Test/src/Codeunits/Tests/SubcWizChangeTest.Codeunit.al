@@ -81,7 +81,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
         // Create expected temporary records with modified quantity
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
         UpdateTempComponentQuantity(TempProdOrderComponent, ModifiedQuantity);
 
@@ -133,7 +132,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
         // Create expected temporary records with additional component
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
         AddTempComponent(TempProdOrderComponent, NewComponentNo, ModifiedQuantity, PurchLine);
 
@@ -186,7 +184,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         // Create expected temporary records with one less component
         Clear(TempProdOrderComponent);
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
 
         RemoveTempComponent(TempProdOrderComponent);
@@ -240,7 +237,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
         // Create expected temporary records with modified run time
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo);
         UpdateTempRoutingRunTime(TempProdOrderRoutingLine, ModifiedRunTime);
 
@@ -297,7 +293,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         // Create expected temporary records with additional operation
         Clear(TempProdOrderRoutingLine);
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo);
         AddTempRoutingOperation(TempProdOrderRoutingLine, '0030', ModifiedRunTime);
         FinalOperationCount := TempProdOrderRoutingLine.Count();
@@ -354,7 +349,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
 
         // Create expected temporary records without deleted operation
         Clear(TempProdOrderRoutingLine);
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo);
         RemoveTempRoutingOperation(TempProdOrderRoutingLine);
         FinalOperationCount := TempProdOrderRoutingLine.Count();
@@ -409,7 +403,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
         // Create expected temporary records with modifications
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
         UpdateTempComponentQuantity(TempProdOrderComponent, ModifiedQuantity);
 
@@ -460,7 +453,6 @@ codeunit 139980 "Subc. Wiz. Change Test"
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
 
         // Create expected temporary records from original BOM/Routing
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, BOMNo, PurchLine);
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, RoutingNo);
 

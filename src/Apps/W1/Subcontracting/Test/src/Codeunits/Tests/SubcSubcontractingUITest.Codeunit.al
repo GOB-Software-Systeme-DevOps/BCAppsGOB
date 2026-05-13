@@ -9,6 +9,8 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Subcontracting;
 using Microsoft.Manufacturing.Wizard;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using System.Reflection;
 

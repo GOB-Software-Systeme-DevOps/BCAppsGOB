@@ -8,6 +8,7 @@ using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.WorkCenter;
 
 tableextension 99001501 "Subc. Manufacturing Setup" extends "Manufacturing Setup"
 {
@@ -91,5 +92,22 @@ tableextension 99001501 "Subc. Manufacturing Setup" extends "Manufacturing Setup
             Caption = 'Item Charge to Subcontracting Purch. Receipt Lines';
             DataClassification = CustomerContent;
         }
+        field(99001566; "Put-Away Work Center No."; Code[20])
+        {
+            Caption = 'Put-Away Work Center No.';
+            DataClassification = CustomerContent;
+            TableRelation = "Work Center";
+            ToolTip = 'Specifies the work center used for the subcontracting put-away routing operation.';
+        }
     }
+    procedure ItemChargeToRcptSubReferenceEnabled(): Boolean
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.SetLoadFields(RefItemChargeToRcptSubLines);
+        if not ManufacturingSetup.Get() then
+            exit(false);
+
+        exit(ManufacturingSetup.RefItemChargeToRcptSubLines);
+    end;
 }

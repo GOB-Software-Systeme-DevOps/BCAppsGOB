@@ -93,7 +93,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
 
         // Create expected temporary components from the selected BOM
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromSetup(TempProdOrderComponent, PurchLine);
         // Create expected temporary routing lines from the selected Routing
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromSetup(TempProdOrderRoutingLine, '10');
@@ -157,7 +156,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
 
         // Create expected temporary components from the selected BOM
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, Item."Production BOM No.", PurchLine);
         // Create expected temporary routing lines from the selected Routing
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, Item."Routing No.");
@@ -226,7 +224,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
 
         // Create expected temporary components from the selected BOM
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOM(TempProdOrderComponent, StockkeepingUnit."Production BOM No.", PurchLine);
         // Create expected temporary routing lines from the selected Routing
         ProdOrderCheckLib.CreateTempProdOrderRoutingFromRouting(TempProdOrderRoutingLine, StockkeepingUnit."Routing No.");
@@ -295,7 +292,6 @@ codeunit 139998 "Subc. Wiz. Save Test"
 
         // Create expected temporary components from the selected BOM
         ProdOrderCheckLib.VerifyProdOrder(PurchLine, ProdOrder);
-        ProdOrderCheckLib.SetRefreshedProdOrder(true);
         ProductionBOMVersion.FindFirst();
         ProdOrderCheckLib.CreateTempProdOrderComponentFromBOMVersion(TempProdOrderComponent, ProductionBOMVersion."Production BOM No.", ProductionBOMVersion."Version Code", PurchLine);
         // Create expected temporary routing lines from the selected Routing

@@ -53,8 +53,8 @@ codeunit 99001504 "Subcontracting Upgrade"
         if ManufacturingSetup."Rtng. Link Code Purch. Prov." = '' then
             ManufacturingSetup."Rtng. Link Code Purch. Prov." := SubcMgmtSetupRecRef.Field(90).Value;
 
-        if ManufacturingSetup."Component at Location" = ManufacturingSetup."Component at Location"::Empty then
-            ManufacturingSetup."Component at Location" := SubcMgmtSetupRecRef.Field(120).Value;
+        if ManufacturingSetup."Subc. Comp. at Location" = ManufacturingSetup."Subc. Comp. at Location"::Empty then
+            ManufacturingSetup."Subc. Comp. at Location" := SubcMgmtSetupRecRef.Field(120).Value;
 
         if not ManufacturingSetup.RefItemChargeToRcptSubLines then
             ManufacturingSetup.RefItemChargeToRcptSubLines := SubcMgmtSetupRecRef.Field(130).Value;
