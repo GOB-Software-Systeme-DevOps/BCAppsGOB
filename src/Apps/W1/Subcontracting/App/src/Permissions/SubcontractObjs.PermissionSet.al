@@ -4,23 +4,23 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting;
 
-using Microsoft.Manufacturing.Planning;
-
 permissionset 99001501 "Subcontract. - Objs"
 {
     Caption = 'Subcontracting - Objects';
     Assignable = true;
     Access = Internal;
-    Permissions = table "Subcontractor Price" = X,
-    // Codeunits
-        codeunit "Single Instance Dictionary" = X,
+    Permissions =
+        // Tables
+        table "Subcontractor Price" = X,
+
+        // Codeunits
+        codeunit "Subc. Session State" = X,
         codeunit "Subc. Business Setup Ext." = X,
         codeunit "Subc. Calc. Prod. Order Ext." = X,
         codeunit "Subc. Calc.StandardCost Ext." = X,
         codeunit "Subc. Calc BOM Tree Ext." = X,
         codeunit "Subc. Calc Subcontracts Ext." = X,
         codeunit "Subc. Carry Out Action Ext." = X,
-
         codeunit "Subc. ItemChargeAssPurchExt" = X,
         codeunit "Subc. Item Extension" = X,
         codeunit "Subc. ItemJnlCheckExt" = X,
@@ -35,17 +35,12 @@ permissionset 99001501 "Subcontract. - Objs"
         codeunit "Subc. Purch. Post Ext" = X,
         codeunit "Subc. Purchase Header Ext" = X,
         codeunit "Subc. Purchase Line Ext" = X,
-        tabledata "Subcontractor Price" = RIMD,
-        report "Subc. Calculate Subcontracts" = X,
-        report "Subc. Create Prod. Routing" = X,
-        report "Subc. Create SubCReturnOrder" = X,
-        report "Subc. Create Transf. Order" = X,
-        report "Subc. Detailed Calculation" = X,
-        report "Subc. Dispatching List" = X,
-        codeunit "Subc. Purchase Order Creator" = X,
         codeunit "Subc. Reporting Triggers Ext" = X,
-        codeunit "Subc. Req. Wksh. Make Ord." = X,
         codeunit "Subc. Req.Line Extension" = X,
+        codeunit "Subc. Req. Wksh. Make Ord." = X,
+        codeunit "Subcontracting Comp. Init." = X,
+        codeunit "Subcontracting Management" = X,
+        codeunit "Subcontracting Management Ext." = X,
         codeunit "Subc. Synchronize Management" = X,
         codeunit "Subc. Trans Rcpt Header Ext" = X,
         codeunit "Subc. Trans Shpt Header Ext" = X,
@@ -55,19 +50,26 @@ permissionset 99001501 "Subcontract. - Objs"
         codeunit "Subc. TransOrderPostRcpt Ext" = X,
         codeunit "Subc. TransOrderPostShpt Ext" = X,
         codeunit "Subc. TransOrderPostTrans Ext" = X,
+        codeunit "Subc. Trans Rcpt Header Ext" = X,
+        codeunit "Subc. Trans Shpt Header Ext" = X,
         codeunit "Subc. Vendor Extension" = X,
+        codeunit "Subc. Version Mgmt." = X,
         codeunit "Subc. WhsePostReceipt Ext" = X,
         codeunit "Subc. WhsePurchRelease Ext" = X,
         codeunit "Subc. Work Center Extension" = X,
-        codeunit "Subc. Worksheet Handler" = X,
-        codeunit "Subcontracting Comp. Init." = X,
         codeunit "Subcontracting Install" = X,
-        codeunit "Subcontracting Management" = X,
-        codeunit "Subcontracting Management Ext." = X,
+
+        // Pages
         page "Subc. Prod. Order Components" = X,
         page "Subc. Purchase Line Factbox" = X,
         page "Subc. Routing Info Factbox" = X,
-        page "Subc. Subcontracting Worksheet" = X,
         page "Subc. Transfer Line Factbox" = X,
-        page "Subcontractor Prices" = X;
+        page "Subcontractor Prices" = X,
+
+        // Reports
+        report "Subc. Create Prod. Routing" = X,
+        report "Subc. Create Transf. Order" = X,
+        report "Subc. Create SubCReturnOrder" = X,
+        report "Subc. Detailed Calculation" = X,
+        report "Subc. Dispatching List" = X;
 }

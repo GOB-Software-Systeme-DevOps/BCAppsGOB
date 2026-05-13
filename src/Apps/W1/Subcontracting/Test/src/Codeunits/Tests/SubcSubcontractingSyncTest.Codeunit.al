@@ -46,6 +46,7 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
         RequisitionLine: Record "Requisition Line";
         Work_Center: Record "Work Center";
         WorkCenter: array[2] of Record "Work Center";
+        ManufacturingSetup: Record "Manufacturing Setup";
         SubcCalculateSubcontracts: Report "Subc. Calculate Subcontracts";
         ReqJnlManagement: Codeunit ReqJnlManagement;
         SubTestManSubscription: Codeunit "Subc. Test Man. Subscription";
@@ -430,11 +431,12 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
 
     local procedure UpdateSubMgmtSetupWithReqWkshTemplate()
     begin
-        LibraryMfgManagement.CreateLaborReqWkshTemplateAndNameAndUpdateSetup();
+        LibraryMfgManagement.CreateSubcontractingReqWkshTemplateAndNameAndUpdateSetup();
     end;
 
     local procedure UpdateSubMgmtSetup_ComponentAtLocation(CompAtLocation: Enum "Components at Location")
     var
+        ManufacturingSetup: Record "Manufacturing Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         ManufacturingSetup.Get();

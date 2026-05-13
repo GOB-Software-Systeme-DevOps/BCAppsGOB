@@ -360,13 +360,12 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Subc. Purch. Subcont. Test");
         LibrarySetupStorage.Restore();
 
-        SubcontractingMgmtLibrary.Initialize();
-        LibraryMfgManagement.Initialize();
-
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Subc. Purch. Subcont. Test");
 
+        SubcontractingMgmtLibrary.Initialize();
+        LibraryMfgManagement.Initialize();
         SubSetupLibrary.InitSetupFields();
         SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
         LibraryERMCountryData.CreateVATData();
