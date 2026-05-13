@@ -7,13 +7,13 @@ namespace Microsoft.Manufacturing.Subcontracting;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Wizard;
 
-pageextension 99001563 TempBOMLineSubcExt extends "Temp BOM Lines"
+pageextension 99001563 SubcTempBOMLineExt extends "Temp BOM Lines"
 {
     layout
     {
         addlast(Lines)
         {
-            field(SubcontractingType; Rec."Subcontracting Type")
+            field(SubcSubcontractingType; Rec."Subcontracting Type")
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontracting Type';

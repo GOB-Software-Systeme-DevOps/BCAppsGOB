@@ -317,10 +317,8 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
                     TempProdOrderComponent."Location Code" := GetVendorSubcontractingLocation(PurchLine."Buy-from Vendor No.")
                 else
                     TempProdOrderComponent."Location Code" := PurchLine."Location Code";
-                if ProductionBOMLine."Routing Link Code" <> '' then
-                    TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. Wiz. Flushing Method"
-                else
-                    TempProdOrderComponent."Flushing Method" := "Flushing Method"::"Pick + Manual";
+
+                TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. Wiz. Flushing Method";
                 TempProdOrderComponent.Insert();
             until ProductionBOMLine.Next() = 0;
     end;
@@ -354,10 +352,8 @@ codeunit 139987 "Subc. ProdOrderCheckLib"
                 TempProdOrderComponent."Routing Link Code" := ProductionBOMLine."Routing Link Code";
                 // Set default flushing method and location code from setup or defaults
                 TempProdOrderComponent."Location Code" := PurchLine."Location Code";
-                if ProductionBOMLine."Routing Link Code" <> '' then
-                    TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. Wiz. Flushing Method"
-                else
-                    TempProdOrderComponent."Flushing Method" := "Flushing Method"::"Pick + Manual";
+
+                TempProdOrderComponent."Flushing Method" := ManufacturingSetup."Def. Wiz. Flushing Method";
                 TempProdOrderComponent.Insert();
             until ProductionBOMLine.Next() = 0;
     end;

@@ -78,14 +78,14 @@ tableextension 99001566 "Subc. Setup Subc. Wizard Ext" extends "Manufacturing Se
             var
                 CompanyInformation: Record "Company Information";
             begin
-                case "Component at Location" of
+                case Rec."Component at Location" of
                     Enum::"Components at Location"::Company:
                         begin
                             CompanyInformation.Get();
                             CompanyInformation.TestField("Location Code");
                         end;
                     Enum::"Components at Location"::Manufacturing:
-                        TestField("Components at Location");
+                        Rec.TestField("Components at Location");
                 end;
             end;
         }

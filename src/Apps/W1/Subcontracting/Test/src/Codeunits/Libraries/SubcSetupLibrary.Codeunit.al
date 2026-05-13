@@ -44,12 +44,12 @@ codeunit 139988 "Subc. Setup Library"
         ManufacturingSetup."Default Component Item No." := Item."No.";
 
         // Set all Select fields to Edit as default
-        ManufacturingSetup.ShowRtngBOMSelect_Nothing := "Prod. Definition Display"::Edit;
-        ManufacturingSetup.ShowRtngBOMSelect_Partial := "Prod. Definition Display"::Edit;
-        ManufacturingSetup.ShowRtngBOMSelect_Both := "Prod. Definition Display"::Edit;
-        ManufacturingSetup.ShowProdCompSelect_Nothing := "Prod. Definition Display"::Edit;
-        ManufacturingSetup.ShowProdCompSelect_Partial := "Prod. Definition Display"::Edit;
-        ManufacturingSetup.ShowProdCompSelect_Both := "Prod. Definition Display"::Edit;
+        ManufacturingSetup."Show Prod Comp Select Nothing" := "Prod. Definition Display"::Edit;
+        ManufacturingSetup."Show Rtng BOM Select Partial" := "Prod. Definition Display"::Edit;
+        ManufacturingSetup."Show Rtng BOM Select Both" := "Prod. Definition Display"::Edit;
+        ManufacturingSetup."Show Prod Comp Select Nothing" := "Prod. Definition Display"::Edit;
+        ManufacturingSetup."Show Prod Comp Select Partial" := "Prod. Definition Display"::Edit;
+        ManufacturingSetup."Show Prod Comp Select Both" := "Prod. Definition Display"::Edit;
 
         ManufacturingSetup.Modify();
     end;
@@ -61,8 +61,8 @@ codeunit 139988 "Subc. Setup Library"
         ManufacturingSetup.Get();
 
         // Configure for NothingPresent scenario
-        ManufacturingSetup.ShowRtngBOMSelect_Nothing := ShowRtngBOMSelect;
-        ManufacturingSetup.ShowProdCompSelect_Nothing := ShowProdCompSelect;
+        ManufacturingSetup."Show Rtng BOM Select Nothing" := ShowRtngBOMSelect;
+        ManufacturingSetup."Show Prod Comp Select Nothing" := ShowProdCompSelect;
 
         ManufacturingSetup.Modify();
     end;
@@ -74,8 +74,8 @@ codeunit 139988 "Subc. Setup Library"
         ManufacturingSetup.Get();
 
         // Configure for PartiallyPresent scenario
-        ManufacturingSetup.ShowRtngBOMSelect_Partial := ShowRtngBOMSelect;
-        ManufacturingSetup.ShowProdCompSelect_Partial := ShowProdCompSelect;
+        ManufacturingSetup."Show Rtng BOM Select Partial" := ShowRtngBOMSelect;
+        ManufacturingSetup."Show Prod Comp Select Partial" := ShowProdCompSelect;
 
         ManufacturingSetup.Modify();
     end;
@@ -87,8 +87,8 @@ codeunit 139988 "Subc. Setup Library"
         ManufacturingSetup.Get();
 
         // Configure for BothPresent scenario
-        ManufacturingSetup.ShowRtngBOMSelect_Both := ShowRtngBOMSelect;
-        ManufacturingSetup.ShowProdCompSelect_Both := ShowProdCompSelect;
+        ManufacturingSetup."Show Rtng BOM Select Both" := ShowRtngBOMSelect;
+        ManufacturingSetup."Show Prod Comp Select Both" := ShowProdCompSelect;
 
         ManufacturingSetup.Modify();
     end;

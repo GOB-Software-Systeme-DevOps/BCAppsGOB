@@ -22,7 +22,6 @@ pageextension 139981 "Subc. TST WizComp" extends "Temp Prod. Order Comp. List"
                 trigger OnAction()
                 begin
                     Rec.Delete(true);
-                    LinesChanged := true;
                 end;
             }
         }

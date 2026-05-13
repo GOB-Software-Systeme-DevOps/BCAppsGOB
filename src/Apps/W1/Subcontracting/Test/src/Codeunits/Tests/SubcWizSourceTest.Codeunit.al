@@ -230,7 +230,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
 
         // Change setup during test (simulate setup change by modifying a field)
         ManufacturingSetup.Get();
-        ManufacturingSetup.ShowRtngBOMSelect_Nothing := "Prod. Definition Display"::Show;
+        ManufacturingSetup."Show Prod Comp Select Nothing" := "Prod. Definition Display"::Show;
         ManufacturingSetup.Modify();
 
         // Set expected source type for handler verification

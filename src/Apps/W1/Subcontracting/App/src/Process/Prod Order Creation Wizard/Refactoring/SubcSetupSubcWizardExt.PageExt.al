@@ -20,7 +20,7 @@ pageextension 99001567 "Subc. Setup Subc. Wizard Ext" extends "Manufacturing Set
         }
         addlast(General)
         {
-            group(SubcontractingGroup)
+            group(SubcSubcontractingGroup)
             {
                 Caption = 'Subcontracting';
                 field("Create Prod. Order Info Line"; Rec."Create Prod. Order Info Line")
@@ -54,7 +54,7 @@ pageextension 99001567 "Subc. Setup Subc. Wizard Ext" extends "Manufacturing Set
                     ToolTip = 'Specifies whether to enable the item charge assignment to purchase receipt lines with subcontracting.';
                 }
             }
-            group(PurchaseProvisionGroup)
+            group(SubcPurchaseProvisionGroup)
             {
                 Caption = 'Purchase Provision';
                 field("Rtng. Link Code Purch. Prov."; Rec."Rtng. Link Code Purch. Prov.")

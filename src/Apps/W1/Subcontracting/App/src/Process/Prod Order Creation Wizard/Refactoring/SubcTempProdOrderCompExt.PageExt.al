@@ -8,13 +8,13 @@ using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Wizard;
 
-pageextension 99001564 TempProdOrderCompSubcExt extends "Temp Prod. Order Comp. List"
+pageextension 99001564 SubcTempProdOrderCompExt extends "Temp Prod. Order Comp. List"
 {
     layout
     {
         addafter("Location Code")
         {
-            field(SubcontractingType; Rec."Subcontracting Type")
+            field(SubcSubcontractingType; Rec."Subcontracting Type")
             {
                 ApplicationArea = Manufacturing;
                 Caption = 'Subcontracting Type';
@@ -59,7 +59,7 @@ pageextension 99001564 TempProdOrderCompSubcExt extends "Temp Prod. Order Comp. 
     end;
 
     [IntegrationEvent(false, false)]
-    procedure OnAfterSubcontractingTypeChangedToNonTransfer(var ProdOrderComponent: Record "Prod. Order Component")
+    internal procedure OnAfterSubcontractingTypeChangedToNonTransfer(var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 }
