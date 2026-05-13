@@ -405,7 +405,7 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
         LibrarySetupStorage.Restore();
 
         SubcontractingMgmtLibrary.Initialize();
-        UpdateSubMgmtSetup_ComponentAtLocation("Components at Location"::Purchase);
+        UpdateSubMgmtSetupComponentAtLocation("Components at Location"::Purchase);
         LibraryMfgManagement.Initialize();
 
         if IsInitialized then
@@ -433,12 +433,12 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
         LibraryMfgManagement.CreateSubcontractingReqWkshTemplateAndNameAndUpdateSetup();
     end;
 
-    local procedure UpdateSubMgmtSetup_ComponentAtLocation(CompAtLocation: Enum "Components at Location")
+    local procedure UpdateSubMgmtSetupComponentAtLocation(CompAtLocation: Enum "Components at Location")
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         ManufacturingSetup.Get();
-        ManufacturingSetup."Subc. Comp. at Location" := CompAtLocation;
+        ManufacturingSetup."Subc. Default Comp. Location" := CompAtLocation;
         ManufacturingSetup.Modify();
     end;
 

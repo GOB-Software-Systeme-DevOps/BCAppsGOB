@@ -38,7 +38,7 @@ codeunit 139988 "Subc. Setup Library"
         ManufacturingSetup."Default Work Center No." := WorkCenter."No.";
         ManufacturingSetup."Rtng. Link Code Purch. Prov." := RoutingLink."Code";
         ManufacturingSetup."Def. Wiz. Flushing Method" := "Flushing Method Routing"::Backward;
-        ManufacturingSetup."Subc. Comp. at Location" := ManufacturingSetup."Subc. Comp. at Location"::Purchase;
+        ManufacturingSetup."Subc. Default Comp. Location" := ManufacturingSetup."Subc. Default Comp. Location"::Purchase;
 
         // Set wizard fields on Manufacturing Setup
         ManufacturingSetup."Default Component Item No." := Item."No.";
