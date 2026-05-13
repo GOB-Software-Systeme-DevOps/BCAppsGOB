@@ -27,7 +27,6 @@ codeunit 99001505 "Subcontracting Management"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
         TempGlobalReservationEntry: Record "Reservation Entry" temporary;
-        HasSubManagementSetup: Boolean;
         RoutingLinkUpdConfQst: Label 'If you change the Work Center, you will also change the default location for components with Routing Link Code=%1.\Do you want to continue anyway?', Comment = '%1=Routing Link Code';
         SuccessfullyUpdatedMsg: Label 'Successfully updated.';
         UpdateIsCancelledErr: Label 'Update cancelled.';

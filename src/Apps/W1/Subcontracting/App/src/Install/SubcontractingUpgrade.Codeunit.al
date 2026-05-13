@@ -41,8 +41,6 @@ codeunit 99001504 "Subcontracting Upgrade"
         if ManufacturingSetup."Subcontracting Batch Name" = '' then
             ManufacturingSetup."Subcontracting Batch Name" := SubcMgmtSetupRecRef.Field(50).Value;
 
-        if not ManufacturingSetup."Direct Transfer" then
-            ManufacturingSetup."Direct Transfer" := SubcMgmtSetupRecRef.Field(60).Value;
 
         if ManufacturingSetup."Component Direct Unit Cost" = 0 then
             ManufacturingSetup."Component Direct Unit Cost" := SubcMgmtSetupRecRef.Field(70).Value;
@@ -53,8 +51,8 @@ codeunit 99001504 "Subcontracting Upgrade"
         if ManufacturingSetup."Rtng. Link Code Purch. Prov." = '' then
             ManufacturingSetup."Rtng. Link Code Purch. Prov." := SubcMgmtSetupRecRef.Field(90).Value;
 
-        if ManufacturingSetup."Subc. Comp. at Location" = ManufacturingSetup."Subc. Comp. at Location"::Empty then
-            ManufacturingSetup."Subc. Comp. at Location" := SubcMgmtSetupRecRef.Field(120).Value;
+        if ManufacturingSetup."Subc. Default Comp. Location" = ManufacturingSetup."Subc. Default Comp. Location"::Empty then
+            ManufacturingSetup."Subc. Default Comp. Location" := SubcMgmtSetupRecRef.Field(120).Value;
 
         if not ManufacturingSetup.RefItemChargeToRcptSubLines then
             ManufacturingSetup.RefItemChargeToRcptSubLines := SubcMgmtSetupRecRef.Field(130).Value;
