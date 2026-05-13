@@ -382,6 +382,7 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
     end;
 
     [Test]
+    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess')]
     procedure PostSubcontPurchOrder_PurchWithService_BackwardFlush()
     var
         ComponentItem: Record Item;
@@ -526,6 +527,17 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
     begin
         ItemTrackingWasOpened := true;
         ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure DoConfirmCreateProdOrderForSubcontractingProcess(Question: Text[1024]; var Reply: Boolean)
+    begin
+        case true of
+            Question.Contains('Do you want to create a production order from'):
+                Reply := true;
+            else
+                Reply := false;
+        end;
     end;
 
     [MessageHandler]
