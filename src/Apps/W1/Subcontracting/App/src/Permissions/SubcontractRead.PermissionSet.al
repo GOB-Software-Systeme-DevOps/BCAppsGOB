@@ -9,11 +9,9 @@ permissionset 99001502 "Subcontract. - Read"
     Caption = 'Subcontracting - Read';
     Access = Public;
     Assignable = true;
-
     IncludedPermissionSets = "Subcontract. - Objs";
 
     Permissions =
-        tabledata "Subc. Management Setup" = R,
         tabledata "Subcontractor Price" = R,
         tabledata "Subcontractor WIP Ledger Entry" = R;
 }

@@ -7,7 +7,6 @@ namespace Microsoft.Manufacturing.Subcontracting;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Utilities;
-using System.Utilities;
 
 pageextension 99001524 "Subc. PO Subform" extends "Purchase Order Subform"
 {
@@ -35,7 +34,8 @@ pageextension 99001524 "Subc. PO Subform" extends "Purchase Order Subform"
                 trigger OnAction()
                 begin
                     Rec.TestStatusOpen();
-                    CreateProductionOrder(Codeunit::"Subc. CrPurchSubcon(Yes/No)", true);
+                    Rec.CreateSubcontractingProductionOrder();
+                    ShowCreatedProdOrderConfirmationMessage();
                 end;
             }
         }
@@ -107,30 +107,6 @@ pageextension 99001524 "Subc. PO Subform" extends "Purchase Order Subform"
         SubcProdOrderFactboxMgmt: Codeunit "Subc. ProdO. Factbox Mgmt.";
         SubcPurchFactboxMgmt: Codeunit "Subc. Purch. Factbox Mgmt.";
         OpenCreatedTransferOrderQst: Label 'The production order %1 was created from the current purchase order.\\Would you like to open the production order?', Comment = '%1=Production Order No.';
-
-    local procedure CreateProductionOrder(CreatingCodeunitID: Integer; ShowCreatedDocument: Boolean)
-    var
-        ErrorMessageHandler: Codeunit "Error Message Handler";
-        ErrorMessageManagement: Codeunit "Error Message Management";
-        InstructionMgt: Codeunit "Instruction Mgt.";
-        SubcNotificationMgmt: Codeunit "Subc. Notification Mgmt.";
-        ProdOrderCreated: Boolean;
-    begin
-        ErrorMessageManagement.Activate(ErrorMessageHandler);
-
-        Commit(); // Used for following call of codeunit run
-        ProdOrderCreated := Codeunit.Run(CreatingCodeunitID, Rec);
-
-        if CreatingCodeunitID <> Codeunit::"Subc. CrPurchSubcon(Yes/No)" then
-            exit;
-
-        if ProdOrderCreated then begin
-            if ShowCreatedDocument then
-                if InstructionMgt.IsEnabled(SubcNotificationMgmt.ShowCreatedProductionOrderConfirmationMessageCode()) then
-                    ShowCreatedProdOrderConfirmationMessage()
-        end else
-            ErrorMessageHandler.ShowErrors();
-    end;
 
     local procedure ShowCreatedProdOrderConfirmationMessage()
     var

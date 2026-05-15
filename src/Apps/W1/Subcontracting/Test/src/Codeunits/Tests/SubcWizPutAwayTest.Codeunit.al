@@ -8,7 +8,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 
@@ -37,17 +37,14 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         SubSetupLibrary: Codeunit "Subc. Setup Library";
         IsInitialized: Boolean;
 
-    // ==================== SCENARIO L: Put-Away Operations ====================
-
     [Test]
     procedure TestL1_LocationWithWarehouseHandling_PutAwaySetup_TwoOperations()
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         LocationCode: Code[10];
         ItemNo: Code[20];
         PutAwayWorkCenterNo: Code[20];
@@ -64,13 +61,13 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         LibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenter, 1);
         PutAwayWorkCenterNo := WorkCenter."No.";
 
-        // Configure Sub Management Setup with put-away work center
-        SubManagementSetup.Get();
-        SubManagementSetup."Put-Away Work Center No." := PutAwayWorkCenterNo;
-        SubManagementSetup.Modify();
+        // Configure Manufacturing Setup with put-away work center
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Put-Away Work Center No." := PutAwayWorkCenterNo;
+        ManufacturingSetup.Modify();
 
         // Configure setup to hide both (automatic creation)
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
 
         // Create item without BOM/Routing (nothing present scenario)
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
@@ -82,7 +79,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
 
         // [WHEN] Run the Production Order Creation process
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Production order should be created with 2 routing operations
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
@@ -114,8 +111,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        SubManagementSetup: Record "Subc. Management Setup";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ManufacturingSetup: Record "Manufacturing Setup";
         LocationCode: Code[10];
         ItemNo: Code[20];
         OperationCount: Integer;
@@ -127,13 +123,13 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         // Create location with warehouse handling
         LocationCode := CreateLocationWithWarehouseHandling();
 
-        // Configure Sub Management Setup without put-away work center
-        SubManagementSetup.Get();
-        SubManagementSetup."Put-Away Work Center No." := '';
-        SubManagementSetup.Modify();
+        // Configure Manufacturing Setup without put-away work center
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Put-Away Work Center No." := '';
+        ManufacturingSetup.Modify();
 
         // Configure setup to hide both (automatic creation)
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
 
         // Create item without BOM/Routing (nothing present scenario)
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
@@ -145,7 +141,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
 
         // [WHEN] Run the Production Order Creation process
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Production order should be created with 1 routing operation only
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
@@ -175,9 +171,8 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         LocationCode: Code[10];
         ItemNo: Code[20];
         PutAwayWorkCenterNo: Code[20];
@@ -194,13 +189,13 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         LibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenter, 1);
         PutAwayWorkCenterNo := WorkCenter."No.";
 
-        // Configure Sub Management Setup with put-away work center
-        SubManagementSetup.Get();
-        SubManagementSetup."Put-Away Work Center No." := PutAwayWorkCenterNo;
-        SubManagementSetup.Modify();
+        // Configure Manufacturing Setup with put-away work center
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Put-Away Work Center No." := PutAwayWorkCenterNo;
+        ManufacturingSetup.Modify();
 
         // Configure setup to hide both (automatic creation)
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
 
         // Create item without BOM/Routing (nothing present scenario)
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
@@ -212,7 +207,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
 
         // [WHEN] Run the Production Order Creation process
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Production order should be created with 1 routing operation only
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
@@ -242,9 +237,8 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ProdOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         LocationCode: Code[10];
         ItemNo: Code[20];
         PutAwayWorkCenterNo: Code[20];
@@ -262,13 +256,13 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         WorkCenter.Name := 'PUT-AWAY TSubT CENTER';
         WorkCenter.Modify();
 
-        // Configure Sub Management Setup with put-away work center
-        SubManagementSetup.Get();
-        SubManagementSetup."Put-Away Work Center No." := PutAwayWorkCenterNo;
-        SubManagementSetup.Modify();
+        // Configure Manufacturing Setup with put-away work center
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Put-Away Work Center No." := PutAwayWorkCenterNo;
+        ManufacturingSetup.Modify();
 
         // Configure setup to hide both (automatic creation)
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
 
         // Create item without BOM/Routing (nothing present scenario)
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
@@ -280,7 +274,7 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
 
         // [WHEN] Run the Production Order Creation process
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Put-away operation should use the configured work center
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
@@ -299,8 +293,6 @@ codeunit 139999 "Subc. Wiz. Put-Away Test"
         // Verify operation description
         Assert.IsTrue(StrPos(ProdOrderRtngLine.Description, 'Put-Away') > 0, 'Put-away operation should have descriptive name');
     end;
-
-    // ==================== HELPER METHODS ====================
 
     local procedure CreateLocationWithWarehouseHandling(): Code[10]
     var

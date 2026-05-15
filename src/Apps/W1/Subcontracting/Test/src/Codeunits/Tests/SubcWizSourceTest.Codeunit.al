@@ -5,7 +5,8 @@
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
 using Microsoft.Inventory.Location;
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Purchases.Document;
 
 codeunit 139997 "Subc. Wiz. Source Test"
@@ -32,18 +33,16 @@ codeunit 139997 "Subc. Wiz. Source Test"
         IsInitialized: Boolean;
         WizardFinishedSuccessfully: Boolean;
         WizardWasOpened: Boolean;
-        ExpectedSourceType: Enum "Subc. RtngBOMSourceType";
-        SubManSetupLbl: Label 'Subcontracting Management Setup', Locked = true;
+        ExpectedSourceType: Enum "Prod. Definition Source";
+        ManSetupLbl: Label 'Manufacturing Setup', Locked = true;
 
-    // ==================== SCENARIO G: Source Data Validation ====================
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardVerifyStockkeepingSource')]
+    [HandlerFunctions('HandleProductionDefinitionWizardVerifyStockkeepingSource')]
     procedure TestG1_StockkeepingHasData_StockkeepingHasPriority()
     var
         PurchLine: Record "Purchase Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         LocationCode: Code[10];
         BOMNo: Code[20];
         ItemBOMNo: Code[20];
@@ -72,7 +71,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         StockkeepingUnit.Modify();
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line with location (to trigger stockkeeping unit usage)
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -86,7 +85,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should show Stockkeeping Unit as source
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -94,12 +93,11 @@ codeunit 139997 "Subc. Wiz. Source Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardVerifyItemSource')]
+    [HandlerFunctions('HandleProductionDefinitionWizardVerifyItemSource')]
     procedure TestG2_ItemHasData_StockkeepingEmpty_ItemUsed()
     var
         PurchLine: Record "Purchase Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         LocationCode: Code[10];
         BOMNo: Code[20];
         ItemNo: Code[20];
@@ -120,7 +118,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         // Stockkeeping Unit has empty BOM and Routing (default)
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line with location
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -134,7 +132,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should show Item as source
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -142,11 +140,10 @@ codeunit 139997 "Subc. Wiz. Source Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardVerifySetupSource')]
+    [HandlerFunctions('HandleProductionDefinitionWizardVerifySetupSource')]
     procedure TestG3_NothingFilled_NoData_SetupApplies()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
     begin
         // [SCENARIO G3] Nothing filled → no data → Setup applies
@@ -157,7 +154,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line without location
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -169,7 +166,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should show Empty as source (setup is used)
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -177,11 +174,10 @@ codeunit 139997 "Subc. Wiz. Source Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardVerifyEmptySource')]
+    [HandlerFunctions('HandleProductionDefinitionWizardVerifyEmptySource')]
     procedure TestG4_NothingFilled_NoSetup_FieldsEmpty()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
     begin
         // [SCENARIO G4] Nothing filled → no setup → Fields empty
@@ -192,7 +188,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
 
         // Configure setup to edit both
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line without location
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -204,7 +200,7 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should show Empty as source
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
@@ -212,12 +208,11 @@ codeunit 139997 "Subc. Wiz. Source Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardVerifyNewSetupSource')]
+    [HandlerFunctions('HandleProductionDefinitionWizardVerifyNewSetupSource')]
     procedure TestG5_SetupChanged_NewSetup_NewSetupApplies()
     var
         PurchLine: Record "Purchase Line";
-        SubManagementSetup: Record "Subc. Management Setup";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
+        ManufacturingSetup: Record "Manufacturing Setup";
         ItemNo: Code[20];
     begin
         // [SCENARIO G5] Setup changed → new setup → new setup applies
@@ -228,15 +223,15 @@ codeunit 139997 "Subc. Wiz. Source Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithoutBOMAndRouting('', '');
 
         // Configure initial setup for nothing present scenario
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line without location
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
 
         // Change setup during test (simulate setup change by modifying a field)
-        SubManagementSetup.Get();
-        SubManagementSetup.ShowRtngBOMSelect_Nothing := SubManagementSetup.ShowRtngBOMSelect_Nothing::Show;
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Show Prod Comp Select Nothing" := "Prod. Definition Display"::Show;
+        ManufacturingSetup.Modify();
 
         // Set expected source type for handler verification
         ExpectedSourceType := ExpectedSourceType::Empty;
@@ -245,102 +240,100 @@ codeunit 139997 "Subc. Wiz. Source Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should use the new setup
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened');
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully with new setup');
     end;
 
-    // ==================== MODAL PAGE HANDLERS ====================
-
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardVerifyStockkeepingSource(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardVerifyStockkeepingSource(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO G3] Verify that BomRtngFromSource shows Empty when setup is used
         WizardWasOpened := true;
 
         // Verify that the source field shows StockkeepingUnit
-        Assert.AreEqual(Format(ExpectedSourceType::StockkeepingUnit), PurchProvisionWizard.BomRtngFromSource.Value(),
+        Assert.AreEqual(Format(ExpectedSourceType::StockkeepingUnit), ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
             'BomRtngFromSource should show StockkeepingUnit when stockkeeping unit has data');
 
         // Navigate through wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardVerifyItemSource(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardVerifyItemSource(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO G4] Verify that BomRtngFromSource shows Empty when no setup exists
         WizardWasOpened := true;
 
         // Verify that the source field shows Item
-        Assert.AreEqual(Format(ExpectedSourceType::Item), PurchProvisionWizard.BomRtngFromSource.Value(),
+        Assert.AreEqual(Format(ExpectedSourceType::Item), ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
             'BomRtngFromSource should show Item when item has data and stockkeeping unit is empty');
 
         // Navigate through wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardVerifySetupSource(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardVerifySetupSource(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO G5] Verify that BomRtngFromSource reflects new setup
         WizardWasOpened := true;
 
         // Verify that the source field shows Empty (new setup is used)
-        Assert.AreEqual(SubManSetupLbl, PurchProvisionWizard.BomRtngFromSource.Value(),
+        Assert.AreEqual(ManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
             'BomRtngFromSource should reflect new setup configuration');
 
         // Navigate through wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardVerifyEmptySource(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardVerifyEmptySource(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO G4] Verify that BomRtngFromSource shows Empty when no setup exists
         WizardWasOpened := true;
 
         // Verify that the source field shows Empty
-        Assert.AreEqual(SubManSetupLbl, PurchProvisionWizard.BomRtngFromSource.Value(),
+        Assert.AreEqual(ManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
             'BomRtngFromSource should show Empty when no data and no setup exists');
 
         // Navigate through wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardVerifyNewSetupSource(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardVerifyNewSetupSource(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO G5] Verify that BomRtngFromSource reflects new setup
         WizardWasOpened := true;
 
         // Verify that the source field shows Empty (new setup is used)
-        Assert.AreEqual(SubManSetupLbl, PurchProvisionWizard.BomRtngFromSource.Value(),
+        Assert.AreEqual(ManSetupLbl, ProductionDefinitionWizard.BomRtngFromSourceField.Value(),
             'BomRtngFromSource should reflect new setup configuration');
 
         // Navigate through wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 

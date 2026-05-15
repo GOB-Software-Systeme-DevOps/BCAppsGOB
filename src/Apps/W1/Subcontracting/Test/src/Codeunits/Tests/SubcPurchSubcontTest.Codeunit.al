@@ -16,10 +16,10 @@ using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
-using System.Utilities;
 
 codeunit 139991 "Subc. Purch. Subcont. Test"
 {
@@ -49,14 +49,11 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
         SubcWarehouseLibrary: Codeunit "Subc. Warehouse Library";
         SubSetupLibrary: Codeunit "Subc. Setup Library";
         IsInitialized: Boolean;
-        ErrorCounter: Integer;
-        ErrorMessageDescriptionList: List of [Text];
         ItemTrackingWasOpened: Boolean;
         UnitCostCalculation: Option Time,Units;
         NotSupportedErr: Label 'Drop Shipment must be equal to', Locked = true;
 
     [Test]
-    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess')]
     procedure CreateProductionOrderFromPurchaseOrder_PurchPrice()
     var
         Location, Location2 : Record Location;
@@ -134,7 +131,6 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
     end;
 
     [Test]
-    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess')]
     procedure CreateProductionOrderFromPurchaseOrder_PurchPrice_Variant()
     var
         ItemVariant: Record "Item Variant";
@@ -220,7 +216,6 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
     end;
 
     [Test]
-    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess,ErrorPageHandler')]
     procedure CreateProductionOrderFromPurchaseOrderWithDropShipment()
     var
         Location, Location2 : Record Location;
@@ -255,11 +250,10 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
         Commit();
         PurchOrder.OpenEdit();
         PurchOrder.GoToRecord(PurchaseHeader);
-        PurchOrder.PurchLines.CreateProdOrder.Invoke();
+        asserterror PurchOrder.PurchLines.CreateProdOrder.Invoke();
 
         // [THEN] Error occurs as drop shipment is not supported
-        Assert.AreEqual(1, ErrorCounter, 'Error message should be added for each related record');
-        Assert.IsSubstring(ErrorMessageDescriptionList.Get(1), NotSupportedErr);
+        Assert.ExpectedError(NotSupportedErr);
 
         // [TEARDOWN]
         UpdateSubMgmtCommonWorkCenter('');
@@ -535,17 +529,6 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
         ItemTrackingLines.OK().Invoke();
     end;
 
-    [PageHandler]
-    procedure ErrorPageHandler(var ErrorMessageTestPage: TestPage "Error Messages")
-    begin
-        ErrorMessageTestPage.First();
-        repeat
-            ErrorMessageDescriptionList.Add(ErrorMessageTestPage.Description.Value());
-            ErrorCounter += 1;
-        until not ErrorMessageTestPage.Next();
-        ErrorMessageTestPage.Close();
-    end;
-
     [ConfirmHandler]
     procedure DoConfirmCreateProdOrderForSubcontractingProcess(Question: Text[1024]; var Reply: Boolean)
     begin
@@ -615,7 +598,7 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
         SubcontractingMgmtLibrary.Initialize();
         LibraryMfgManagement.Initialize();
         SubSetupLibrary.InitSetupFields();
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
         LibraryERMCountryData.CreateVATData();
         SubSetupLibrary.InitialSetupForGenProdPostingGroup();
 
@@ -627,11 +610,11 @@ codeunit 139991 "Subc. Purch. Subcont. Test"
 
     local procedure UpdateSubMgmtCommonWorkCenter(WorkCenterNo: Code[20])
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        SubManagementSetup.Get();
-        SubManagementSetup."Common Work Center No." := WorkCenterNo;
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Default Work Center No." := WorkCenterNo;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure UpdateSubMgmtRoutingLink(RtngLink: Code[10])

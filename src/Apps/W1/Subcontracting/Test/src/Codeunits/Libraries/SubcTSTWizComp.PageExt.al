@@ -4,9 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 
-pageextension 139981 "Subc. TST WizComp" extends "Subc. Temp Prod Order Comp"
+
+pageextension 139981 "Subc. TST WizComp" extends "Temp Prod. Order Comp. List"
 {
     actions
     {
@@ -21,7 +22,6 @@ pageextension 139981 "Subc. TST WizComp" extends "Subc. Temp Prod Order Comp"
                 trigger OnAction()
                 begin
                     Rec.Delete(true);
-                    LinesChanged := true;
                 end;
             }
         }

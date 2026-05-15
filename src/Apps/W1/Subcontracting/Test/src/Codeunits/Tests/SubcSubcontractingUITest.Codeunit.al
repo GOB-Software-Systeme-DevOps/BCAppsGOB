@@ -8,6 +8,7 @@ using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -38,7 +39,7 @@ codeunit 139990 "Subc. Subcontracting UI Test"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Subc. Subcontracting UI Test");
 
         SubSetupLibrary.InitSetupFields();
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
         LibraryERMCountryData.CreateVATData();
         SubSetupLibrary.InitialSetupForGenProdPostingGroup();
 

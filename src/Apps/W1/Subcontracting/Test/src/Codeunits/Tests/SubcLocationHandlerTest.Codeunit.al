@@ -15,6 +15,7 @@ using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -288,7 +289,7 @@ codeunit 139981 "Subc. Location Handler Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizard')]
+    [HandlerFunctions('HandleProductionDefinitionWizard')]
     procedure TestProdOrderLocationFromMfgSetup_PurchaseLocationMustBeDifferent()
     var
         LocationMfg: Record Location;
@@ -296,7 +297,6 @@ codeunit 139981 "Subc. Location Handler Test"
         ProdOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
     begin
         // [SCENARIO] When location code from Manufacturing Setup is used in Production Order,
@@ -320,7 +320,7 @@ codeunit 139981 "Subc. Location Handler Test"
         // [WHEN] Run the Production Order Creation Wizard
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Verify wizard completed successfully
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
@@ -633,18 +633,18 @@ codeunit 139981 "Subc. Location Handler Test"
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizard(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizard(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // [SCENARIO] Handle the Purchase Provision Wizard
         // The wizard should navigate through all steps and finish successfully
 
         // Click Next to proceed through the wizard steps
-        while PurchProvisionWizard.ActionNext.Enabled() do
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do
+            ProductionDefinitionWizard.ActionNext.Invoke();
 
         // Click Finish to complete the wizard
-        if PurchProvisionWizard.ActionFinish.Enabled() then begin
-            PurchProvisionWizard.ActionFinish.Invoke();
+        if ProductionDefinitionWizard.ActionFinish.Enabled() then begin
+            ProductionDefinitionWizard.ActionFinish.Invoke();
             WizardFinishedSuccessfully := true;
         end;
     end;

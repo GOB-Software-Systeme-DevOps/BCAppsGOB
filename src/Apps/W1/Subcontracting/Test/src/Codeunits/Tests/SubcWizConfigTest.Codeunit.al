@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Purchases.Document;
 
 codeunit 139994 "Subc. Wiz. Config Test"
@@ -35,14 +35,11 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ExpectedSteps: List of [Text];
         StepsVisited: List of [Text];
 
-    // ==================== SCENARIO B: Setup Configuration (Display) ====================
-
     [Test]
-    // [HandlerFunctions('HandlePurchProvisionWizardNotExpected')]
+    // [HandlerFunctions('HandleProductionDefinitionWizardNotExpected')]
     procedure TestB1_BothHide_WizardNotOpened()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -57,7 +54,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to hide both BOM/Routing and ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -66,7 +63,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardWasOpened := false;
         WizardFinishedSuccessfully := false;
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should not have opened, but production order should be created automatically
         Assert.IsFalse(WizardWasOpened, 'Wizard should not have opened when both are set to Hide');
@@ -76,11 +73,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardBOMRtngOnly')]
+    [HandlerFunctions('HandleProductionDefinitionWizardBOMRtngOnly')]
     procedure TestB2_BOMRtngEdit_ProdRtngCompHide_OnlyBOMRtngShown()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -95,7 +91,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit BOM/Routing and hide ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Hide);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -108,7 +104,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing only BOM editing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when BOM is set to Edit');
@@ -117,11 +113,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardProdRtngCompOnly')]
+    [HandlerFunctions('HandleProductionDefinitionWizardProdRtngCompOnly')]
     procedure TestB3_ProdRtngCompEdit_BOMRtngHide_OnlyProdRtngCompShown()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -136,7 +131,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to hide BOM/Routing and edit ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -149,7 +144,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing only Routing editing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when Routing is set to Edit');
@@ -158,11 +153,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardBothShownEdit')]
+    [HandlerFunctions('HandleProductionDefinitionWizardBothShownEdit')]
     procedure TestB4_BothEdit_BothShownEdit()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -177,7 +171,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit both BOM/Routing and ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -190,7 +184,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing both BOM and Routing editing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when both are set to Edit');
@@ -199,11 +193,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardBOMSelect')]
+    [HandlerFunctions('HandleProductionDefinitionWizardBOMSelect')]
     procedure TestB6_BOMSelect_ProdRoutingHide_BOMViewOnly()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -218,7 +211,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to select BOM/Routing (view only) and hide ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Hide);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -231,7 +224,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing BOM for selection only (not editable)
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when BOM is set to Select');
@@ -240,11 +233,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardRoutingSelect')]
+    [HandlerFunctions('HandleProductionDefinitionWizardRoutingSelect')]
     procedure TestB7_ProdRoutingSelect_BOMHide_ProdRoutingViewOnly()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -259,7 +251,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to hide BOM/Routing and select ProdRouting/Components (view only)
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Show);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Show);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -272,7 +264,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing Routing for selection only (not editable)
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when Routing is set to Select');
@@ -281,11 +273,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardComponentsEdit')]
+    [HandlerFunctions('HandleProductionDefinitionWizardComponentsEdit')]
     procedure TestB8_ComponentsEdit_LinesEditable()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -300,7 +291,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to hide BOM/Routing and edit ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -313,7 +304,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, with editable components and routing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when Components/Routing are set to Edit');
@@ -322,11 +313,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardComponentsHide')]
+    [HandlerFunctions('HandleProductionDefinitionWizardComponentsHide')]
     procedure TestB10_ComponentsHide_LinesNotDisplayed()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
         RoutingNo: Code[20];
@@ -341,7 +331,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, RoutingNo);
 
         // Configure setup to edit BOM/Routing and hide ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForBothPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Hide);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -354,7 +344,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, without showing components and routing steps
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when BOM/Routing are set to Edit');
@@ -363,11 +353,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardBOMSelect')]
+    [HandlerFunctions('HandleProductionDefinitionWizardBOMSelect')]
     procedure TestB61_BOMSelect_ProdRoutingHide_BOMViewOnly()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
         RoutingNo: Code[20];
     begin
@@ -380,7 +369,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting('', RoutingNo);
 
         // Configure setup to select BOM/Routing (view only) and hide ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForPartiallyPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForPartiallyPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Hide);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -393,7 +382,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing BOM for selection only (not editable)
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when BOM is set to Select');
@@ -402,11 +391,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardRoutingSelect')]
+    [HandlerFunctions('HandleProductionDefinitionWizardRoutingSelect')]
     procedure TestB71_ProdRoutingSelect_BOMHide_ProdRoutingViewOnly()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
     begin
@@ -419,7 +407,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, '');
 
         // Configure setup to hide BOM/Routing and select ProdRouting/Components (view only)
-        SubSetupLibrary.ConfigureSubManagementForPartiallyPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Show);
+        SubSetupLibrary.ConfigureSubManagementForPartiallyPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Show);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -432,7 +420,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing Routing for selection only (not editable)
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when Routing is set to Select');
@@ -441,11 +429,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardComponentsEdit')]
+    [HandlerFunctions('HandleProductionDefinitionWizardComponentsEdit')]
     procedure TestB81_ComponentsEdit_LinesEditable()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         BOMNo: Code[20];
         ItemNo: Code[20];
     begin
@@ -458,7 +445,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting(BOMNo, '');
 
         // Configure setup to hide BOM/Routing and edit ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForPartiallyPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForPartiallyPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -471,7 +458,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, with editable components and routing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when Components/Routing are set to Edit');
@@ -480,11 +467,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardComponentsHide')]
+    [HandlerFunctions('HandleProductionDefinitionWizardComponentsHide')]
     procedure TestB101_ComponentsHide_LinesNotDisplayed()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
         RoutingNo: Code[20];
     begin
@@ -497,7 +483,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting('', RoutingNo);
 
         // Configure setup to edit BOM/Routing and hide ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForPartiallyPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForPartiallyPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Hide);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -510,7 +496,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, without showing components and routing steps
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when BOM/Routing are set to Edit');
@@ -519,11 +505,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardBOMSelect')]
+    [HandlerFunctions('HandleProductionDefinitionWizardBOMSelect')]
     procedure TestB62_BOMSelect_ProdRoutingHide_BOMViewOnly()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
     begin
         // [SCENARIO B6] BOM "Select" instead of "Edit" - BOM is only displayed for viewing in wizard -> lines are not editable
@@ -534,7 +519,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting('', '');
 
         // Configure setup to select BOM/Routing (view only) and hide ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Show, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Show, "Prod. Definition Display"::Hide);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -547,7 +532,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing BOM for selection only (not editable)
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when BOM is set to Select');
@@ -556,11 +541,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardRoutingSelect')]
+    [HandlerFunctions('HandleProductionDefinitionWizardRoutingSelect')]
     procedure TestB72_ProdRoutingSelect_BOMHide_ProdRoutingViewOnly()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
     begin
         // [SCENARIO B7] Routing "Select" instead of "Edit" - Routing is only displayed for viewing in wizard -> lines are not editable
@@ -571,7 +555,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting('', '');
 
         // Configure setup to hide BOM/Routing and select ProdRouting/Components (view only)
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Show);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Show);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -584,7 +568,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, showing Routing for selection only (not editable)
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when Routing is set to Select');
@@ -593,11 +577,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardComponentsEdit')]
+    [HandlerFunctions('HandleProductionDefinitionWizardComponentsEdit')]
     procedure TestB82_ComponentsEdit_LinesEditable()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
     begin
         // [SCENARIO B8] Components / Production routing operations "Edit" - Lines are editable
@@ -608,7 +591,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting('', '');
 
         // Configure setup to hide BOM/Routing and edit ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Edit);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Edit);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -621,7 +604,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, with editable components and routing
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when Components/Routing are set to Edit');
@@ -630,11 +613,10 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [Test]
-    [HandlerFunctions('HandlePurchProvisionWizardComponentsHide')]
+    [HandlerFunctions('HandleProductionDefinitionWizardComponentsHide')]
     procedure TestB102_ComponentsHide_LinesNotDisplayed()
     var
         PurchLine: Record "Purchase Line";
-        CreateProdOrdOpt: Codeunit "Subc. Create Prod. Ord. Opt.";
         ItemNo: Code[20];
     begin
         // [SCENARIO B10] Components / Production routing operations "Do not show" - Lines are not displayed at all
@@ -645,7 +627,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
         ItemNo := SubCreateProdOrdWizLibrary.CreateItemWithBOMAndRouting('', '');
 
         // Configure setup to edit BOM/Routing and hide ProdRouting/Components
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Edit, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Edit, "Prod. Definition Display"::Hide);
 
         // Create purchase line
         SubCreateProdOrdWizLibrary.CreatePurchaseLineWithSubcontractingVendor(PurchLine, ItemNo);
@@ -658,15 +640,13 @@ codeunit 139994 "Subc. Wiz. Config Test"
         WizardFinishedSuccessfully := false;
         Clear(StepsVisited);
         Commit();
-        CreateProdOrdOpt.Run(PurchLine);
+        PurchLine.CreateSubcontractingProductionOrder();
 
         // [THEN] Wizard should have opened and finished successfully, without showing components and routing steps
         Assert.IsTrue(WizardWasOpened, 'Wizard should have opened when BOM/Routing are set to Edit');
         Assert.IsTrue(WizardFinishedSuccessfully, 'Wizard should have finished successfully');
         VerifyExpectedStepsVisited();
     end;
-
-    // ==================== HELPER PROCEDURES====================
 
     local procedure SetExpectedSteps(StepsList: Text)
     var
@@ -698,10 +678,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
             StepsVisited.Add(StepName);
     end;
 
-    // ==================== MODAL PAGE HANDLERS ====================
-
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardNotExpected(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardNotExpected(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     begin
         // This handler should not be called for B1 scenario
         WizardWasOpened := true;
@@ -709,7 +687,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardBOMRtngOnly(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardBOMRtngOnly(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         StepCount: Integer;
     begin
@@ -721,8 +699,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
 
         // Navigate through the wizard and count steps
         StepCount := 0;
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             StepCount += 1;
 
             // Record steps based on expected flow: BOM -> Routing (then finish because ProdComp/Routing are hidden)
@@ -737,16 +715,16 @@ codeunit 139994 "Subc. Wiz. Config Test"
         end;
 
         // Should be able to finish after BOM and Routing steps (ProdComp/Routing are hidden)
-        Assert.IsTrue(PurchProvisionWizard.ActionFinish.Enabled(), 'Finish should be enabled when ProdComp/Routing are hidden');
+        Assert.IsTrue(ProductionDefinitionWizard.ActionFinish.Enabled(), 'Finish should be enabled when ProdComp/Routing are hidden');
         Assert.AreEqual(2, StepCount, 'Should have navigated through 2 steps (BOM, Routing) when ProdComp/Routing are hidden');
 
         // Finish the wizard
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardProdRtngCompOnly(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardProdRtngCompOnly(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         StepCount: Integer;
     begin
@@ -758,8 +736,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
 
         // Navigate through the wizard and count steps
         StepCount := 0;
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             StepCount += 1;
 
             // Record steps based on expected flow: Components -> ProdRouting (BOM/Routing steps are hidden)
@@ -774,16 +752,16 @@ codeunit 139994 "Subc. Wiz. Config Test"
         end;
 
         // Should be able to finish after Components and ProdRouting steps (BOM/Routing are hidden)
-        Assert.IsTrue(PurchProvisionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
+        Assert.IsTrue(ProductionDefinitionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
         Assert.AreEqual(2, StepCount, 'Should have navigated through 2 steps (Components, ProdRouting) when BOM/Routing are hidden');
 
         // Finish the wizard
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardBothShownEdit(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardBothShownEdit(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         StepCount: Integer;
     begin
@@ -795,8 +773,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
 
         // Navigate through the wizard and count steps
         StepCount := 0;
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             StepCount += 1;
 
             // Record steps based on expected flow: BOM -> Routing -> Components -> ProdRouting
@@ -804,22 +782,22 @@ codeunit 139994 "Subc. Wiz. Config Test"
                 1:
                     begin
                         RecordStepVisited('BOM');
-                        Assert.IsTrue(PurchProvisionWizard.CreateBOMVersion.Visible(), 'Create BOM Version should be editable when set to Edit');
+                        Assert.IsTrue(ProductionDefinitionWizard.CreateBOMVersionField.Visible(), 'Create BOM Version should be editable when set to Edit');
                     end;
                 2:
                     begin
                         RecordStepVisited('Routing');
-                        Assert.IsTrue(PurchProvisionWizard.CreateRoutingVersion.Visible(), 'Create Routing Version should be editable when set to Edit');
+                        Assert.IsTrue(ProductionDefinitionWizard.CreateRoutingVersionField.Visible(), 'Create Routing Version should be editable when set to Edit');
                     end;
                 3:
                     begin
                         RecordStepVisited('Components');
-                        Assert.IsTrue(PurchProvisionWizard.ComponentsPart.Editable(), 'Components should be editable when set to Edit');
+                        Assert.IsTrue(ProductionDefinitionWizard.ComponentsPart.Editable(), 'Components should be editable when set to Edit');
                     end;
                 4:
                     begin
                         RecordStepVisited('ProdRouting');
-                        Assert.IsTrue(PurchProvisionWizard.ProdOrderRoutingPart.Editable(), 'ProdRouting should be editable when set to Edit');
+                        Assert.IsTrue(ProductionDefinitionWizard.ProdOrderRoutingPart.Editable(), 'ProdRouting should be editable when set to Edit');
                     end;
                 else
                     RecordStepVisited('Unexpected Step');
@@ -827,16 +805,16 @@ codeunit 139994 "Subc. Wiz. Config Test"
         end;
 
         // Should be able to finish after all 4 steps
-        Assert.IsTrue(PurchProvisionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
+        Assert.IsTrue(ProductionDefinitionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
         Assert.AreEqual(4, StepCount, 'Should have navigated through 4 steps (BOM, Routing, Components, ProdRouting) when both are enabled');
 
         // Finish the wizard
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardDefaultBehavior(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardDefaultBehavior(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         StepCount: Integer;
     begin
@@ -848,8 +826,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
 
         // Navigate through the wizard and count steps
         StepCount := 0;
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             StepCount += 1;
 
             // Record steps based on expected flow: BOM -> Routing -> Components -> ProdRouting (default should be Edit for both)
@@ -868,16 +846,16 @@ codeunit 139994 "Subc. Wiz. Config Test"
         end;
 
         // Should be able to finish after all 4 steps (default Edit behavior)
-        Assert.IsTrue(PurchProvisionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
+        Assert.IsTrue(ProductionDefinitionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
         Assert.AreEqual(4, StepCount, 'Should have navigated through 4 steps (BOM, Routing, Components, ProdRouting) with default Edit behavior');
 
         // Finish the wizard
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardBOMSelect(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardBOMSelect(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         StepCount: Integer;
     begin
@@ -889,8 +867,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
 
         // Navigate through the wizard and count steps
         StepCount := 0;
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             StepCount += 1;
 
             // Record steps based on expected flow: BOM -> Routing (then finish because ProdComp/Routing are hidden)
@@ -899,7 +877,7 @@ codeunit 139994 "Subc. Wiz. Config Test"
                     begin
                         RecordStepVisited('BOM');
                         // Verify BOM Version is not editable (Select mode)
-                        Assert.IsFalse(PurchProvisionWizard.CreateBOMVersion.Visible(), 'Create BOM Version should not be editable when set to Select');
+                        Assert.IsFalse(ProductionDefinitionWizard.CreateBOMVersionField.Visible(), 'Create BOM Version should not be editable when set to Select');
                     end;
                 2:
                     RecordStepVisited('Routing');
@@ -909,16 +887,16 @@ codeunit 139994 "Subc. Wiz. Config Test"
         end;
 
         // Should be able to finish after BOM and Routing steps (ProdComp/Routing are hidden)
-        Assert.IsTrue(PurchProvisionWizard.ActionFinish.Enabled(), 'Finish should be enabled when ProdComp/Routing are hidden');
+        Assert.IsTrue(ProductionDefinitionWizard.ActionFinish.Enabled(), 'Finish should be enabled when ProdComp/Routing are hidden');
         Assert.AreEqual(2, StepCount, 'Should have navigated through 2 steps (BOM, Routing) when ProdComp/Routing are hidden');
 
         // Finish the wizard
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardRoutingSelect(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardRoutingSelect(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         StepCount: Integer;
     begin
@@ -930,8 +908,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
 
         // Navigate through the wizard and count steps
         StepCount := 0;
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             StepCount += 1;
 
             // Record steps based on expected flow: Components -> ProdRouting (BOM/Routing steps are hidden)
@@ -940,13 +918,13 @@ codeunit 139994 "Subc. Wiz. Config Test"
                     begin
                         RecordStepVisited('Components');
                         // Verify Components are not editable (Select mode)
-                        Assert.IsFalse(PurchProvisionWizard.ProdCompRoutingShowEditTypeField.Value() = Format("Subc. Show/Edit Type"::Edit), 'Components should not be editable when set to Select');
+                        Assert.IsFalse(ProductionDefinitionWizard.ProdCompDisplayField.Value() = Format("Prod. Definition Display"::Edit), 'Components should not be editable when set to Select');
                     end;
                 2:
                     begin
                         RecordStepVisited('ProdRouting');
                         // Verify ProdRouting is not editable (Select mode)
-                        Assert.IsFalse(PurchProvisionWizard.ProdCompRoutingShowEditTypeField.Value() = Format("Subc. Show/Edit Type"::Edit), 'ProdRouting should not be editable when set to Select');
+                        Assert.IsFalse(ProductionDefinitionWizard.ProdCompDisplayField.Value() = Format("Prod. Definition Display"::Edit), 'ProdRouting should not be editable when set to Select');
                     end;
                 else
                     RecordStepVisited('Unexpected Step');
@@ -954,16 +932,16 @@ codeunit 139994 "Subc. Wiz. Config Test"
         end;
 
         // Should be able to finish after Components and ProdRouting steps (BOM/Routing are hidden)
-        Assert.IsTrue(PurchProvisionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
+        Assert.IsTrue(ProductionDefinitionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
         Assert.AreEqual(2, StepCount, 'Should have navigated through 2 steps (Components, ProdRouting) when BOM/Routing are hidden');
 
         // Finish the wizard
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardComponentsEdit(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardComponentsEdit(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         StepCount: Integer;
     begin
@@ -975,8 +953,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
 
         // Navigate through the wizard and count steps
         StepCount := 0;
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             StepCount += 1;
 
             // Record steps based on expected flow: Components -> ProdRouting (BOM/Routing steps are hidden)
@@ -985,13 +963,13 @@ codeunit 139994 "Subc. Wiz. Config Test"
                     begin
                         RecordStepVisited('Components');
                         // Verify Components are editable (Edit mode)
-                        Assert.IsTrue(PurchProvisionWizard.ComponentsPart.Editable(), 'Components should be editable when set to Edit');
+                        Assert.IsTrue(ProductionDefinitionWizard.ComponentsPart.Editable(), 'Components should be editable when set to Edit');
                     end;
                 2:
                     begin
                         RecordStepVisited('ProdRouting');
                         // Verify ProdRouting is editable (Edit mode)
-                        Assert.IsTrue(PurchProvisionWizard.ProdOrderRoutingPart.Editable(), 'ProdRouting should be editable when set to Edit');
+                        Assert.IsTrue(ProductionDefinitionWizard.ProdOrderRoutingPart.Editable(), 'ProdRouting should be editable when set to Edit');
                     end;
                 else
                     RecordStepVisited('Unexpected Step');
@@ -999,16 +977,16 @@ codeunit 139994 "Subc. Wiz. Config Test"
         end;
 
         // Should be able to finish after Components and ProdRouting steps (BOM/Routing are hidden)
-        Assert.IsTrue(PurchProvisionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
+        Assert.IsTrue(ProductionDefinitionWizard.ActionFinish.Enabled(), 'Finish should be enabled on ProdRouting step');
         Assert.AreEqual(2, StepCount, 'Should have navigated through 2 steps (Components, ProdRouting) when BOM/Routing are hidden');
 
         // Finish the wizard
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 
     [ModalPageHandler]
-    procedure HandlePurchProvisionWizardComponentsHide(var PurchProvisionWizard: TestPage "Subc. PurchProvisionWizard")
+    procedure HandleProductionDefinitionWizardComponentsHide(var ProductionDefinitionWizard: TestPage "Production Definition Wizard")
     var
         StepCount: Integer;
     begin
@@ -1020,8 +998,8 @@ codeunit 139994 "Subc. Wiz. Config Test"
 
         // Navigate through the wizard and count steps
         StepCount := 0;
-        while PurchProvisionWizard.ActionNext.Enabled() do begin
-            PurchProvisionWizard.ActionNext.Invoke();
+        while ProductionDefinitionWizard.ActionNext.Enabled() do begin
+            ProductionDefinitionWizard.ActionNext.Invoke();
             StepCount += 1;
 
             // Record steps based on expected flow: BOM -> Routing (then finish because Components/ProdRouting are hidden)
@@ -1036,11 +1014,11 @@ codeunit 139994 "Subc. Wiz. Config Test"
         end;
 
         // Should be able to finish after BOM and Routing steps (Components/ProdRouting are hidden)
-        Assert.IsTrue(PurchProvisionWizard.ActionFinish.Enabled(), 'Finish should be enabled when Components/ProdRouting are hidden');
+        Assert.IsTrue(ProductionDefinitionWizard.ActionFinish.Enabled(), 'Finish should be enabled when Components/ProdRouting are hidden');
         Assert.AreEqual(2, StepCount, 'Should have navigated through 2 steps (BOM, Routing) when Components/ProdRouting are hidden');
 
         // Finish the wizard
-        PurchProvisionWizard.ActionFinish.Invoke();
+        ProductionDefinitionWizard.ActionFinish.Invoke();
         WizardFinishedSuccessfully := true;
     end;
 

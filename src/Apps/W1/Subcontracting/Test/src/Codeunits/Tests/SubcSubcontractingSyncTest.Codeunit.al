@@ -18,6 +18,7 @@ using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Manufacturing.Routing;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
@@ -38,14 +39,13 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
     var
         Item: Record Item;
         MachineCenter: array[2] of Record "Machine Center";
+        ManufacturingSetup: Record "Manufacturing Setup";
         ProductionBOMLine: Record "Production BOM Line";
         ProductionOrder: Record "Production Order";
         PurchLine: Record "Purchase Line";
         RequisitionLine: Record "Requisition Line";
-        SubcontractingManagementSetup: Record "Subc. Management Setup";
         Work_Center: Record "Work Center";
         WorkCenter: array[2] of Record "Work Center";
-        ManufacturingSetup: Record "Manufacturing Setup";
         SubcCalculateSubcontracts: Report "Subc. Calculate Subcontracts";
         ReqJnlManagement: Codeunit ReqJnlManagement;
         SubTestManSubscription: Codeunit "Subc. Test Man. Subscription";
@@ -58,7 +58,7 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
 
         // [GIVEN] Some Parameters for Creation
         Subcontracting := true;
-        SubcontractingManagementSetup.Get();
+        ManufacturingSetup.Get();
         UnitCostCalculation := UnitCostCalculation::Units;
 
         // [GIVEN]
@@ -91,7 +91,6 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
         ProductionBOMLine.FindFirst();
 #pragma warning restore
 
-        ManufacturingSetup.Get();
         RequisitionLine."Worksheet Template Name" := ManufacturingSetup."Subcontracting Template Name";
         RequisitionLine."Journal Batch Name" := ManufacturingSetup."Subcontracting Batch Name";
 
@@ -112,7 +111,6 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
     end;
 
     [Test]
-    [HandlerFunctions('DoConfirmCreateProdOrderForSubcontractingProcess')]
     procedure TestQuantitySynchronizationAfterCreateProductionOrderFromPurchaseOrder()
     var
         ItemUOM: Record "Item Unit of Measure";
@@ -201,11 +199,11 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
 
     local procedure UpdateSubMgmtCommonWorkCenter(WorkCenterNo: Code[20])
     var
-        SubManagementSetup: Record "Subc. Management Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        SubManagementSetup.Get();
-        SubManagementSetup."Common Work Center No." := WorkCenterNo;
-        SubManagementSetup.Modify();
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Default Work Center No." := WorkCenterNo;
+        ManufacturingSetup.Modify();
     end;
 
     local procedure UpdateSubMgmtRoutingLink(RtngLink: Code[10])
@@ -415,7 +413,7 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Subc. Subcontracting Sync Test");
 
         SubSetupLibrary.InitSetupFields();
-        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Subc. Show/Edit Type"::Hide, "Subc. Show/Edit Type"::Hide);
+        SubSetupLibrary.ConfigureSubManagementForNothingPresentScenario("Prod. Definition Display"::Hide, "Prod. Definition Display"::Hide);
         LibraryERMCountryData.CreateVATData();
         SubSetupLibrary.InitialSetupForGenProdPostingGroup();
 
@@ -456,17 +454,6 @@ codeunit 139992 "Subc. Subcontracting Sync Test"
         ReleasedProdOrderRtng.OpenView();
         ReleasedProdOrderRtng.GoToRecord(ProdOrderRtngLine);
         ReleasedProdOrderRtng.CreateSubcontracting.Invoke();
-    end;
-
-    [ConfirmHandler]
-    procedure DoConfirmCreateProdOrderForSubcontractingProcess(Question: Text[1024]; var Reply: Boolean)
-    begin
-        case true of
-            Question.Contains('Do you want to create a production order from'):
-                Reply := true;
-            else
-                Reply := false;
-        end;
     end;
 
     var

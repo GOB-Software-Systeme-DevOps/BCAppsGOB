@@ -4,9 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Manufacturing.Subcontracting.Test;
 
-using Microsoft.Manufacturing.Subcontracting;
+using Microsoft.Manufacturing.Wizard;
 
-pageextension 139982 "Subc. TST WizProdRtng" extends "Subc. TempProdOrdRtngLines"
+pageextension 139982 "Subc. TST WizProdRtng" extends "Temp Prod. Ord. Rtng List"
 {
     actions
     {
@@ -21,7 +21,6 @@ pageextension 139982 "Subc. TST WizProdRtng" extends "Subc. TempProdOrdRtngLines
                 trigger OnAction()
                 begin
                     Rec.Delete(true);
-                    LinesChanged := true;
                 end;
             }
         }

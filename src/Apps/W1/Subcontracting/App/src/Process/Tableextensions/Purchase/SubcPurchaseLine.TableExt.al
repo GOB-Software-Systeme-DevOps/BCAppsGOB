@@ -9,6 +9,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Wizard;
 using Microsoft.Manufacturing.WorkCenter;
 using Microsoft.Purchases.Document;
 using Microsoft.Warehouse.Document;
@@ -121,6 +122,20 @@ tableextension 99001512 "Subc. Purchase Line" extends "Purchase Line"
         ItemUnitofMeasure.SetLoadFields("Qty. per Unit of Measure");
         ItemUnitofMeasure.Get("No.", "Unit of Measure Code");
         exit(Round(Quantity * ItemUnitofMeasure."Qty. per Unit of Measure", 0.00001));
+    end;
+
+    procedure CreateSubcontractingProductionOrder()
+    var
+        CurrPurchLine: Record "Purchase Line";
+        SubcProdDefSubscriber: Codeunit "Subc. Prod. Def. Subscriber";
+        ProdDefMgr: Codeunit "Production Definition Manager";
+    begin
+        CurrPurchLine := Rec;
+        SubcProdDefSubscriber.SetSubcontractingPurchaseLine(CurrPurchLine);
+        BindSubscription(SubcProdDefSubscriber);
+        Commit();
+        ProdDefMgr.RunForSource(CurrPurchLine, "Prod. Definition Mode"::CreateProductionOrder);
+        UnbindSubscription(SubcProdDefSubscriber);
     end;
 
     /// <summary>
