@@ -12,6 +12,7 @@ permissionset 99001501 "Subcontract. - Objs"
     Permissions =
         // Tables
         table "Subcontractor Price" = X,
+        table "Subcontractor WIP Ledger Entry" = X,
 
         // Codeunits
         codeunit "Subc. Session State" = X,
@@ -55,6 +56,14 @@ permissionset 99001501 "Subcontract. - Objs"
         codeunit "Subc. WhsePurchRelease Ext" = X,
         codeunit "Subc. Work Center Extension" = X,
         codeunit "Subcontracting Install" = X,
+        codeunit "Subc. Change Prod.Order Status" = X,
+        codeunit "Subc. Posting Preview Binding" = X,
+        codeunit "Subc. Posting Preview Subscr." = X,
+        codeunit "Subc. Pst. Prev. Event Handler" = X,
+        codeunit "Subc. Purchase Order Creator" = X,
+        codeunit "Subc. Transfer WIP Posting" = X,
+        codeunit "Subc. WhsePostShipment Ext" = X,
+        codeunit "Subc. WIP Item Ledg Find Entry" = X,
 
         // Pages
         page "Subc. Prod. Order Components" = X,
@@ -62,6 +71,8 @@ permissionset 99001501 "Subcontract. - Objs"
         page "Subc. Routing Info Factbox" = X,
         page "Subc. Transfer Line Factbox" = X,
         page "Subcontractor Prices" = X,
+        page "Subc. WIP Adjustment" = X,
+        page "Subc. WIP Ledger Entries" = X,
 
         // Reports
         report "Subc. Create Prod. Routing" = X,

@@ -36,14 +36,14 @@ codeunit 139981 "Subc. Location Handler Test"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryMfgManagement: Codeunit "Subc. Library Mfg. Management";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        SubCreateProdOrdWizLibrary: Codeunit "Subc. CreateProdOrdWizLibrary";
-        LibraryMfgManagement: Codeunit "Subc. Library Mfg. Management";
         SubcontractingMgmtLibrary: Codeunit "Subc. Management Library";
+        SubCreateProdOrdWizLibrary: Codeunit "Subc. CreateProdOrdWizLibrary";
         SubSetupLibrary: Codeunit "Subc. Setup Library";
         SubcWarehouseLibrary: Codeunit "Subc. Warehouse Library";
         IsInitialized: Boolean;
@@ -160,13 +160,15 @@ codeunit 139981 "Subc. Location Handler Test"
         Item: Record Item;
         LocationOrig: Record Location;
         LocationSub: Record Location;
+        ProdOrder: Record "Production Order";
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ProdOrder: Record "Production Order";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         TransferHeader: Record "Transfer Header";
+        TransferRoute: Record "Transfer Route";
+        TransitLocation: Record Location;
         Vendor: Record Vendor;
         CreateSubCTransfOrder: Report "Subc. Create Transf. Order";
     begin
@@ -176,6 +178,8 @@ codeunit 139981 "Subc. Location Handler Test"
         // [GIVEN] Locations: Subcontractor and Original
         LibraryWarehouse.CreateLocation(LocationSub);
         LibraryWarehouse.CreateLocation(LocationOrig);
+        LibraryWarehouse.CreateInTransitLocation(TransitLocation);
+        LibraryWarehouse.CreateAndUpdateTransferRoute(TransferRoute, LocationOrig.Code, LocationSub.Code, TransitLocation.Code, '', '');
 
         // [GIVEN] Subcontracting Scenario Setup
         CreateSubcontractingSetup(
@@ -204,13 +208,15 @@ codeunit 139981 "Subc. Location Handler Test"
         ItemJournalLine: Record "Item Journal Line";
         LocationOrig: Record Location;
         LocationSub: Record Location;
+        ProdOrder: Record "Production Order";
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
-        ProdOrder: Record "Production Order";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         TransferHeader: Record "Transfer Header";
+        TransferRoute: Record "Transfer Route";
+        TransitLocation: Record Location;
         TransferLine: Record "Transfer Line";
         Vendor: Record Vendor;
         CreateSubCTransfOrder: Report "Subc. Create Transf. Order";
@@ -228,6 +234,9 @@ codeunit 139981 "Subc. Location Handler Test"
         // [GIVEN] Locations
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationSub);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationOrig);
+        LibraryWarehouse.CreateInTransitLocation(TransitLocation);
+        LibraryWarehouse.CreateAndUpdateTransferRoute(TransferRoute, LocationOrig.Code, LocationSub.Code, TransitLocation.Code, '', '');
+
 
         // [GIVEN] Subcontracting Scenario Setup
         CreateSubcontractingSetup(
@@ -285,8 +294,8 @@ codeunit 139981 "Subc. Location Handler Test"
     var
         LocationMfg: Record Location;
         ManufacturingSetup: Record "Manufacturing Setup";
-        ProdOrderLine: Record "Prod. Order Line";
         ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
         PurchLine: Record "Purchase Line";
         ItemNo: Code[20];
     begin

@@ -10,6 +10,7 @@ using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
@@ -169,6 +170,83 @@ codeunit 149908 "Subc. Warehouse Library"
         LibraryManufacturing.CreateItemManufacturing(
             Item, "Costing Method"::FIFO, LibraryRandom.RandDec(10, 2),
             "Reordering Policy"::" ", "Flushing Method"::Backward, RoutingNo, ProductionBOMNo);
+    end;
+
+    procedure CreateParallelRoutingItemWithSubcontracting(var Item: Record Item; var MachineCenter: array[2] of Record "Machine Center"; var WorkCenter: array[2] of Record "Work Center")
+    var
+        Item2: Record Item;
+        Item3: Record Item;
+        Location: Record Location;
+        ProductionBOMHeader: Record "Production BOM Header";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Vendor1: Record Vendor;
+        Vendor2: Record Vendor;
+        WorkCenterNonSC: Record "Work Center";
+        ProductionBOMNo: Code[20];
+    begin
+        // Create non-subcontracting work center with machine centers for ops 10 and 20
+        SubcLibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenterNonSC, LibraryRandom.RandDec(10, 2));
+        LibraryManufacturing.CreateMachineCenterWithCalendar(
+            MachineCenter[1], WorkCenterNonSC."No.", LibraryRandom.RandDec(10, 1));
+        LibraryManufacturing.CreateMachineCenterWithCalendar(
+            MachineCenter[2], WorkCenterNonSC."No.", LibraryRandom.RandDec(10, 1));
+
+        // Create subcontracting work center for op 30 (parallel SC branch) with dedicated vendor + location
+        SubcLibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenter[1], LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreateSubcontractor(Vendor1);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Vendor1."Subcontr. Location Code" := Location.Code;
+        Vendor1.Modify(true);
+        WorkCenter[1]."Subcontractor No." := Vendor1."No.";
+        WorkCenter[1].Modify(true);
+
+        // Create subcontracting work center for op 40 (last SC operation) with dedicated vendor + location
+        SubcLibraryMfgManagement.CreateWorkCenterWithCalendar(WorkCenter[2], LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreateSubcontractor(Vendor2);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Vendor2."Subcontr. Location Code" := Location.Code;
+        Vendor2.Modify(true);
+        WorkCenter[2]."Subcontractor No." := Vendor2."No.";
+        WorkCenter[2].Modify(true);
+
+        // Create a PARALLEL routing: 10 → 20 | 30 → 40
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Machine Center", MachineCenter[1]."No.");
+        RoutingLine."Next Operation No." := '20|30';
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '20', RoutingLine.Type::"Machine Center", MachineCenter[2]."No.");
+        RoutingLine."Previous Operation No." := '10';
+        RoutingLine."Next Operation No." := '40';
+        RoutingLine."Transfer WIP Item" := true;
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '30', RoutingLine.Type::"Work Center", WorkCenter[1]."No.");
+        RoutingLine."Previous Operation No." := '10';
+        RoutingLine."Next Operation No." := '40';
+        RoutingLine."Transfer WIP Item" := true;
+        RoutingLine.Modify(true);
+
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '40', RoutingLine.Type::"Work Center", WorkCenter[2]."No.");
+        RoutingLine."Previous Operation No." := '20|30';
+        RoutingLine."Transfer WIP Item" := true;
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        // Create two component items and a certified production BOM
+        LibraryInventory.CreateItem(Item2);
+        LibraryInventory.CreateItem(Item3);
+        ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
+            ProductionBOMHeader, Item2."No.", Item3."No.", 1);
+
+        // Create the finished item linked to the parallel routing and production BOM
+        LibraryManufacturing.CreateItemManufacturing(
+            Item, "Costing Method"::FIFO, LibraryRandom.RandDec(10, 2),
+            "Reordering Policy"::" ", "Flushing Method"::Backward, RoutingHeader."No.", ProductionBOMNo);
     end;
 
     /// <summary>
@@ -742,7 +820,6 @@ codeunit 149908 "Subc. Warehouse Library"
             'Bin contents should show correct quantity after put-away posting');
     end;
 
-
     /// <summary>
     /// Sets up a complete subcontracting warehouse scenario including item, location, production order, and purchase order.
     /// </summary>
@@ -831,5 +908,18 @@ codeunit 149908 "Subc. Warehouse Library"
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Item.Validate("Serial Nos.", SerialNoSeries.Code);
         Item.Modify(true);
+    end;
+
+    procedure CreateTransferOrderWithWIPItemFlagWithoutRoutingReference(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; FromLocation: Code[10]; ToLocation: Code[10]; InTransitCode: Code[10]; Item: Record Item; Quantity: Decimal)
+    var
+        TransferRoute: Record "Transfer Route";
+    begin
+        if Item."No." = '' then
+            LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateTransferRoute(TransferRoute, FromLocation, ToLocation);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, InTransitCode);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Quantity);
+        TransferLine.Validate("Transfer WIP Item", true);
+        TransferLine.Modify();
     end;
 }
