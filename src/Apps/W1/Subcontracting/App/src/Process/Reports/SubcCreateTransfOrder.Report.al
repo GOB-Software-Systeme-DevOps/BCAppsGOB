@@ -302,6 +302,7 @@ report 99001501 "Subc. Create Transf. Order"
         UOMManagement: Codeunit "Unit of Measure Management";
         TransferFromLoc: Code[10];
         WIPPreviousOperationNo: Code[10];
+        QtyPerUoM: Decimal;
         WIPQtyBase: Decimal;
         WIPQtyInUOM: Decimal;
         WIPPreviousOperationNoDict: Dictionary of [Code[10], Code[10]];
@@ -330,14 +331,12 @@ report 99001501 "Subc. Create Transf. Order"
 
         Item.SetLoadFields("Base Unit of Measure", "Rounding Precision", Description, "Description 2");
         Item.Get(ProdOrderLine."Item No.");
+        QtyPerUoM := UOMManagement.GetQtyPerUnitOfMeasure(Item, PurchaseLine."Unit of Measure Code");
 
         foreach TransferFromLoc in WIPSourceLocationList do begin
             WIPQtyBase := WIPSourceQtyDict.Get(TransferFromLoc);
             WIPPreviousOperationNoDict.Get(TransferFromLoc, WIPPreviousOperationNo);
-            if ProdOrderLine."Qty. per Unit of Measure" <> 0 then
-                WIPQtyInUOM := Round(WIPQtyBase / ProdOrderLine."Qty. per Unit of Measure", UOMManagement.QtyRndPrecision())
-            else
-                WIPQtyInUOM := Round(WIPQtyBase, UOMManagement.QtyRndPrecision());
+            WIPQtyInUOM := Round(WIPQtyBase * QtyPerUoM, UOMManagement.QtyRndPrecision());
             if WIPQtyInUOM > 0 then begin
                 InsertTransferHeader(TransferFromLoc);
                 InsertWIPTransferLine(PurchaseLine, ProdOrderLine, ProdOrderRoutingLine, WIPQtyInUOM, WIPPreviousOperationNo);
@@ -359,7 +358,7 @@ report 99001501 "Subc. Create Transf. Order"
         TransferLine.Validate("Item No.", ProdOrderLine."Item No.");
         if ProdOrderLine."Variant Code" <> '' then
             TransferLine.Validate("Variant Code", ProdOrderLine."Variant Code");
-        TransferLine.Validate("Unit of Measure Code", ProdOrderLine."Unit of Measure Code");
+        TransferLine.Validate("Unit of Measure Code", PurchaseLine."Unit of Measure Code");
         TransferLine.Validate("Transfer WIP Item", true);
         TransferLine.Validate(Quantity, WIPQty);
 

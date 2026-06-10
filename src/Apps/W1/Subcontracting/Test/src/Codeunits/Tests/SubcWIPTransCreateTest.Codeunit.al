@@ -965,6 +965,88 @@ codeunit 149911 "Subc. WIP Trans. Create Test"
         until TransferLine.Next() = 0;
     end;
 
+    [Test]
+    [HandlerFunctions('DoNotConfirmShowCreatedPurchOrderForSubcontracting,HandleTransferOrder')]
+    procedure WIPTransferLineUoMMatchesPurchaseLineUoMWhenChangedAfterCreation()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        MachineCenter: array[2] of Record "Machine Center";
+        ProductionOrder: Record "Production Order";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TransferLine: Record "Transfer Line";
+        WorkCenter: array[2] of Record "Work Center";
+        PurchaseHeaderPage: TestPage "Purchase Order";
+        QtyPerUoM: Decimal;
+        ProdOrderQty: Decimal;
+    begin
+        // [SCENARIO] When the Unit of Measure Code on the subcontracting Purchase Line is changed
+        // after creation from the worksheet, the resulting WIP Transfer Order line must use the
+        // Purchase Line's Unit of Measure Code (not the Prod. Order Line's base UoM).
+
+        // [GIVEN] Complete setup
+        Initialize();
+
+        // [GIVEN] Work centers, machine centers, item with routing + BOM
+        SubcWarehouseLibrary.CreateAndCalculateNeededWorkAndMachineCenter(WorkCenter, MachineCenter, true);
+        SubcWarehouseLibrary.CreateItemForProductionIncludeRoutingAndProdBOM(Item, WorkCenter, MachineCenter);
+
+        // [GIVEN] Set "Transfer WIP Item" on the subcontracting routing line
+        SetTransferWIPItemOnRoutingLine(Item."Routing No.", WorkCenter[2]."No.", true);
+
+        // [GIVEN] Set up component transfer infrastructure
+        SubcWarehouseLibrary.UpdateProdBomAndRoutingWithRoutingLink(Item, WorkCenter[2]."No.");
+        SubcontractingMgmtLibrary.UpdateProdBomWithComponentSupplyMethod(Item, "Component Supply Method"::"Transfer to Vendor");
+        SubcontractingMgmtLibrary.UpdateVendorWithSubcontractingLocationCode(WorkCenter[2]);
+
+        // [GIVEN] Alternative UoM: 1 BOX = 10 base units (PCS); Prod Order qty is 10 (PCS)
+        QtyPerUoM := 10;
+        ProdOrderQty := QtyPerUoM; // 10 PCS → 1 BOX after UoM change
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPerUoM);
+
+        // [GIVEN] Create and refresh production order for exactly 10 PCS
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder, "Production Order Status"::Released,
+            ProductionOrder."Source Type"::Item, Item."No.", ProdOrderQty);
+
+        SetProdOrderLocationToCompSetupLocationAndRefresh(ProductionOrder);
+        SubcontractingMgmtLibrary.CreateTransferRoute(WorkCenter[2], ProductionOrder);
+
+        // [GIVEN] Create Subcontracting Purchase Order from Prod. Order Routing
+        SubcontractingMgmtLibrary.CreateSubcontractingOrderFromProdOrderRtngPage(Item."Routing No.", WorkCenter[2]."No.");
+
+        // [WHEN] Change the Purchase Line's Unit of Measure Code to the alternative UoM (BOX)
+        // This simulates the scenario described in the bug: UoM changed after worksheet creation.
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Create Transfer Order to Subcontractor
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeaderPage.OpenView();
+        PurchaseHeaderPage.GoToRecord(PurchaseHeader);
+        PurchaseHeaderPage.CreateTransfOrdToSubcontractor.Invoke();
+
+        // [THEN] WIP Transfer Line uses the Purchase Line's UoM (BOX), not the base UoM (PCS)
+        TransferLine.SetRange("Subc. Prod. Order No.", ProductionOrder."No.");
+        TransferLine.SetRange("Subc. Return Order", false);
+#pragma warning disable AA0210
+        TransferLine.SetRange("Transfer WIP Item", true);
+#pragma warning restore AA0210
+        Assert.RecordCount(TransferLine, 1);
+        TransferLine.FindFirst();
+
+        Assert.AreEqual(ItemUnitOfMeasure.Code, TransferLine."Unit of Measure Code",
+            'WIP Transfer Line must use the Purchase Line Unit of Measure Code (BOX), not the base UoM.');
+        Assert.AreEqual(PurchaseLine.Quantity, TransferLine.Quantity,
+            'WIP Transfer Line Quantity must match the Purchase Line Quantity (in BOX).');
+        Assert.AreEqual(ProdOrderQty, TransferLine."Quantity (Base)",
+            'WIP Transfer Line Quantity (Base) must equal the original base quantity (PCS).');
+    end;
+
     [PageHandler]
     procedure HandleTransferOrder(var TransfOrderPage: TestPage "Transfer Order")
     begin
