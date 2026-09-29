@@ -1409,6 +1409,12 @@ codeunit 139989 "Subc. Subcontracting Test"
         RequisitionLine.FindFirst();
 
         Assert.AreEqual(ProductionOrder."No.", RequisitionLine."Prod. Order No.", 'Prod. Order No. has not found');
+        Assert.AreEqual(RequisitionLine."Ref. Order Type"::Purchase, RequisitionLine."Ref. Order Type",
+            'A new subcontracting suggestion should have a purchase reference type.');
+        Assert.AreEqual('', RequisitionLine."Ref. Order No.", 'A new suggestion should not reference a production or purchase order.');
+        Assert.AreEqual(0, RequisitionLine."Ref. Line No.", 'A new suggestion should not reference a supply line.');
+        Assert.AreEqual(ProductionOrder."No.", RequisitionLine."Prod. Order No.",
+            'The dedicated production order identity must remain available.');
 
         CarryOutActionMsgReq.SetReqWkshLine(RequisitionLine);
         CarryOutActionMsgReq.UseRequestPage(false);
